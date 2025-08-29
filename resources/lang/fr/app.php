@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'home' => 'Accueil',
+    'about_us' => 'À propos de nous',
+    'contact' => 'Contact',
+    'sign_in' => 'Se connecter',
+    'sign_up' => 'S\'inscrire',
+    'logout' => 'Se déconnecter',
+    'dashboard' => 'Tableau de bord',
+    'email' => 'Email',
+    'password' => 'Mot de passe',
+    'car_rental' => 'Location de voiture',
+    'long_term_leasing' => 'Location longue durée',
+    'corporate_solutions' => 'Solutions d\'entreprise',
+    'quick_links' => 'Liens rapides',
+    'services' => 'Services',
+    'contact_info' => 'Informations de contact',
+    'all_rights_reserved' => 'Tous droits réservés.',
+    'vehicles' => 'Véhicules',
+    'clients' => 'Clients',
+    'contracts' => 'Contrats',
+    'insurance' => 'Assurance',
+    'maintenance' => 'Maintenance',
+    'reports' => 'Rapports',
+]; 

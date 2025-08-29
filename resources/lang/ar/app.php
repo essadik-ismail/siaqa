@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'home' => 'الرئيسية',
+    'about_us' => 'من نحن',
+    'contact' => 'اتصل بنا',
+    'sign_in' => 'تسجيل الدخول',
+    'sign_up' => 'إنشاء حساب',
+    'logout' => 'تسجيل الخروج',
+    'dashboard' => 'لوحة التحكم',
+    'email' => 'البريد الإلكتروني',
+    'password' => 'كلمة المرور',
+    'car_rental' => 'تأجير السيارات',
+    'long_term_leasing' => 'الإيجار طويل الأمد',
+    'corporate_solutions' => 'الحلول المؤسسية',
+    'quick_links' => 'روابط سريعة',
+    'services' => 'الخدمات',
+    'contact_info' => 'معلومات الاتصال',
+    'all_rights_reserved' => 'جميع الحقوق محفوظة.',
+    'vehicles' => 'المركبات',
+    'clients' => 'العملاء',
+    'contracts' => 'العقود',
+    'insurance' => 'التأمين',
+    'maintenance' => 'الصيانة',
+    'reports' => 'التقارير',
+]; 
