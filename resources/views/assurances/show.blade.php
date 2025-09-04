@@ -7,7 +7,7 @@
     <div class="flex justify-between items-center mb-8">
         <div>
             <h2 class="text-3xl font-bold text-gray-800 mb-2">Détails de l'Assurance</h2>
-            <p class="text-gray-600 text-lg">{{ $assurance->compagnie }} - {{ $assurance->numero_police }}</p>
+            <p class="text-gray-600 text-lg">{{ $assurance->numero_assurance }} - {{ $assurance->numero_police }}</p>
         </div>
         <div class="flex space-x-3">
             <a href="{{ route('assurances.edit', $assurance) }}" class="btn-primary flex items-center space-x-3 px-6 py-3">
@@ -30,8 +30,8 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-2">Compagnie d'assurance</label>
-                        <p class="text-lg font-medium text-gray-900">{{ $assurance->compagnie }}</p>
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Numéro d'assurance</label>
+                        <p class="text-lg font-medium text-gray-900">{{ $assurance->numero_assurance }}</p>
                     </div>
                     
                     <div>
@@ -40,83 +40,57 @@
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-2">Type d'assurance</label>
-                        <p class="text-lg font-medium text-gray-900">{{ ucfirst(str_replace('_', ' ', $assurance->type_assurance)) }}</p>
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Prix</label>
+                        <p class="text-lg font-medium text-gray-900">{{ number_format($assurance->prix, 2) }} €</p>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-2">Statut</label>
-                        <div class="mt-1">
-                            @if($assurance->statut == 'active')
-                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
-                                    <i class="fas fa-check mr-2"></i>Active
-                                </span>
-                            @elseif($assurance->statut == 'expiree')
-                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-red-100 text-red-800 border border-red-200">
-                                    <i class="fas fa-exclamation-triangle mr-2"></i>Expirée
-                                </span>
-                            @elseif($assurance->statut == 'resiliee')
-                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800 border border-gray-200">
-                                    <i class="fas fa-ban mr-2"></i>Résiliée
-                                </span>
-                            @else
-                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
-                                    <i class="fas fa-clock mr-2"></i>En attente
-                                </span>
-                            @endif
-                        </div>
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Période</label>
+                        <p class="text-lg font-medium text-gray-900">{{ $assurance->periode ?? 'Non spécifié' }}</p>
                     </div>
                 </div>
 
                 <!-- Dates -->
                 <div class="mt-8 pt-6 border-t border-gray-200">
-                    <h4 class="text-lg font-medium text-gray-800 mb-4">Période de validité</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <h4 class="text-lg font-medium text-gray-800 mb-4">Dates importantes</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Date de début</label>
-                            <p class="text-lg font-medium text-gray-900">{{ \Carbon\Carbon::parse($assurance->date_debut)->format('d/m/Y') }}</p>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Date</label>
+                            <p class="text-lg font-medium text-gray-900">{{ $assurance->date->format('d/m/Y') }}</p>
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Date d'expiration</label>
-                            <p class="text-lg font-medium text-gray-900">{{ \Carbon\Carbon::parse($assurance->date_expiration)->format('d/m/Y') }}</p>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Date prochaine</label>
+                            <p class="text-lg font-medium text-gray-900">{{ $assurance->date_prochaine->format('d/m/Y') }}</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Date de règlement</label>
+                            <p class="text-lg font-medium text-gray-900">{{ $assurance->date_reglement->format('d/m/Y') }}</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Financial Information -->
+                <!-- Files -->
+                @if($assurance->hasFiles())
                 <div class="mt-8 pt-6 border-t border-gray-200">
-                    <h4 class="text-lg font-medium text-gray-800 mb-4">Informations financières</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Coût annuel</label>
-                            <p class="text-lg font-medium text-gray-900">
-                                @if($assurance->cout_annuel)
-                                    {{ number_format($assurance->cout_annuel, 2) }} €
-                                @else
-                                    <span class="text-gray-400">Non spécifié</span>
-                                @endif
-                            </p>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-2">Franchise</label>
-                            <p class="text-lg font-medium text-gray-900">
-                                @if($assurance->franchise)
-                                    {{ number_format($assurance->franchise, 2) }} €
-                                @else
-                                    <span class="text-gray-400">Non spécifié</span>
-                                @endif
-                            </p>
-                        </div>
+                    <h4 class="text-lg font-medium text-gray-800 mb-4">Fichiers</h4>
+                    <div class="space-y-2">
+                        @foreach($assurance->file_urls as $url)
+                            <a href="{{ $url }}" target="_blank" class="flex items-center text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-file mr-2"></i>
+                                {{ basename($url) }}
+                            </a>
+                        @endforeach
                     </div>
                 </div>
+                @endif
 
-                <!-- Notes -->
-                @if($assurance->notes)
+                <!-- Description -->
+                @if($assurance->description)
                 <div class="mt-8 pt-6 border-t border-gray-200">
-                    <h4 class="text-lg font-medium text-gray-800 mb-4">Notes</h4>
-                    <p class="text-gray-700">{{ $assurance->notes }}</p>
+                    <h4 class="text-lg font-medium text-gray-800 mb-4">Description</h4>
+                    <p class="text-gray-700">{{ $assurance->description }}</p>
                 </div>
                 @endif
             </div>
@@ -152,27 +126,25 @@
                 <h4 class="text-lg font-medium text-gray-800 mb-4">Statut de l'assurance</h4>
                 
                 @php
-                    $daysUntilExpiry = \Carbon\Carbon::parse($assurance->date_expiration)->diffInDays(now(), false);
+                    $daysUntilExpiry = $assurance->date_prochaine->diffInDays(now(), false);
                 @endphp
                 
                 <div class="space-y-3">
-                    @if($assurance->statut == 'active')
-                        @if($daysUntilExpiry > 30)
-                            <div class="flex items-center text-green-600">
-                                <i class="fas fa-check-circle mr-2"></i>
-                                <span class="text-sm">Valide pour {{ $daysUntilExpiry }} jours</span>
-                            </div>
-                        @elseif($daysUntilExpiry > 0)
-                            <div class="flex items-center text-yellow-600">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>
-                                <span class="text-sm">Expire dans {{ $daysUntilExpiry }} jours</span>
-                            </div>
-                        @else
-                            <div class="flex items-center text-red-600">
-                                <i class="fas fa-times-circle mr-2"></i>
-                                <span class="text-sm">Expirée depuis {{ abs($daysUntilExpiry) }} jours</span>
-                            </div>
-                        @endif
+                    @if($daysUntilExpiry > 30)
+                        <div class="flex items-center text-green-600">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <span class="text-sm">Valide pour {{ $daysUntilExpiry }} jours</span>
+                        </div>
+                    @elseif($daysUntilExpiry > 0)
+                        <div class="flex items-center text-yellow-600">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <span class="text-sm">Expire dans {{ $daysUntilExpiry }} jours</span>
+                        </div>
+                    @else
+                        <div class="flex items-center text-red-600">
+                            <i class="fas fa-times-circle mr-2"></i>
+                            <span class="text-sm">Expirée depuis {{ abs($daysUntilExpiry) }} jours</span>
+                        </div>
                     @endif
                     
                     <div class="flex items-center text-gray-600">

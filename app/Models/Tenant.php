@@ -11,22 +11,21 @@ class Tenant extends Model
 
     protected $fillable = [
         'name',
+        'company_name',
         'domain',
-        'database',
-        'subscription_plan',
-        'stripe_customer_id',
-        'stripe_subscription_id',
+        'contact_email',
+        'contact_phone',
+        'address',
+        'notes',
         'trial_ends_at',
-        'subscription_ends_at',
+        'max_users',
+        'max_vehicles',
         'is_active',
-        'settings',
     ];
 
     protected $casts = [
         'trial_ends_at' => 'datetime',
-        'subscription_ends_at' => 'datetime',
         'is_active' => 'boolean',
-        'settings' => 'array',
     ];
 
     public function subscription()
@@ -44,14 +43,34 @@ class Tenant extends Model
         return $this->hasMany(Invoice::class);
     }
 
-    public function agences()
+    public function agence()
     {
-        return $this->hasMany(Agence::class);
+        return $this->hasOne(Agence::class);
     }
 
     public function users()
     {
         return $this->hasMany(User::class);
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    public function contrats()
+    {
+        return $this->hasMany(Contrat::class);
+    }
+
+    public function clients()
+    {
+        return $this->hasMany(Client::class);
+    }
+
+    public function vehicules()
+    {
+        return $this->hasMany(Vehicule::class);
     }
 
     public function isOnTrial()
@@ -61,7 +80,7 @@ class Tenant extends Model
 
     public function hasActiveSubscription()
     {
-        return $this->subscription_ends_at && $this->subscription_ends_at->isFuture();
+        return $this->subscription && $this->subscription->status === 'active';
     }
 
     public function canAccessFeature(string $feature): bool
@@ -84,5 +103,39 @@ class Tenant extends Model
         }
 
         return $usage->usage_count < $usage->limit;
+    }
+    
+    /**
+     * Get tenant status for display
+     */
+    public function getStatusAttribute(): string
+    {
+        if (!$this->is_active) {
+            return 'suspended';
+        }
+        
+        if ($this->isOnTrial()) {
+            return 'trial';
+        }
+        
+        if ($this->hasActiveSubscription()) {
+            return 'active';
+        }
+        
+        return 'expired';
+    }
+    
+    /**
+     * Get status color for display
+     */
+    public function getStatusColorAttribute(): string
+    {
+        return match($this->status) {
+            'active' => 'green',
+            'trial' => 'blue',
+            'suspended' => 'red',
+            'expired' => 'yellow',
+            default => 'gray'
+        };
     }
 } 

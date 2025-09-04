@@ -1,43 +1,9 @@
 @extends('layouts.landing-page')
 
-@section('title', 'Ridex - Rent your favourite car')
+@section('title', 'Odys - Rent your favourite car')
 
 @section('content')
-<!-- Hero Section -->
-<section class="section hero" id="home">
-    <div class="container">
-        <div class="hero-content">
-            <h2 class="h1 hero-title">The easy way to takeover a lease</h2>
-            <p class="hero-text">
-                Live in New York, New Jerset and Connecticut!
-            </p>
-        </div>
 
-        <div class="hero-banner"></div>
-
-        <form action="{{ route('landing.cars') }}" method="GET" class="hero-form">
-            <div class="input-wrapper">
-                <label for="input-1" class="input-label">Car, model, or brand</label>
-                <input type="text" name="search" id="input-1" class="input-field" 
-                       placeholder="What car are you looking?" value="{{ request('search') }}">
-                </div>
-                
-            <div class="input-wrapper">
-                <label for="input-2" class="input-label">Max. monthly payment</label>
-                <input type="number" name="prix_max" id="input-2" class="input-field" 
-                       placeholder="Add an amount in $" value="{{ request('prix_max') }}">
-                </div>
-                
-            <div class="input-wrapper">
-                <label for="input-3" class="input-label">Make Year</label>
-                <input type="number" name="annee" id="input-3" class="input-field" 
-                       placeholder="Add a minimal make year" value="{{ request('annee') }}">
-            </div>
-
-            <button type="submit" class="btn">Search</button>
-        </form>
-    </div>
-</section>
 
 <!-- Featured Cars Section -->
 <section class="section featured-car" id="featured-car">
@@ -55,7 +21,7 @@
             <li>
                 <div class="featured-car-card">
                     <figure class="card-banner">
-                        <img src="{{ $car->image_url ?? asset('app/Rent-Car2/assets/images/car-1.jpg') }}" 
+                        <img src="{{ $car->image_url }}" 
                              alt="{{ $car->name }}" loading="lazy" width="440" height="300" class="w-100">
                     </figure>
 
@@ -91,7 +57,7 @@
 
                         <div class="card-price-wrapper">
                             <p class="card-price">
-                                <strong>${{ number_format($car->prix_jour) }}</strong> / day
+                                <strong>{{ number_format($car->prix_location_jour) }} DH</strong> / day
                             </p>
 
                             <button class="btn fav-btn" aria-label="Add to favourite list" 
@@ -156,7 +122,7 @@
                     <ion-icon name="happy-outline"></ion-icon>
                             </div>
                 <div class="stats-content">
-                    <h3 class="stats-number">1000+</h3>
+                    <h3 class="stats-number">{{ $totalCustomers > 1000 ? '1000+' : $totalCustomers }}</h3>
                     <p class="stats-text">Happy Customers</p>
                         </div>
                     </div>
@@ -230,7 +196,7 @@
         <div class="modal-header">
             <h3>Reserve This Vehicle</h3>
             <span class="close" onclick="hideReservationModal()">&times;</span>
-                    </div>
+        </div>
         
         <form id="reservationForm" method="POST" action="{{ route('landing.reservation.store') }}" class="modal-body">
             @csrf
@@ -238,37 +204,49 @@
             
             <div class="form-group">
                 <label for="nom">Full Name</label>
-                <input type="text" id="nom" name="nom" required class="form-control">
-                    </div>
+                <input type="text" id="nom" name="nom" required class="form-control" value="{{ old('nom') }}">
+                <div class="error-message" id="nom-error" style="display: none;"></div>
+            </div>
             
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" required class="form-control">
-                    </div>
+                <input type="email" id="email" name="email" required class="form-control" value="{{ old('email') }}">
+                <div class="error-message" id="email-error" style="display: none;"></div>
+            </div>
             
             <div class="form-group">
                 <label for="telephone">Phone</label>
-                <input type="tel" id="telephone" name="telephone" required class="form-control">
-                        </div>
+                <input type="tel" id="telephone" name="telephone" required class="form-control" value="{{ old('telephone') }}">
+                <div class="error-message" id="telephone-error" style="display: none;"></div>
+            </div>
             
             <div class="form-group">
                 <label for="adresse">Address</label>
-                <textarea id="adresse" name="adresse" required class="form-control"></textarea>
-                    </div>
+                <textarea id="adresse" name="adresse" required class="form-control">{{ old('adresse') }}</textarea>
+                <div class="error-message" id="adresse-error" style="display: none;"></div>
+            </div>
             
             <div class="form-group">
                 <label for="date_debut">Pickup Date</label>
-                <input type="date" id="date_debut" name="date_debut" required min="{{ date('Y-m-d') }}" class="form-control">
+                <input type="date" id="date_debut" name="date_debut" required min="{{ date('Y-m-d') }}" class="form-control" value="{{ old('date_debut') }}">
+                <div class="error-message" id="date_debut-error" style="display: none;"></div>
             </div>
             
             <div class="form-group">
                 <label for="date_fin">Return Date</label>
-                <input type="date" id="date_fin" name="date_fin" required min="{{ date('Y-m-d', strtotime('+1 day')) }}" class="form-control">
-    </div>
-
+                <input type="date" id="date_fin" name="date_fin" required min="{{ date('Y-m-d', strtotime('+1 day')) }}" class="form-control" value="{{ old('date_fin') }}">
+                <div class="error-message" id="date_fin-error" style="display: none;"></div>
+            </div>
+            
+            <!-- General error message for non-field specific errors -->
+            <div class="error-message general-error" id="general-error" style="display: none;"></div>
+            
             <div class="form-actions">
                 <button type="button" onclick="hideReservationModal()" class="btn btn-secondary">Cancel</button>
-                <button type="submit" class="btn btn-primary">Reserve Vehicle</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="btn-text">Reserve Vehicle</span>
+                    <span class="btn-loading" style="display: none;">Processing...</span>
+                </button>
             </div>
         </form>
     </div>
@@ -344,12 +322,53 @@
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 14px;
+    transition: border-color 0.3s ease;
 }
 
 .form-control:focus {
     outline: none;
     border-color: var(--carolina-blue);
     box-shadow: 0 0 0 2px rgba(204, 91%, 53%, 0.2);
+}
+
+.form-control.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+/* Error message styles */
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    padding: 5px 8px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.error-message::before {
+    content: "⚠";
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+.error-message.general-error {
+    margin-bottom: 15px;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* Loading button styles */
+.btn-loading {
+    display: none;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .form-actions {
@@ -478,6 +497,42 @@
     color: var(--deep-cerise);
 }
 
+/* Error styling for form validation */
+.form-control.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.error-message.general-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+.success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #d4edda;
+    color: #155724;
+    padding: 15px 20px;
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    z-index: 10000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 300px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .stats-grid {
@@ -504,12 +559,18 @@
     <script>
 // Reservation Modal Functions
 function showReservationModal(vehiculeId) {
+    // Clear any previous errors
+    clearAllErrors();
+    
     document.getElementById('vehicule_id').value = vehiculeId;
     document.getElementById('reservationModal').style.display = 'block';
 }
 
 function hideReservationModal() {
     document.getElementById('reservationModal').style.display = 'none';
+    // Clear form and errors when closing
+    clearAllErrors();
+    document.getElementById('reservationForm').reset();
 }
 
 // Close modal when clicking outside
@@ -545,10 +606,315 @@ document.getElementById('date_debut').addEventListener('change', function() {
     }
 });
 
+// Clear all error messages
+function clearAllErrors() {
+    const errorElements = document.querySelectorAll('.error-message');
+    errorElements.forEach(error => {
+        error.style.display = 'none';
+        error.textContent = '';
+    });
+    
+    // Remove error class from form controls
+    const formControls = document.querySelectorAll('.form-control');
+    formControls.forEach(control => {
+        control.classList.remove('error');
+    });
+}
+
+// Show error for specific field
+function showFieldError(fieldName, message) {
+    const errorElement = document.getElementById(fieldName + '-error');
+    const inputElement = document.getElementById(fieldName);
+    
+    if (errorElement && inputElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        inputElement.classList.add('error');
+    }
+}
+
+// Show general error
+function showGeneralError(message) {
+    const errorElement = document.getElementById('general-error');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+}
+
+// Show success message
+function showSuccessMessage(message) {
+    // Create a temporary success message
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #d4edda;
+        color: #155724;
+        padding: 15px 20px;
+        border: 1px solid #c3e6cb;
+        border-radius: 5px;
+        z-index: 10000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 300px;
+    `;
+    successDiv.innerHTML = `
+        <div style="display: flex; align-items: center;">
+            <span style="margin-right: 10px; font-size: 18px;">✓</span>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        if (successDiv.parentNode) {
+            successDiv.parentNode.removeChild(successDiv);
+        }
+    }, 5000);
+}
+
+// Real-time validation functions
+function validateField(fieldName, value) {
+    const errorElement = document.getElementById(fieldName + '-error');
+    const inputElement = document.getElementById(fieldName);
+    
+    // Clear previous error
+    if (errorElement) {
+        errorElement.style.display = 'none';
+        errorElement.textContent = '';
+    }
+    if (inputElement) {
+        inputElement.classList.remove('error');
+    }
+    
+    // Validate based on field type
+    switch (fieldName) {
+        case 'nom':
+            if (!value.trim()) {
+                showFieldError(fieldName, 'Full name is required');
+                return false;
+            }
+            if (value.trim().length < 2) {
+                showFieldError(fieldName, 'Full name must be at least 2 characters');
+                return false;
+            }
+            break;
+            
+        case 'email':
+            if (!value.trim()) {
+                showFieldError(fieldName, 'Email is required');
+                return false;
+            }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                showFieldError(fieldName, 'Please enter a valid email address');
+                return false;
+            }
+            break;
+            
+        case 'telephone':
+            if (!value.trim()) {
+                showFieldError(fieldName, 'Phone number is required');
+                return false;
+            }
+            const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+            if (!phoneRegex.test(value)) {
+                showFieldError(fieldName, 'Please enter a valid phone number');
+                return false;
+            }
+            break;
+            
+        case 'adresse':
+            if (!value.trim()) {
+                showFieldError(fieldName, 'Address is required');
+                return false;
+            }
+            if (value.trim().length < 10) {
+                showFieldError(fieldName, 'Address must be at least 10 characters');
+                return false;
+            }
+            break;
+            
+        case 'date_debut':
+            if (!value) {
+                showFieldError(fieldName, 'Pickup date is required');
+                return false;
+            }
+            // Parse date in YYYY-MM-DD format
+            const startDate = new Date(value + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Check if date is valid
+            if (isNaN(startDate.getTime())) {
+                showFieldError(fieldName, 'Please enter a valid date');
+                return false;
+            }
+            
+            if (startDate < today) {
+                showFieldError(fieldName, 'Pickup date cannot be in the past');
+                return false;
+            }
+            break;
+            
+        case 'date_fin':
+            if (!value) {
+                showFieldError(fieldName, 'Return date is required');
+                return false;
+            }
+            // Parse date in YYYY-MM-DD format
+            const endDate = new Date(value + 'T00:00:00');
+            
+            // Check if date is valid
+            if (isNaN(endDate.getTime())) {
+                showFieldError(fieldName, 'Please enter a valid date');
+                return false;
+            }
+            
+            const startDateValue = document.getElementById('date_debut').value;
+            if (startDateValue) {
+                const startDate = new Date(startDateValue + 'T00:00:00');
+                if (endDate <= startDate) {
+                    showFieldError(fieldName, 'Return date must be after pickup date');
+                    return false;
+                }
+            }
+            break;
+    }
+    
+    return true;
+}
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
-    // Any additional initialization code
-    console.log('Ridex landing page loaded successfully!');
+    const reservationForm = document.getElementById('reservationForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+    
+    // Add real-time validation to all form fields
+    const formFields = ['nom', 'email', 'telephone', 'adresse', 'date_debut', 'date_fin'];
+    
+    formFields.forEach(fieldName => {
+        const field = document.getElementById(fieldName);
+        if (field) {
+            // Validate on input (as user types)
+            field.addEventListener('input', function() {
+                // Add a small delay to avoid too frequent validation
+                clearTimeout(this.validationTimeout);
+                this.validationTimeout = setTimeout(() => {
+                    validateField(fieldName, this.value);
+                }, 500);
+            });
+            
+            // Validate on blur (when user leaves field)
+            field.addEventListener('blur', function() {
+                validateField(fieldName, this.value);
+            });
+            
+            // For date fields, also validate when date changes
+            if (fieldName === 'date_debut') {
+                field.addEventListener('change', function() {
+                    validateField(fieldName, this.value);
+                    // Also re-validate end date if it exists
+                    const endDateField = document.getElementById('date_fin');
+                    if (endDateField.value) {
+                        validateField('date_fin', endDateField.value);
+                    }
+                });
+            }
+            
+            if (fieldName === 'date_fin') {
+                field.addEventListener('change', function() {
+                    validateField(fieldName, this.value);
+                });
+            }
+        }
+    });
+    
+    if (reservationForm) {
+        reservationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            clearAllErrors();
+            
+            // Validate all fields before submission
+            let isValid = true;
+            const formData = new FormData(reservationForm);
+            
+            formFields.forEach(fieldName => {
+                const value = formData.get(fieldName);
+                if (!validateField(fieldName, value)) {
+                    isValid = false;
+                }
+            });
+            
+            // If validation fails, don't submit
+            if (!isValid) {
+                showGeneralError('Please fix the errors above before submitting.');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
+            
+            // Submit via AJAX
+            fetch(reservationForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Success - close modal and show success message
+                    hideReservationModal();
+                    showSuccessMessage(data.message || 'Reservation submitted successfully!');
+                } else {
+                    // Handle validation errors
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            const errorMessages = data.errors[field];
+                            if (Array.isArray(errorMessages)) {
+                                showFieldError(field, errorMessages[0]);
+                            } else {
+                                showFieldError(field, errorMessages);
+                            }
+                        });
+                    } else if (data.message) {
+                        showGeneralError(data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showGeneralError('An error occurred while processing your reservation. Please try again or contact support.');
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+            });
         });
+    }
+    
+    console.log('Odys landing page loaded successfully!');
+});
     </script>
 @endpush

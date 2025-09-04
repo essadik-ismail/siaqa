@@ -83,7 +83,7 @@
                                             id="agency_id" name="agency_id">
                                         <option value="">Select Agency</option>
                                         @foreach($agencies as $agency)
-                                            <option value="{{ $agency->id }}" {{ old('agency_id', $user->agency_id) == $agency->id ? 'selected' : '' }}>
+                                            <option value="{{ $agency->id }}" {{ old('agency_id', $user->agence_id) == $agency->id ? 'selected' : '' }}>
                                                 {{ $agency->nom_agence }}
                                             </option>
                                         @endforeach

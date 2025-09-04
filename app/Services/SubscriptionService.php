@@ -15,11 +15,36 @@ class SubscriptionService
 
     public function __construct()
     {
-        $this->stripe = new StripeClient(config('services.stripe.secret'));
+        try {
+            if (class_exists(StripeClient::class) && config('services.stripe.secret')) {
+                $this->stripe = new StripeClient(config('services.stripe.secret'));
+            } else {
+                $this->stripe = null;
+                Log::warning('Stripe not configured or StripeClient class not found');
+            }
+        } catch (\Exception $e) {
+            $this->stripe = null;
+            Log::warning('Failed to initialize Stripe: ' . $e->getMessage());
+        }
     }
 
     public function createSubscription(Tenant $tenant, string $planId)
     {
+        if (!$this->stripe) {
+            // Fallback: create local subscription without Stripe
+            $subscription = Subscription::create([
+                'tenant_id' => $tenant->id,
+                'plan_name' => $this->getPlanNameFromPriceId($planId),
+                'stripe_subscription_id' => null,
+                'starts_at' => now(),
+                'status' => 'active',
+                'features' => $this->getPlanFeatures($planId),
+            ]);
+            
+            Log::info('Created local subscription (Stripe not available) for tenant: ' . $tenant->domain);
+            return $subscription;
+        }
+
         try {
             $subscription = $this->stripe->subscriptions->create([
                 'customer' => $tenant->stripe_customer_id,
@@ -31,7 +56,7 @@ class SubscriptionService
             ]);
 
             // Create local subscription record
-            Subscription::create([
+            $subscription = Subscription::create([
                 'tenant_id' => $tenant->id,
                 'plan_name' => $this->getPlanNameFromPriceId($planId),
                 'stripe_subscription_id' => $subscription->id,
@@ -49,27 +74,35 @@ class SubscriptionService
 
     public function cancelSubscription(Tenant $tenant)
     {
+        // Update local subscription regardless of Stripe availability
+        $subscription = $tenant->subscription;
+        if ($subscription) {
+            $subscription->update([
+                'status' => 'canceled',
+                'ends_at' => now(),
+            ]);
+        }
+
+        if (!$this->stripe || !$tenant->stripe_subscription_id) {
+            Log::info('Cancelled local subscription (Stripe not available) for tenant: ' . $tenant->domain);
+            return;
+        }
+
         try {
-            if ($tenant->stripe_subscription_id) {
-                $this->stripe->subscriptions->cancel($tenant->stripe_subscription_id);
-                
-                // Update local subscription
-                $subscription = $tenant->subscription;
-                if ($subscription) {
-                    $subscription->update([
-                        'status' => 'canceled',
-                        'ends_at' => now(),
-                    ]);
-                }
-            }
+            $this->stripe->subscriptions->cancel($tenant->stripe_subscription_id);
         } catch (\Exception $e) {
-            Log::error('Failed to cancel subscription: ' . $e->getMessage());
-            throw $e;
+            Log::error('Failed to cancel Stripe subscription: ' . $e->getMessage());
+            // Don't throw - local subscription is already cancelled
         }
     }
 
     public function updatePaymentMethod(Tenant $tenant, string $paymentMethodId)
     {
+        if (!$this->stripe || !$tenant->stripe_customer_id) {
+            Log::info('Payment method update skipped (Stripe not available) for tenant: ' . $tenant->domain);
+            return;
+        }
+
         try {
             $this->stripe->customers->update($tenant->stripe_customer_id, [
                 'invoice_settings' => [

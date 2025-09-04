@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('agences', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->nullable()->constrained();
+            $table->foreignId('tenant_id')->unique()->constrained()->onDelete('cascade');
             $table->string('logo')->nullable();
             $table->string('nom_agence')->nullable();
             $table->string('adresse')->nullable();

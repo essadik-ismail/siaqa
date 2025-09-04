@@ -33,7 +33,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-red-100 text-sm font-medium">Total Revenue</p>
-                    <p class="text-3xl font-bold">${{ number_format($stats['total_revenue'] ?? 95540) }}</p>
+                    <p class="text-3xl font-bold">{{ number_format($stats['total_revenue'] ?? 95540) }} DH</p>
                 </div>
                 <div class="w-12 h-12 bg-red-400 rounded-lg flex items-center justify-center">
                     <i class="fas fa-dollar-sign text-xl"></i>
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Admin Management Section -->
-    @if(auth()->user()->isAdmin())
+    @if(auth()->user()->isSuperAdmin())
     <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-2xl font-bold text-gray-800">Admin Management</h2>
@@ -152,6 +152,10 @@
                     <i class="fas fa-car mr-2"></i>
                     Manage Landing Cars
                 </a>
+                <a href="{{ route('saas.system-diagnostics') }}" class="inline-flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                    <i class="fas fa-heartbeat mr-2"></i>
+                    System Diagnostics
+                </a>
             </div>
         </div>
     </div>
@@ -160,40 +164,68 @@
     <!-- Tabs -->
     <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
         <div class="flex space-x-1 mb-6">
-            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium">Vehicles</button>
-            <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Reservations</button>
-            <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Contracts</button>
+            <button id="vehicles-tab" class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium tab-button active" data-tab="vehicles">Vehicles</button>
+            <button id="reservations-tab" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg tab-button" data-tab="reservations">Reservations</button>
+            <button id="contracts-tab" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg tab-button" data-tab="contracts">Contracts</button>
         </div>
 
-        <!-- Vehicle Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold">Total Estimated Revenue</h3>
-                    <div class="w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center">
-                        <span class="text-2xl font-bold">88%</span>
+        <!-- Tab Content -->
+        <div id="tab-content">
+            <!-- Vehicles Tab Content -->
+            <div id="vehicles-content" class="tab-panel">
+                <!-- Vehicle Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold">Total Estimated Revenue</h3>
+                            <div class="w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center">
+                                <span class="text-2xl font-bold">{{ $stats['estimated_utilization'] ?? 0 }}%</span>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold">{{ number_format($stats['estimated_revenue'] ?? 0) }} DH</p>
+                        <div class="mt-4">
+                            <div class="w-full bg-blue-400 rounded-full h-2">
+                                <div class="bg-white h-2 rounded-full" style="width: {{ $stats['estimated_utilization'] ?? 0 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold">Total Actual Revenue</h3>
+                            <div class="w-16 h-16 bg-green-400 rounded-full flex items-center justify-center">
+                                <span class="text-2xl font-bold">{{ $stats['actual_utilization'] ?? 0 }}%</span>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold">{{ number_format($stats['actual_revenue'] ?? 0) }} DH</p>
+                        <div class="mt-4">
+                            <div class="w-full bg-green-400 rounded-full h-2">
+                                <div class="bg-white h-2 rounded-full" style="width: {{ $stats['actual_utilization'] ?? 0 }}%"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <p class="text-3xl font-bold">${{ number_format($stats['estimated_revenue'] ?? 325975) }}</p>
-                <div class="mt-4">
-                    <div class="w-full bg-blue-400 rounded-full h-2">
-                        <div class="bg-white h-2 rounded-full" style="width: 88%"></div>
-                    </div>
+
+                <!-- Recent Vehicles -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Vehicles</h3>
+                    @include('dashboard.partials.vehicles', ['data' => $recentVehicles])
                 </div>
             </div>
 
-            <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold">Total Actual Revenue</h3>
-                    <div class="w-16 h-16 bg-green-400 rounded-full flex items-center justify-center">
-                        <span class="text-2xl font-bold">59%</span>
-                    </div>
+            <!-- Reservations Tab Content -->
+            <div id="reservations-content" class="tab-panel hidden">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Reservations</h3>
+                    @include('dashboard.partials.reservations', ['data' => $recentReservations])
                 </div>
-                <p class="text-3xl font-bold">${{ number_format($stats['actual_revenue'] ?? 302754) }}</p>
-                <div class="mt-4">
-                    <div class="w-full bg-green-400 rounded-full h-2">
-                        <div class="bg-white h-2 rounded-full" style="width: 59%"></div>
-                    </div>
+            </div>
+
+            <!-- Contracts Tab Content -->
+            <div id="contracts-content" class="tab-panel hidden">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Contracts</h3>
+                    @include('dashboard.partials.contracts', ['data' => $recentContracts])
                 </div>
             </div>
         </div>
@@ -222,7 +254,7 @@
         <div class="relative chart-container">
             <canvas id="revenueChart"></canvas>
             <div class="absolute top-0 right-0 bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-medium">
-                ${{ number_format($stats['current_month_revenue'] ?? 6230) }}
+                {{ number_format($stats['current_month_revenue'] ?? 0) }} DH
             </div>
         </div>
     </div>
@@ -240,7 +272,7 @@
             @endfor
         </div>
         <div class="bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-medium inline-block">
-            ${{ number_format($stats['current_clients_revenue'] ?? 6230) }}
+            {{ number_format($stats['current_clients_revenue'] ?? 6230) }} DH
         </div>
     </div>
 
@@ -289,21 +321,77 @@
 
 @push('scripts')
 <script>
-// Revenue Chart
+// Tab functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // Remove active class from all buttons
+            tabButtons.forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white');
+                btn.classList.add('text-gray-600', 'hover:bg-gray-100');
+            });
+            
+            // Add active class to clicked button
+            this.classList.add('bg-blue-500', 'text-white');
+            this.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            
+            // Hide all panels
+            tabPanels.forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            
+            // Show target panel
+            const targetPanel = document.getElementById(targetTab + '-content');
+            if (targetPanel) {
+                targetPanel.classList.remove('hidden');
+            }
+            
+            // Load data for the tab if it's not vehicles (which loads by default)
+            if (targetTab !== 'vehicles') {
+                loadTabData(targetTab);
+            }
+        });
+    });
+});
+
+// Load tab data via AJAX
+function loadTabData(tab) {
+    const contentDiv = document.getElementById(tab + '-content');
+    if (contentDiv && !contentDiv.dataset.loaded) {
+        fetch(`{{ route('dashboard.tab-data') }}?tab=${tab}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    contentDiv.innerHTML = data.html;
+                    contentDiv.dataset.loaded = 'true';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading tab data:', error);
+            });
+    }
+}
+
+// Revenue Chart with real data
 const revenueCtx = document.getElementById('revenueChart').getContext('2d');
 const revenueChart = new Chart(revenueCtx, {
     type: 'bar',
     data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: @json($chartData['months']),
         datasets: [{
             label: 'Revenue',
-            data: [12000, 19000, 15000, 25000, 22000, 30000],
+            data: @json($chartData['revenue']),
             backgroundColor: 'rgba(239, 68, 68, 0.8)',
             borderColor: 'rgba(239, 68, 68, 1)',
             borderWidth: 1
         }, {
             label: 'Reservations',
-            data: [45, 67, 52, 89, 78, 95],
+            data: @json($chartData['reservations']),
             backgroundColor: 'rgba(59, 130, 246, 0.8)',
             borderColor: 'rgba(59, 130, 246, 1)',
             borderWidth: 1
@@ -317,7 +405,7 @@ const revenueChart = new Chart(revenueCtx, {
                 beginAtZero: true,
                 ticks: {
                     callback: function(value) {
-                        return '$' + value.toLocaleString();
+                        return value.toLocaleString() + ' DH';
                     }
                 }
             }

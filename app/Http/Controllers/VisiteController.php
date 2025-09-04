@@ -15,8 +15,17 @@ class VisiteController extends Controller
      */
     public function index(): View
     {
-        $visites = Visite::paginate(10);
-        return view('visites.index', compact('visites'));
+        $visites = Visite::where('tenant_id', auth()->user()->tenant_id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // Get all vehicles for the filter dropdown
+        $vehicules = Vehicule::with('marque')
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('visites.index', compact('visites', 'vehicules'));
     }
 
     /**
@@ -24,8 +33,9 @@ class VisiteController extends Controller
      */
     public function create(): View
     {
-        $vehicules = Vehicule::where('is_active', true)
-            ->with(['marque', 'agence'])
+        $vehicules = Vehicule::with('marque')
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('visites.create', compact('vehicules'));
@@ -41,11 +51,17 @@ class VisiteController extends Controller
             'date_visite' => 'required|date',
             'type_visite' => 'required|string|max:255',
             'statut' => 'required|in:planifiée,en_cours,terminée,annulée',
-            'notes' => 'nullable|string',
+            'observations' => 'nullable|string',
             'cout' => 'nullable|numeric|min:0',
         ]);
 
-        Visite::create($validated);
+        $data = $validated;
+        $data['tenant_id'] = auth()->user()->tenant_id;
+        // Map cout to prix for backward compatibility
+        if (isset($data['cout'])) {
+            $data['prix'] = $data['cout'];
+        }
+        Visite::create($data);
 
         return redirect()->route('visites.index')
             ->with('success', 'Visite créée avec succès.');
@@ -64,7 +80,18 @@ class VisiteController extends Controller
      */
     public function edit(Visite $visite): View
     {
-        return view('visites.edit', compact('visite'));
+        // Ensure the visite belongs to the current tenant
+        if ($visite->tenant_id !== auth()->user()->tenant_id) {
+            abort(404, 'Visite non trouvée');
+        }
+
+        // Get all vehicles for the dropdown
+        $vehicules = Vehicule::with('marque')
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('visites.edit', compact('visite', 'vehicules'));
     }
 
     /**
@@ -77,11 +104,16 @@ class VisiteController extends Controller
             'date_visite' => 'required|date',
             'type_visite' => 'required|string|max:255',
             'statut' => 'required|in:planifiée,en_cours,terminée,annulée',
-            'notes' => 'nullable|string',
+            'observations' => 'nullable|string',
             'cout' => 'nullable|numeric|min:0',
         ]);
 
-        $visite->update($validated);
+        $data = $validated;
+        // Map cout to prix for backward compatibility
+        if (isset($data['cout'])) {
+            $data['prix'] = $data['cout'];
+        }
+        $visite->update($data);
 
         return redirect()->route('visites.index')
             ->with('success', 'Visite mise à jour avec succès.');

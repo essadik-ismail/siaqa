@@ -31,7 +31,8 @@ class AgencyManagementController extends Controller
             })
             ->when($request->status !== null && $request->status !== '', function ($query, $status) {
                 $query->where('is_active', $request->status == '1');
-            });
+            })
+            ->orderBy('created_at', 'desc');
 
         $agencies = $query->paginate(15);
         $tenants = Tenant::all();

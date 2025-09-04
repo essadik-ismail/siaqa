@@ -33,7 +33,8 @@ class RoleManagementController extends Controller
                 } elseif ($type === 'tenant') {
                     $query->tenant();
                 }
-            });
+            })
+            ->orderBy('created_at', 'desc');
 
         $roles = $query->paginate(15);
         $tenants = Tenant::all();

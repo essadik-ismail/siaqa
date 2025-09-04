@@ -15,7 +15,8 @@ class InterventionController extends Controller
      */
     public function index(): View
     {
-        $interventions = Intervention::paginate(10);
+        $interventions = Intervention::where('tenant_id', auth()->user()->tenant_id)
+            ->paginate(10);
         return view('interventions.index', compact('interventions'));
     }
 
@@ -25,6 +26,7 @@ class InterventionController extends Controller
     public function create(): View
     {
         $vehicules = Vehicule::where('is_active', true)
+            ->where('tenant_id', auth()->user()->tenant_id)
             ->with(['marque', 'agence'])
             ->get();
 
@@ -47,6 +49,7 @@ class InterventionController extends Controller
             'technicien' => 'nullable|string|max:255',
         ]);
 
+        $validated['tenant_id'] = auth()->user()->tenant_id;
         Intervention::create($validated);
 
         return redirect()->route('interventions.index')

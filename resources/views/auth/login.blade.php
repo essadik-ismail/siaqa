@@ -36,7 +36,7 @@
 
             <!-- Login Form -->
             <div class="bg-white rounded-xl shadow-lg p-8">
-                <form method="POST" action="{{ route('login.post') }}" class="space-y-6">
+                <form method="POST" action="{{ route('landing.login') }}" class="space-y-6">
                     @csrf
                     
                     <!-- Email -->

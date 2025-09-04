@@ -271,4 +271,31 @@ class Vehicule extends Model
         $nextIndex = ($currentIndex + 1) % count($statuses);
         $this->update(['statut' => $statuses[$nextIndex]]);
     }
+
+    /**
+     * Get the vehicle's image URL with fallback to default images.
+     */
+    public function getImageUrlAttribute(): string
+    {
+        // If vehicle has a custom image and the file exists, return it
+        if ($this->image && !empty($this->image) && file_exists(public_path('storage/' . $this->image))) {
+            return asset('storage/' . $this->image);
+        }
+
+        // Return the default car image
+        return asset('assets/images/default-car.png');
+    }
+
+    /**
+     * Get a random default car image.
+     */
+    public static function getRandomDefaultImage(): string
+    {
+        $defaultImages = [
+            'car-1.jpg', 'car-2.jpg', 'car-3.jpg', 'car-4.jpg', 'car-5.jpg', 'car-6.jpg'
+        ];
+        
+        return asset('app/Rent-Car2/assets/images/' . $defaultImages[array_rand($defaultImages)]);
+    }
+
 }

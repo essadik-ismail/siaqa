@@ -18,17 +18,6 @@
                 @method('PUT')
 
                 <div class="space-y-6">
-                    <!-- Type Selection -->
-                    <div>
-                        <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Type de client *</label>
-                        <select name="type" id="type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="client" {{ $client->type == 'client' ? 'selected' : '' }}>Particulier</option>
-                            <option value="societe" {{ $client->type == 'societe' ? 'selected' : '' }}>Société</option>
-                        </select>
-                        @error('type')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
 
                     <!-- Personal Information -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

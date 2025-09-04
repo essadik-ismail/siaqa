@@ -16,7 +16,7 @@ class CheckRole
     public function handle(Request $request, Closure $next, string $role, string ...$roles): Response
     {
         if (!$request->user()) {
-            return redirect()->route('login');
+            return redirect()->route('landing')->with('error', 'Please login to access this page.');
         }
 
         $requiredRoles = array_merge([$role], $roles);

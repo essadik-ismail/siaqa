@@ -38,10 +38,10 @@
                 </div>
 
                 <div>
-                    <label for="compagnie" class="block text-sm font-medium text-gray-700 mb-3">Compagnie d'assurance *</label>
-                    <input type="text" name="compagnie" id="compagnie" value="{{ old('compagnie') }}" required
-                           class="form-input w-full px-4 py-3" placeholder="Nom de la compagnie">
-                    @error('compagnie')
+                    <label for="numero_assurance" class="block text-sm font-medium text-gray-700 mb-3">Numéro d'assurance *</label>
+                    <input type="text" name="numero_assurance" id="numero_assurance" value="{{ old('numero_assurance') }}" required
+                           class="form-input w-full px-4 py-3" placeholder="Numéro d'assurance">
+                    @error('numero_assurance')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -59,45 +59,40 @@
                 </div>
 
                 <div>
-                    <label for="type_assurance" class="block text-sm font-medium text-gray-700 mb-3">Type d'assurance *</label>
-                    <select name="type_assurance" id="type_assurance" required class="form-input w-full px-4 py-3">
-                        <option value="">Sélectionner le type</option>
-                        <option value="responsabilite_civile" {{ old('type_assurance') == 'responsabilite_civile' ? 'selected' : '' }}>Responsabilité civile</option>
-                        <option value="tous_risques" {{ old('type_assurance') == 'tous_risques' ? 'selected' : '' }}>Tous risques</option>
-                        <option value="vol_incendie" {{ old('type_assurance') == 'vol_incendie' ? 'selected' : '' }}>Vol et incendie</option>
-                        <option value="assistance" {{ old('type_assurance') == 'assistance' ? 'selected' : '' }}>Assistance</option>
-                    </select>
-                    @error('type_assurance')
+                    <label for="prix" class="block text-sm font-medium text-gray-700 mb-3">Prix (€) *</label>
+                    <input type="number" name="prix" id="prix" value="{{ old('prix') }}" step="0.01" min="0" required
+                           class="form-input w-full px-4 py-3" placeholder="0.00">
+                    @error('prix')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
 
-            <!-- Dates and Cost -->
+            <!-- Dates -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                    <label for="date_debut" class="block text-sm font-medium text-gray-700 mb-3">Date de début *</label>
-                    <input type="date" name="date_debut" id="date_debut" value="{{ old('date_debut', now()->format('Y-m-d')) }}" required
+                    <label for="date" class="block text-sm font-medium text-gray-700 mb-3">Date *</label>
+                    <input type="date" name="date" id="date" value="{{ old('date', now()->format('Y-m-d')) }}" required
                            class="form-input w-full px-4 py-3">
-                    @error('date_debut')
+                    @error('date')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="date_expiration" class="block text-sm font-medium text-gray-700 mb-3">Date d'expiration *</label>
-                    <input type="date" name="date_expiration" id="date_expiration" value="{{ old('date_expiration') }}" required
+                    <label for="date_prochaine" class="block text-sm font-medium text-gray-700 mb-3">Date prochaine *</label>
+                    <input type="date" name="date_prochaine" id="date_prochaine" value="{{ old('date_prochaine') }}" required
                            class="form-input w-full px-4 py-3">
-                    @error('date_expiration')
+                    @error('date_prochaine')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="cout_annuel" class="block text-sm font-medium text-gray-700 mb-3">Coût annuel (€)</label>
-                    <input type="number" name="cout_annuel" id="cout_annuel" value="{{ old('cout_annuel') }}" step="0.01" min="0"
-                           class="form-input w-full px-4 py-3" placeholder="0.00">
-                    @error('cout_annuel')
+                    <label for="date_reglement" class="block text-sm font-medium text-gray-700 mb-3">Date de règlement *</label>
+                    <input type="date" name="date_reglement" id="date_reglement" value="{{ old('date_reglement') }}" required
+                           class="form-input w-full px-4 py-3">
+                    @error('date_reglement')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -106,35 +101,30 @@
             <!-- Additional Information -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="franchise" class="block text-sm font-medium text-gray-700 mb-3">Franchise (€)</label>
-                    <input type="number" name="franchise" id="franchise" value="{{ old('franchise') }}" step="0.01" min="0"
-                           class="form-input w-full px-4 py-3" placeholder="0.00">
-                    @error('franchise')
+                    <label for="periode" class="block text-sm font-medium text-gray-700 mb-3">Période</label>
+                    <input type="text" name="periode" id="periode" value="{{ old('periode') }}"
+                           class="form-input w-full px-4 py-3" placeholder="Période d'assurance">
+                    @error('periode')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="statut" class="block text-sm font-medium text-gray-700 mb-3">Statut *</label>
-                    <select name="statut" id="statut" required class="form-input w-full px-4 py-3">
-                        <option value="">Sélectionner le statut</option>
-                        <option value="active" {{ old('statut') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="expiree" {{ old('statut') == 'expiree' ? 'selected' : '' }}>Expirée</option>
-                        <option value="resiliee" {{ old('statut') == 'resiliee' ? 'selected' : '' }}>Résiliée</option>
-                        <option value="en_attente" {{ old('statut') == 'en_attente' ? 'selected' : '' }}>En attente</option>
-                    </select>
-                    @error('statut')
+                    <label for="fichiers" class="block text-sm font-medium text-gray-700 mb-3">Fichiers</label>
+                    <input type="file" name="fichiers[]" id="fichiers" multiple
+                           class="form-input w-full px-4 py-3" accept=".pdf,.jpg,.jpeg,.png">
+                    @error('fichiers')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
 
-            <!-- Notes -->
+            <!-- Description -->
             <div>
-                <label for="notes" class="block text-sm font-medium text-gray-700 mb-3">Notes</label>
-                <textarea name="notes" id="notes" rows="4" 
-                          class="form-input w-full px-4 py-3" placeholder="Informations supplémentaires...">{{ old('notes') }}</textarea>
-                @error('notes')
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-3">Description</label>
+                <textarea name="description" id="description" rows="4" 
+                          class="form-input w-full px-4 py-3" placeholder="Description de l'assurance...">{{ old('description') }}</textarea>
+                @error('description')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>

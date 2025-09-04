@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Car Rental SaaS') }} - @yield('title', 'Dashboard')</title>
+    <title>{{ config('app.name', 'Odys SaaS') }} - @yield('title', 'Dashboard')</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -22,6 +22,9 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    
+    <!-- Dynamic Validation CSS -->
+    <link rel="stylesheet" href="{{ asset('css/dynamic-validation.css') }}">
     
     <!-- Custom Styles -->
     <style>
@@ -47,19 +50,20 @@
             height: 300px;
         }
         
-        /* Enhanced sidebar styles with Material Design */
+        /* Enhanced sidebar styles with Modern Design */
         .sidebar-fixed {
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
-            width: 16rem; /* Always 256px */
+            width: 18rem; /* Increased to 288px for better comfort */
             overflow-y: auto;
             z-index: 40;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-            border-right: 1px solid rgba(0,0,0,0.06);
-            box-shadow: 4px 0 20px rgba(0,0,0,0.08);
-            backdrop-filter: blur(20px);
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+            border-right: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 8px 0 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.05);
+            backdrop-filter: blur(24px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         /* Sidebar inner shadow for depth */
@@ -93,6 +97,79 @@
             flex: 1;
             position: relative;
             z-index: 1;
+        }
+        
+        /* Navigation subsections for SaaS management */
+        .nav-subsection {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+        
+        .nav-subheader {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            padding-left: 1rem;
+        }
+        
+        /* Button styles for SaaS overview */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        
+        .btn-warning {
+            background-color: #f59e0b;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+        
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #059669;
+        }
+        
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
         }
         
         /* Enhanced sidebar footer area */
@@ -135,13 +212,17 @@
         .sidebar-nav-item {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
-            border-radius: 16px;
-            margin: 0.375rem 0.75rem;
+            border-radius: 12px;
+            margin: 0.25rem 1rem;
             position: relative;
             overflow: hidden;
             font-weight: 500;
             letter-spacing: 0.025em;
             cursor: pointer;
+            padding: 0.875rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
         
         .sidebar-nav-item::before {
@@ -162,10 +243,11 @@
         }
         
         .sidebar-nav-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            background: rgba(25, 118, 210, 0.04);
-            color: var(--md-primary);
+            transform: translateX(4px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(147, 51, 234, 0.05));
+            color: #1e40af;
+            border-left: 3px solid #3b82f6;
         }
         
         .sidebar-nav-item:hover i {
@@ -203,16 +285,16 @@
             height: 300px;
         }
         
-        /* Active navigation item with Material Design */
+        /* Active navigation item with Modern Design */
         .sidebar-nav-item.active {
-            background: transparent;
-            color: var(--md-primary);
-            box-shadow: none;
-            transform: none;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(147, 51, 234, 0.08));
+            color: #1e40af;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+            transform: translateX(4px);
             position: relative;
             overflow: hidden;
             font-weight: 600;
-            border-left: 4px solid #1e3a8a;
+            border-left: 4px solid #3b82f6;
         }
         
         .sidebar-nav-item.active::before {
@@ -252,16 +334,19 @@
         
         /* Enhanced logo section */
         .logo-section {
-            background: linear-gradient(135deg, var(--md-primary) 0%, var(--md-secondary) 100%);
+            color: --md-secondary;
+            text-transform: uppercase;
             border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 2.5rem;
-            box-shadow: 0 8px 32px rgba(25, 118, 210, 0.3);
+            text-align: center;
+            padding: 2rem 1.5rem;
+            margin-bottom: 2rem;
             position: relative;
             overflow: hidden;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.03));
+            border: 1px solid rgba(59, 130, 246, 0.1);
         }
         
-        .logo-section::before {
+        /* .logo-section::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -270,7 +355,7 @@
             height: 200%;
             background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
             animation: logo-shine 6s infinite;
-        }
+        } */
         
         @keyframes logo-shine {
             0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
@@ -279,29 +364,32 @@
         
         /* Enhanced user profile section */
         .user-profile {
-            background: rgba(255,255,255,0.9);
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: 20px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.9));
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(24px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .user-profile:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(59, 130, 246, 0.1);
         }
         
         /* Enhanced navigation group headers */
         .nav-group-header {
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #6b7280;
-            margin: 1.5rem 0.75rem 0.5rem;
-            padding-left: 0.5rem;
+            letter-spacing: 0.15em;
+            color: #64748b;
+            margin: 2rem 1rem 0.75rem;
+            padding: 0.5rem 1rem;
             position: relative;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.03));
+            border-radius: 8px;
+            border: 1px solid rgba(59, 130, 246, 0.08);
         }
         
         .nav-group-header::before {
@@ -320,6 +408,42 @@
         .nav-section {
             margin-bottom: 1.5rem;
             position: relative;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .sidebar-fixed {
+                width: 16rem;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .sidebar-fixed.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .content-with-fixed-sidebar {
+                margin-left: 0 !important;
+            }
+        }
+        
+        /* Enhanced scrollbar for sidebar */
+        .sidebar-fixed::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar-fixed::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 3px;
+        }
+        
+        .sidebar-fixed::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+        
+        .sidebar-fixed::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.3);
         }
         
         .nav-section:not(:last-child)::after {
@@ -436,14 +560,16 @@
                     </button>
                     
                     <!-- Enhanced Logo Section -->
-                    <div class="logo-section mb-8">
-                        <div class="flex items-center space-x-4 relative z-10">
-                            <div class="w-14 h-14 bg-white/25 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/30 shadow-lg">
-                                <span class="text-white font-bold text-3xl drop-shadow-lg">C</span>
-                            </div>
-                            <div>
-                                <span class="text-white font-bold text-2xl drop-shadow-lg block">CarRental</span>
-                                <span class="text-white/80 text-sm font-medium">Management System</span>
+                    <div class="logo-section mb-6">
+                        <div class="flex items-center justify-center relative z-10">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-car text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <span class="text-gray-800 font-bold text-2xl tracking-wider">Odys</span>
+                                    <div class="text-xs text-gray-500 font-medium">Rental Management</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -455,32 +581,27 @@
                     <nav class="space-y-1">
                         <!-- Main Navigation -->
                         <div class="nav-section">
-                            <a href="{{ route('dashboard') }}" class="sidebar-nav-item flex items-center space-x-3 px-4 py-3 text-gray-700 {{ request()->routeIs('dashboard') ? 'active' : 'hover:bg-gray-50' }}">
+                            <a href="{{ route('dashboard') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                                 <i class="fas fa-tachometer-alt"></i>
                                 <span class="font-medium">Dashboard</span>
                             </a>
-
-                            <!-- <a href="{{ route('reports.customers') }}" class="sidebar-nav-item flex items-center space-x-3 px-4 py-3 text-gray-700 {{ request()->routeIs('reports.*') ? 'active' : 'hover:bg-gray-50' }}">
-                                <i class="fas fa-chart-bar"></i>
-                                <span class="font-medium">Reports</span>
-                            </a> -->
                         </div>
 
                         <!-- Business Management -->
                         <div class="nav-section">
                             <div class="nav-group-header">Business</div>
                             
-                            <a href="{{ route('clients.index') }}" class="sidebar-nav-item flex items-center space-x-3 px-4 py-3 text-gray-700 {{ request()->routeIs('clients.*') ? 'active' : 'hover:bg-gray-50' }}">
+                            <a href="{{ route('clients.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('clients.*') ? 'active' : '' }}">
                                 <i class="fas fa-users"></i>
                                 <span class="font-medium">Clients</span>
                             </a>
 
-                            <a href="{{ route('vehicules.index') }}" class="sidebar-nav-item flex items-center space-x-3 px-4 py-3 text-gray-700 {{ request()->routeIs('vehicules.*') ? 'active' : 'hover:bg-gray-50' }}">
+                            <a href="{{ route('vehicules.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('vehicules.*') ? 'active' : '' }}">
                                 <i class="fas fa-car"></i>
                                 <span class="font-medium">Vehicles</span>
                             </a>
 
-                            <a href="{{ route('charges.index') }}" class="sidebar-nav-item flex items-center space-x-3 px-4 py-3 text-gray-700 {{ request()->routeIs('charges.*') ? 'active' : 'hover:bg-gray-50' }}">
+                            <a href="{{ route('charges.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('charges.*') ? 'active' : '' }}">
                                 <i class="fas fa-money-bill-wave"></i>
                                 <span class="font-medium">Les charges</span>
                             </a>
@@ -490,12 +611,12 @@
                         <div class="nav-section">
                             <div class="nav-group-header">Operations</div>
                             
-                            <a href="{{ route('reservations.index') }}" class="sidebar-nav-item flex items-center space-x-3 px-4 py-3 text-gray-700 {{ request()->routeIs('reservations.*') ? 'active' : 'hover:bg-gray-50' }}">
+                            <a href="{{ route('reservations.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
                                 <i class="fas fa-calendar-check"></i>
                                 <span class="font-medium">Reservations</span>
                             </a>
 
-                            <a href="{{ route('contrats.index') }}" class="sidebar-nav-item flex items-center space-x-3 px-4 py-3 text-gray-700 {{ request()->routeIs('contrats.*') ? 'active' : 'hover:bg-gray-50' }}">
+                            <a href="{{ route('contrats.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('contrats.*') ? 'active' : '' }}">
                                 <i class="fas fa-file-contract"></i>
                                 <span class="font-medium">Contracts</span>
                             </a>
@@ -507,14 +628,46 @@
                         <div class="nav-section">
                             <div class="nav-group-header">System</div>
                             
-                            <a href="{{ route('settings.index') }}" class="sidebar-nav-item flex items-center space-x-3 px-4 py-3 text-gray-700 {{ request()->routeIs('settings.*') ? 'active' : 'hover:bg-gray-50' }}">
+                            <a href="{{ route('settings.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                 <i class="fas fa-cog"></i>
                                 <span class="font-medium">Settings</span>
                             </a>
                             
+                            <!-- SaaS Management - Super Admin Only -->
+                            @if(auth()->user()->isSuperAdmin())
+                            <div class="nav-subsection">
+                                <div class="nav-subheader">SaaS Management</div>
+                                
+                                <a href="{{ route('saas.overview') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.overview') ? 'active' : '' }}">
+                                    <i class="fas fa-server"></i>
+                                    <span class="font-medium">SaaS Overview</span>
+                                </a>
+                                
+                                <a href="{{ route('saas.tenants.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.tenants.*') ? 'active' : '' }}">
+                                    <i class="fas fa-building"></i>
+                                    <span class="font-medium">Tenant Management</span>
+                                </a>
+                                
+                                <a href="{{ route('saas.global-users.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.global-users.*') ? 'active' : '' }}">
+                                    <i class="fas fa-users"></i>
+                                    <span class="font-medium">Global Users</span>
+                                </a>
+                                
+                                <a href="{{ route('saas.analytics.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.analytics.*') ? 'active' : '' }}">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span class="font-medium">System Analytics</span>
+                                </a>
+                                
+                                <a href="{{ route('saas.maintenance.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.maintenance.*') ? 'active' : '' }}">
+                                    <i class="fas fa-tools"></i>
+                                    <span class="font-medium">System Maintenance</span>
+                                </a>
+                            </div>
+                            @endif
+                            
                             <form method="POST" action="{{ route('logout') }}" class="w-full">
                                 @csrf
-                                <button type="submit" class="sidebar-nav-item flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 w-full text-left">
+                                <button type="submit" class="sidebar-nav-item text-gray-700 w-full text-left hover:text-red-600">
                                     <i class="fas fa-sign-out-alt"></i>
                                     <span class="font-medium">Logout</span>
                                 </button>
@@ -528,15 +681,19 @@
                     <!-- Enhanced User Profile -->
                     <div class="user-profile p-5">
                         <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg border-2 border-white/20">
-                                <i class="fas fa-user text-white text-lg"></i>
+                            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg border-2 border-white/20 relative">
+                                <i class="fas fa-user text-white text-xl"></i>
+                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
                             </div>
                             <div class="flex-1">
-                                <div class="text-sm font-semibold text-gray-800">{{ auth()->user()->name ?? 'User' }}</div>
-                                <div class="text-xs text-gray-500">{{ auth()->user()->email ?? 'user@example.com' }}</div>
-                                <div class="text-xs text-blue-600 font-medium mt-1">Administrator</div>
+                                <div class="text-sm font-bold text-gray-800">{{ auth()->user()->name ?? 'User' }}</div>
+                                <div class="text-xs text-gray-500 truncate">{{ auth()->user()->email ?? 'user@example.com' }}</div>
+                                <div class="flex items-center mt-2">
+                                    <div class="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-1 rounded-full">
+                                        {{ auth()->user()->isSuperAdmin() ? 'Super Admin' : 'Administrator' }}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                         </div>
                     </div>
                 </div>
@@ -544,7 +701,7 @@
         </div>
 
         <!-- Main Content Area -->
-        <div class="content-with-fixed-sidebar flex-1 flex">
+        <div class="content-with-fixed-sidebar flex-1 flex" style="margin-left: 18rem;">
             <div class="flex-1 main-content">
                 <!-- Mobile Menu Button -->
                 <button class="mobile-menu-btn fixed top-4 left-4 z-50 p-3 bg-white/90 rounded-xl shadow-lg md:hidden backdrop-blur-sm" onclick="toggleMobileMenu()">
@@ -564,6 +721,25 @@
                             {{ session('error') }}
                         </div>
                     @endif
+                    
+                    <!-- Impersonation Notice -->
+                    @if(session('impersonated_by'))
+                    <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-xl">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-user-secret mr-2"></i>
+                                <span class="font-medium">You are impersonating: {{ auth()->user()->name }}</span>
+                            </div>
+                            <form action="{{ route('admin.return-from-impersonation') }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" class="text-yellow-800 hover:text-yellow-900 underline font-medium">
+                                    <i class="fas fa-arrow-left mr-1"></i>
+                                    Return to Admin
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <!-- Page Content -->
@@ -582,6 +758,9 @@
         <div class="mobile-overlay" onclick="closeMobileMenu()"></div>
     </div>
 
+    <!-- Dynamic Validation JavaScript -->
+    <script src="{{ asset('js/dynamic-validation.js') }}"></script>
+    
     <!-- Enhanced JavaScript -->
     <script>
         function toggleMobileMenu() {
@@ -607,7 +786,64 @@
             }
         });
         
-
+        // Enhanced form submission with validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    // Validate form before submission
+                    if (window.dynamicValidator && !window.dynamicValidator.validateForm(form)) {
+                        e.preventDefault();
+                        
+                        // Show validation summary
+                        showValidationSummary(form);
+                        
+                        // Scroll to first error
+                        const firstError = form.querySelector('.error');
+                        if (firstError) {
+                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            firstError.focus();
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Show validation summary
+        function showValidationSummary(form) {
+            // Remove existing summary
+            const existingSummary = form.querySelector('.validation-summary');
+            if (existingSummary) {
+                existingSummary.remove();
+            }
+            
+            // Get all errors
+            const errors = form.querySelectorAll('.error');
+            if (errors.length === 0) return;
+            
+            // Create summary
+            const summary = document.createElement('div');
+            summary.className = 'validation-summary error';
+            summary.innerHTML = `
+                <h4>Please correct the following errors:</h4>
+                <ul>
+                    ${Array.from(errors).map(input => {
+                        const errorMsg = document.getElementById(input.name + '-error');
+                        return errorMsg ? `<li>${errorMsg.textContent}</li>` : '';
+                    }).filter(Boolean).join('')}
+                </ul>
+            `;
+            
+            // Insert at the top of the form
+            form.insertBefore(summary, form.firstChild);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                if (summary.parentNode) {
+                    summary.remove();
+                }
+            }, 5000);
+        }
     </script>
     @stack('scripts')
 </body>

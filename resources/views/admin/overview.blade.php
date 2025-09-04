@@ -7,7 +7,13 @@
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Admin Overview</h1>
-        <div class="text-sm text-gray-600">SaaS Administration Dashboard</div>
+        <div class="text-sm text-gray-600">
+            @if(auth()->user()->isSuperAdmin())
+                SaaS Administration Odys
+            @else
+                Administration Panel
+            @endif
+        </div>
     </div>
 
     <!-- SaaS Metrics Overview -->

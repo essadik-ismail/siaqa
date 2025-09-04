@@ -22,6 +22,8 @@ use App\Http\Controllers\SettingsController;
 
 Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('home');
 
+
+
 // Public landing page routes
 Route::get('/landing', [App\Http\Controllers\LandingController::class, 'index'])->name('landing');
 Route::get('/cars', [App\Http\Controllers\LandingController::class, 'cars'])->name('landing.cars');
@@ -48,9 +50,13 @@ Route::post('/logout', function () {
 // Protected routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/tab-data', [DashboardController::class, 'getTabData'])->name('dashboard.tab-data');
+
+// Return from impersonation
+Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\UserManagementController::class, 'returnFromImpersonation'])->name('admin.return-from-impersonation');
     
-    // Admin Management Routes
-    Route::prefix('admin')->name('admin.')->group(function () {
+    // Admin Management Routes - Regular Admin Access
+    Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
         // Admin Overview
         Route::get('/', function () {
             $stats = [
@@ -97,6 +103,72 @@ Route::middleware(['auth'])->group(function () {
         Route::post('tenant-car-selection/{tenant}/bulk-update', [\App\Http\Controllers\Admin\TenantCarSelectionController::class, 'bulkUpdate'])->name('car-selection.bulk-update');
     });
     
+    // Super Admin Routes - SaaS Management (Exclusive Access)
+    Route::prefix('saas')->name('saas.')->middleware(['super_admin'])->group(function () {
+        // SaaS Overview
+        Route::get('/', function () {
+            $stats = [
+                'total_tenants' => \App\Models\Tenant::count(),
+                'total_agencies' => \App\Models\Agency::count(),
+                'total_users' => \App\Models\User::count(),
+                'total_revenue' => \App\Models\Reservation::sum('prix_total'),
+                'active_subscriptions' => \App\Models\Tenant::where('is_active', true)->count(),
+                'inactive_tenants' => \App\Models\Tenant::where('is_active', false)->count(),
+                'trial_tenants' => \App\Models\Tenant::where('is_active', true)
+                    ->whereNotNull('trial_ends_at')
+                    ->where('trial_ends_at', '>', now())
+                    ->count(),
+                'expired_tenants' => \App\Models\Tenant::where('is_active', true)
+                    ->whereHas('subscription', function($query) {
+                        $query->where(function($q) {
+                            $q->where('status', 'canceled')
+                              ->orWhere('status', 'unpaid')
+                              ->orWhere('status', 'past_due')
+                              ->orWhere(function($subQ) {
+                                  $subQ->whereNotNull('ends_at')
+                                       ->where('ends_at', '<', now());
+                              });
+                        });
+                    })
+                    ->count(),
+            ];
+            return view('saas.overview', compact('stats'));
+        })->name('overview');
+        
+        // Tenant Management
+        Route::resource('tenants', \App\Http\Controllers\SaaS\TenantManagementController::class);
+        Route::post('tenants/{tenant}/toggle-status', [\App\Http\Controllers\SaaS\TenantManagementController::class, 'toggleStatus'])->name('tenants.toggle-status');
+        Route::get('tenants/{tenant}/billing', [\App\Http\Controllers\SaaS\TenantManagementController::class, 'billing'])->name('tenants.billing');
+        Route::post('tenants/{tenant}/billing', [\App\Http\Controllers\SaaS\TenantManagementController::class, 'updateBilling'])->name('tenants.billing.update');
+        
+        // Global User Management - Routes moved to saas.php
+        
+        // Global Role Management
+        Route::resource('global-roles', \App\Http\Controllers\SaaS\GlobalRoleManagementController::class);
+        Route::get('global-roles/{role}/permissions', [\App\Http\Controllers\SaaS\GlobalRoleManagementController::class, 'permissions'])->name('global-roles.permissions');
+        Route::post('global-roles/{role}/permissions', [\App\Http\Controllers\SaaS\GlobalRoleManagementController::class, 'updatePermissions'])->name('global-roles.permissions.update');
+        
+        // Global Permission Management
+        Route::resource('global-permissions', \App\Http\Controllers\SaaS\GlobalPermissionManagementController::class);
+        
+        // Billing & Subscriptions
+        Route::get('billing', [\App\Http\Controllers\SaaS\BillingController::class, 'index'])->name('billing.index');
+        Route::get('billing/overview', [\App\Http\Controllers\SaaS\BillingController::class, 'overview'])->name('billing.overview');
+        Route::get('billing/invoices', [\App\Http\Controllers\SaaS\BillingController::class, 'invoices'])->name('billing.invoices');
+        
+        // System-wide Analytics
+        Route::get('analytics', [\App\Http\Controllers\SaaS\AnalyticsController::class, 'index'])->name('analytics.index');
+        Route::get('analytics/tenants', [\App\Http\Controllers\SaaS\AnalyticsController::class, 'tenants'])->name('analytics.tenants');
+        Route::get('analytics/revenue', [\App\Http\Controllers\SaaS\AnalyticsController::class, 'revenue'])->name('analytics.revenue');
+        
+        // System Maintenance
+        Route::get('maintenance', [\App\Http\Controllers\SaaS\MaintenanceController::class, 'index'])->name('maintenance.index');
+        Route::get('maintenance/logs', [\App\Http\Controllers\SaaS\MaintenanceController::class, 'logs'])->name('maintenance.logs');
+        Route::post('maintenance/backup', [\App\Http\Controllers\SaaS\MaintenanceController::class, 'createBackup'])->name('maintenance.backup');
+        Route::post('maintenance/clear-cache', [\App\Http\Controllers\SaaS\MaintenanceController::class, 'clearCache'])->name('maintenance.clear-cache');
+        Route::post('maintenance/optimize', [\App\Http\Controllers\SaaS\MaintenanceController::class, 'optimize'])->name('maintenance.optimize');
+    });
+    
     Route::group([], function () { // Temporarily removed 'tenant' middleware
         // Agencies
         Route::resource('agences', AgenceController::class);
@@ -117,6 +189,8 @@ Route::middleware(['auth'])->group(function () {
         // Vehicles
         Route::resource('vehicules', VehiculeController::class);
         Route::get('vehicules/{vehicule}/toggle-status', [VehiculeController::class, 'toggleStatus'])->name('vehicules.toggle-status');
+        Route::post('vehicules/{vehicule}/toggle-landing', [VehiculeController::class, 'toggleLandingDisplay'])->name('vehicules.toggle-landing');
+        Route::post('vehicules/{vehicule}/remove-image', [VehiculeController::class, 'removeImage'])->name('vehicules.remove-image');
         Route::get('vehicules/available', [VehiculeController::class, 'available'])->name('vehicules.available');
 
         // Reports

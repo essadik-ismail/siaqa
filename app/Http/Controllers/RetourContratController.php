@@ -16,7 +16,9 @@ class RetourContratController extends Controller
      */
     public function index(): View
     {
-        $retourContrats = RetourContrat::with(['contrat.vehicule', 'contrat.clientOne'])->paginate(15);
+        $retourContrats = RetourContrat::with(['contrat.vehicule', 'contrat.clientOne'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
         return view('retour-contrats.index', compact('retourContrats'));
     }
 

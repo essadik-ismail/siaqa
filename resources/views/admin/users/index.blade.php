@@ -120,9 +120,9 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($user->agency)
+                            @if($user->agence)
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                    {{ $user->agency->nom_agence }}
+                                    {{ $user->agence->nom_agence }}
                                 </span>
                             @else
                                 <span class="text-sm text-gray-500">No agency</span>

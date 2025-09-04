@@ -16,7 +16,7 @@ class ClientController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Client::query();
+        $query = Client::where('tenant_id', auth()->user()->tenant_id);
 
         // Search functionality
         if ($request->has('search') && !empty($request->get('search'))) {
@@ -37,13 +37,13 @@ class ClientController extends Controller
         }
 
         // Sort functionality
-        $sortBy = $request->get('sort_by', 'nom');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
         
         // Validate sort fields to prevent SQL injection
         $allowedSortFields = ['nom', 'prenom', 'email', 'created_at', 'is_blacklisted'];
         if (!in_array($sortBy, $allowedSortFields)) {
-            $sortBy = 'nom';
+            $sortBy = 'created_at';
         }
         
         $query->orderBy($sortBy, $sortOrder);
@@ -213,17 +213,21 @@ class ClientController extends Controller
      */
     public function statistics(): View
     {
-        $totalClients = Client::count();
-        $activeClients = Client::where('is_blacklisted', false)->count();
-        $blockedClients = Client::where('is_blacklisted', true)->count();
-        $newClientsThisMonth = Client::whereMonth('created_at', now()->month)->count();
+        $tenantId = auth()->user()->tenant_id;
+        
+        $totalClients = Client::where('tenant_id', $tenantId)->count();
+        $activeClients = Client::where('tenant_id', $tenantId)->where('is_blacklisted', false)->count();
+        $blockedClients = Client::where('tenant_id', $tenantId)->where('is_blacklisted', true)->count();
+        $newClientsThisMonth = Client::where('tenant_id', $tenantId)->whereMonth('created_at', now()->month)->count();
 
-        $clientsByType = Client::selectRaw('type, count(*) as count')
+        $clientsByType = Client::where('tenant_id', $tenantId)
+            ->selectRaw('type, count(*) as count')
             ->groupBy('type')
             ->pluck('count', 'type')
             ->toArray();
 
-        $recentClients = Client::withCount('reservations')
+        $recentClients = Client::where('tenant_id', $tenantId)
+            ->withCount('reservations')
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
@@ -244,14 +248,16 @@ class ClientController extends Controller
     public function search(Request $request): View
     {
         $query = $request->get('q');
+        $tenantId = auth()->user()->tenant_id;
         
-        $clients = Client::where(function ($q) use ($query) {
-            $q->where('nom', 'like', "%{$query}%")
-              ->orWhere('prenom', 'like', "%{$query}%")
-              ->orWhere('email', 'like', "%{$query}%")
-              ->orWhere('telephone', 'like', "%{$query}%")
-              ->orWhere('numero_permis', 'like', "%{$query}%");
-        })->paginate(15);
+        $clients = Client::where('tenant_id', $tenantId)
+            ->where(function ($q) use ($query) {
+                $q->where('nom', 'like', "%{$query}%")
+                  ->orWhere('prenom', 'like', "%{$query}%")
+                  ->orWhere('email', 'like', "%{$query}%")
+                  ->orWhere('telephone', 'like', "%{$query}%")
+                  ->orWhere('numero_permis', 'like', "%{$query}%");
+            })->paginate(15);
 
         return view('clients.search', compact('clients', 'query'));
     }

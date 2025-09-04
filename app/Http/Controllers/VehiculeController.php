@@ -9,6 +9,7 @@ use App\Models\Agence;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class VehiculeController extends Controller
 {
@@ -17,70 +18,20 @@ class VehiculeController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Vehicule::with(['marque', 'agence'])
-            ->where('tenant_id', auth()->user()->tenant_id);
+        // Load all vehicles for the tenant (frontend filtering will handle the rest)
+        $vehicules = Vehicule::with(['marque', 'agence'])
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(5);
 
-        // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->get('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('immatriculation', 'like', "%{$search}%")
-                  ->orWhere('couleur', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('marque', function ($marqueQuery) use ($search) {
-                      $marqueQuery->where('marque', 'like', "%{$search}%");
-                  });
-            });
-        }
+        // Get marques for filters
+        $marques = Marque::orderBy('marque', 'asc')->get();
 
-        // Filter by status
-        if ($request->filled('statut')) {
-            $query->where('statut', $request->get('statut'));
-        }
-
-        // Filter by brand
-        if ($request->filled('marque_id')) {
-            $query->where('marque_id', $request->get('marque_id'));
-        }
-
-        // Filter by agency
-        if ($request->filled('agence_id')) {
-            $query->where('agence_id', $request->get('agence_id'));
-        }
-
-        // Filter by fuel type
-        if ($request->filled('type_carburant')) {
-            $query->where('type_carburant', $request->get('type_carburant'));
-        }
-
-        // Filter by category
-        if ($request->filled('categorie_vehicule')) {
-            $query->where('categorie_vehicule', $request->get('categorie_vehicule'));
-        }
-
-        // Filter by active status
-        if ($request->filled('is_active')) {
-            $query->where('is_active', $request->get('is_active') === '1');
-        }
-
-        // Sorting
-        $sortBy = $request->get('sort_by', 'name');
-        $sortOrder = $request->get('sort_order', 'asc');
-        
-        // Validate sort fields
-        $allowedSortFields = ['name', 'immatriculation', 'statut', 'prix_location_jour', 'kilometrage_actuel', 'created_at'];
-        if (!in_array($sortBy, $allowedSortFields)) {
-            $sortBy = 'name';
-        }
-        
-        $query->orderBy($sortBy, $sortOrder);
-
-        $vehicules = $query->paginate($request->get('per_page', 15));
-
-        // Get marques and agences for filters
-        $marques = Marque::where('is_active', true)->orderBy('marque')->get();
-        $agences = Agence::where('is_active', true)->orderBy('nom_agence')->get();
+        // Get agences for filters
+        $agences = Agence::where('tenant_id', auth()->user()->tenant_id)
+            ->where('is_active', true)
+            ->orderBy('nom_agence')
+            ->get();
 
         return view('vehicules.index', compact('vehicules', 'marques', 'agences'));
     }
@@ -90,10 +41,11 @@ class VehiculeController extends Controller
      */
     public function create(): View
     {
-        $marques = Marque::orderBy('marque', 'asc')->get();
-        $agences = Agence::orderBy('nom_agence', 'asc')->get();
+        $agences = Agence::where('tenant_id', auth()->user()->tenant_id)
+            ->orderBy('nom_agence', 'asc')
+            ->get();
         
-        return view('vehicules.create', compact('marques', 'agences'));
+        return view('vehicules.create', compact('agences'));
     }
 
     /**
@@ -103,6 +55,21 @@ class VehiculeController extends Controller
     {
         $data = $request->validated();
         $data['tenant_id'] = auth()->user()->tenant_id;
+
+        // Handle marque - create or find existing
+        $marque = Marque::firstOrCreate(
+            [
+                'marque' => $data['marque'],
+                'tenant_id' => auth()->user()->tenant_id
+            ],
+            [
+                'marque' => $data['marque'],
+                'tenant_id' => auth()->user()->tenant_id,
+                'is_active' => true
+            ]
+        );
+        $data['marque_id'] = $marque->id;
+        unset($data['marque']); // Remove marque from data as it's not a column in vehicules table
 
         // Handle single image upload
         if ($request->hasFile('image')) {
@@ -158,6 +125,9 @@ class VehiculeController extends Controller
             abort(404, 'Véhicule non trouvé');
         }
 
+        // Load the vehicle with its relationships
+        $vehicule->load(['marque', 'agence']);
+        
         $marques = Marque::orderBy('marque', 'asc')->get();
         $agences = Agence::orderBy('nom_agence', 'asc')->get();
 
@@ -191,21 +161,102 @@ class VehiculeController extends Controller
             abort(404, 'Véhicule non trouvé');
         }
 
-        // Check if vehicule has active reservations or contracts
-        if ($vehicule->reservations()->whereIn('statut', ['confirmée', 'en_cours'])->exists()) {
+        // Check if vehicule has any related records
+        $hasReservations = $vehicule->reservations()->exists();
+        $hasContrats = $vehicule->contrats()->exists();
+        $hasAssurances = $vehicule->assurances()->exists();
+        $hasVidanges = $vehicule->vidanges()->exists();
+        $hasVisites = $vehicule->visites()->exists();
+        $hasInterventions = $vehicule->interventions()->exists();
+        $hasCharges = $vehicule->charges()->exists();
+
+        // Build error message with all related records
+        $relatedRecords = [];
+        if ($hasReservations) $relatedRecords[] = 'réservations';
+        if ($hasContrats) $relatedRecords[] = 'contrats';
+        if ($hasAssurances) $relatedRecords[] = 'assurances';
+        if ($hasVidanges) $relatedRecords[] = 'vidanges';
+        if ($hasVisites) $relatedRecords[] = 'visites';
+        if ($hasInterventions) $relatedRecords[] = 'interventions';
+        if ($hasCharges) $relatedRecords[] = 'charges';
+
+        if (!empty($relatedRecords)) {
+            $recordsText = implode(', ', $relatedRecords);
             return redirect()->route('vehicules.index')
-                ->with('error', 'Impossible de supprimer ce véhicule car il a des réservations actives');
+                ->with('error', "Impossible de supprimer ce véhicule car il a des {$recordsText} associés. Veuillez d'abord supprimer ou réassigner ces enregistrements.");
         }
 
-        if ($vehicule->contrats()->whereIn('statut', ['actif', 'en_cours'])->exists()) {
+        try {
+            // Delete the vehicle image if it exists
+            if ($vehicule->image && Storage::disk('public')->exists($vehicule->image)) {
+                Storage::disk('public')->delete($vehicule->image);
+            }
+
+            $vehicule->delete();
+
             return redirect()->route('vehicules.index')
-                ->with('error', 'Impossible de supprimer ce véhicule car il a des contrats actifs');
+                ->with('success', 'Véhicule supprimé avec succès');
+        } catch (\Exception $e) {
+            \Log::error('Error deleting vehicle', [
+                'vehicle_id' => $vehicule->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->route('vehicules.index')
+                ->with('error', 'Erreur lors de la suppression du véhicule. Veuillez réessayer.');
+        }
+    }
+
+    /**
+     * Remove the vehicle's image.
+     */
+    public function removeImage(Request $request, Vehicule $vehicule): RedirectResponse
+    {
+        // Ensure the vehicule belongs to the current tenant
+        if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+            abort(404, 'Véhicule non trouvé');
         }
 
-        $vehicule->delete();
+        try {
+            \Log::info('Removing image for vehicle', [
+                'vehicle_id' => $vehicule->id,
+                'current_image' => $vehicule->image,
+                'request_action' => $request->input('action'),
+                'request_image_path' => $request->input('image_path'),
+                'all_request_data' => $request->all()
+            ]);
 
-        return redirect()->route('vehicules.index')
-            ->with('success', 'Véhicule supprimé avec succès');
+            // Verify this is an image removal request
+            if ($request->input('action') !== 'remove_image') {
+                \Log::warning('Invalid action for image removal', ['action' => $request->input('action')]);
+                return redirect()->route('vehicules.edit', $vehicule)
+                    ->with('error', 'Action invalide.');
+            }
+
+            // Delete the image file if it exists
+            if ($vehicule->image && Storage::disk('public')->exists($vehicule->image)) {
+                Storage::disk('public')->delete($vehicule->image);
+                \Log::info('Image file deleted from storage', ['image_path' => $vehicule->image]);
+            } else {
+                \Log::info('No image file to delete or file does not exist', ['image_path' => $vehicule->image]);
+            }
+
+            // Remove the image reference from the database
+            $vehicule->update(['image' => null]);
+            \Log::info('Image reference removed from database');
+
+            return redirect()->route('vehicules.edit', $vehicule)
+                ->with('success', 'Image supprimée avec succès. Une image par défaut sera affichée.');
+        } catch (\Exception $e) {
+            \Log::error('Error removing vehicle image', [
+                'vehicle_id' => $vehicule->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('vehicules.edit', $vehicule)
+                ->with('error', 'Erreur lors de la suppression de l\'image.');
+        }
     }
 
     /**
@@ -219,6 +270,57 @@ class VehiculeController extends Controller
             ->paginate(15);
 
         return view('vehicules.available', compact('vehicules'));
+    }
+
+    /**
+     * Toggle vehicle status.
+     */
+    public function toggleStatus(Vehicule $vehicule): RedirectResponse
+    {
+        // Ensure the vehicule belongs to the current tenant
+        if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+            abort(404, 'Véhicule non trouvé');
+        }
+
+        $vehicule->update(['is_active' => !$vehicule->is_active]);
+
+        $status = $vehicule->is_active ? 'activé' : 'désactivé';
+        return redirect()->route('vehicules.index')
+            ->with('success', "Véhicule {$status} avec succès");
+    }
+
+    /**
+     * Toggle landing page display for vehicle.
+     */
+    public function toggleLandingDisplay(Request $request, Vehicule $vehicule): \Illuminate\Http\JsonResponse
+    {
+        try {
+            // Ensure the vehicule belongs to the current tenant
+            if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+                return response()->json(['success' => false, 'message' => 'Vehicle not found'], 404);
+            }
+
+            $landingDisplay = $request->input('landing_display', !$vehicule->landing_display);
+            
+            $vehicule->update(['landing_display' => $landingDisplay]);
+
+            $status = $landingDisplay ? 'shown on' : 'hidden from';
+            return response()->json([
+                'success' => true, 
+                'message' => "Vehicle {$status} landing page successfully",
+                'landing_display' => $landingDisplay
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error toggling landing display', [
+                'vehicle_id' => $vehicule->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'An error occurred while updating the vehicle'
+            ], 500);
+        }
     }
 
     /**

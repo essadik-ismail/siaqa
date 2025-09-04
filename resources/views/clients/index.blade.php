@@ -64,7 +64,7 @@
         </div>
         
         <!-- Active Filters Display -->
-        @if(request('search') || request('is_blacklisted') !== '' || request('sort_by'))
+        @if(request('search') || request('is_blacklisted') !== '' || (request('sort_by') && request('sort_by') !== 'nom'))
         <div class="mt-4 pt-4 border-t border-gray-200">
             <div class="flex items-center space-x-2 text-sm text-gray-600">
                 <span>Active filters:</span>
@@ -84,7 +84,7 @@
                         </button>
                     </span>
                 @endif
-                @if(request('sort_by'))
+                @if(request('sort_by') && request('sort_by') !== 'nom')
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                         Sort: {{ ucfirst(request('sort_by')) }}
                         <button type="button" onclick="clearFilter('sort')" class="ml-1 text-purple-600 hover:text-purple-800">
@@ -126,7 +126,7 @@
     <!-- Clients Table -->
     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table id="clientsTable" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
@@ -190,7 +190,7 @@
                                     <form method="POST" action="{{ route('clients.toggle-blacklist', $client) }}" class="inline">
                                         @csrf
                                         <button type="button" class="text-yellow-600 hover:text-yellow-900" 
-                                                onclick="showBlacklistModal('{{ $client->nom }} {{ $client->prenom }}', {{ $client->is_blacklisted ? 'false' : 'true' }}, '{{ route('clients.toggle-blacklist', $client) }}')">
+                                                onclick="showBlacklistModal('{{ $client->nom }} {{ $client->prenom }}', {{ $client->is_blacklisted ? 'true' : 'false' }}, '{{ route('clients.toggle-blacklist', $client) }}')">
                                             <i class="fas fa-{{ $client->is_blacklisted ? 'user-check' : 'ban' }}"></i>
                                         </button>
                                     </form>
@@ -638,29 +638,96 @@
     // Function to clear a specific filter
     function clearFilter(param) {
         const params = new URLSearchParams(window.location.search);
-        params.delete(param);
+        
+        // Map the display parameter names to actual URL parameter names
+        const paramMap = {
+            'search': 'search',
+            'status': 'is_blacklisted',
+            'sort': 'sort_by'
+        };
+        
+        const actualParam = paramMap[param] || param;
+        params.delete(actualParam);
+        
+        // Update URL and reload
         const url = new URL(window.location);
         url.search = params.toString();
-        
-        // Show loading state
-        showLoadingState();
-        
-        // Navigate to new URL
         window.location.href = url.toString();
     }
 
     // Function to clear all filters
     function clearAllFilters() {
-        const params = new URLSearchParams();
         const url = new URL(window.location);
-        url.search = params.toString();
-        
-        // Show loading state
-        showLoadingState();
-        
-        // Navigate to new URL
+        url.search = '';
         window.location.href = url.toString();
     }
+
+    // Blacklist modal functionality
+    function showBlacklistModal(clientId, clientName, currentStatus) {
+        const modal = document.getElementById('blacklistModal');
+        const modalContent = document.getElementById('blacklistModalContent');
+        
+        // Update modal content based on current status
+        const isCurrentlyBlacklisted = currentStatus === 'true' || currentStatus === true;
+        
+        document.getElementById('blacklistClientName').textContent = clientName;
+        document.getElementById('blacklistForm').action = `/clients/${clientId}/blacklist`;
+        
+        // Update modal text and button based on current status
+        const modalTitle = document.querySelector('#blacklistModal h3');
+        const modalMessage = document.querySelector('#blacklistModal p');
+        const submitButton = document.querySelector('#blacklistModal button[type="submit"]');
+        
+        if (isCurrentlyBlacklisted) {
+            modalTitle.textContent = 'Unblock Client';
+            modalMessage.textContent = `Are you sure you want to unblock ${clientName}? They will be able to make reservations again.`;
+            submitButton.textContent = 'Unblock Client';
+            submitButton.className = 'w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded';
+        } else {
+            modalTitle.textContent = 'Block Client';
+            modalMessage.textContent = `Are you sure you want to block ${clientName}? They will not be able to make new reservations.`;
+            submitButton.textContent = 'Block Client';
+            submitButton.className = 'w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded';
+        }
+        
+        modal.classList.remove('hidden');
+        
+        // Animate in
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function hideBlacklistModal() {
+        const modal = document.getElementById('blacklistModal');
+        const modalContent = document.getElementById('blacklistModalContent');
+        
+        // Animate out
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }, 300);
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('blacklistModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideBlacklistModal();
+        }
+    });
+
+    // Form submission handling
+    document.getElementById('blacklistForm').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        }
+    });
 
     // Enhanced function to show delete confirmation modal
     function showDeleteModal(name, actionUrl) {
@@ -721,22 +788,22 @@
         const submitText = document.getElementById('blacklistSubmitText');
         const form = document.getElementById('blacklistForm');
 
-        // Configure modal based on action
+        // Configure modal based on current status
         if (isBlacklisted) {
-            // Unblacklist - Green theme
+            // Currently blacklisted - Show unblacklist option (Green theme)
             iconContainer.className = 'w-16 h-16 bg-green-100 rounded-full flex items-center justify-center';
             icon.className = 'fas fa-user-check text-green-500 text-2xl';
-            title.textContent = 'Confirmer le déblacklistage';
-            message.innerHTML = `Êtes-vous sûr de vouloir <strong class="text-green-700">déblacklister</strong> le client <span class="font-semibold text-gray-900">${name}</span> ?`;
-            submitText.textContent = 'Déblacklister';
+            title.textContent = 'Unblock Client';
+            message.innerHTML = `Do you want to <strong class="text-green-700">unblock</strong> the client <span class="font-semibold text-gray-900">${name}</span>?`;
+            submitText.textContent = 'Unblock Client';
             submitBtn.className = 'w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2';
         } else {
-            // Blacklist - Red theme
+            // Currently active - Show blacklist option (Red theme)
             iconContainer.className = 'w-16 h-16 bg-red-100 rounded-full flex items-center justify-center';
             icon.className = 'fas fa-ban text-red-500 text-2xl';
-            title.textContent = 'Confirmer le blacklistage';
-            message.innerHTML = `Êtes-vous sûr de vouloir <strong class="text-red-700">blacklister</strong> le client <span class="font-semibold text-gray-900">${name}</span> ?`;
-            submitText.textContent = 'Blacklister';
+            title.textContent = 'Block Client';
+            message.innerHTML = `Do you want to <strong class="text-red-700">block</strong> the client <span class="font-semibold text-gray-900">${name}</span>?`;
+            submitText.textContent = 'Block Client';
             submitBtn.className = 'w-full bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2';
         }
 

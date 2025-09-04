@@ -3,46 +3,49 @@
 @section('title', 'Nouvelle Vidange')
 
 @section('content')
-    <!-- Header with Actions -->
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Nouvelle Vidange</h2>
-            <p class="text-gray-600 text-lg">Planifier une nouvelle vidange pour un véhicule</p>
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Nouvelle Vidange</h2>
+                    <p class="text-gray-600">Planifier une nouvelle vidange pour un véhicule</p>
+                </div>
+                <a href="{{ route('vidanges.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Retour
+                </a>
+            </div>
         </div>
-        <a href="{{ route('vidanges.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-medium flex items-center space-x-3 transition-all duration-200 hover:scale-105">
-            <i class="fas fa-arrow-left"></i>
-            <span>Retour</span>
-        </a>
-    </div>
 
-    <!-- Oil Change Form -->
-    <div class="content-card p-8">
+        <!-- Form -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
         <form method="POST" action="{{ route('vidanges.store') }}" class="space-y-6">
             @csrf
             
             <!-- Vehicle Selection -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="vehicule_id" class="block text-sm font-medium text-gray-700 mb-3">Véhicule *</label>
-                    <select name="vehicule_id" id="vehicule_id" required class="form-input w-full px-4 py-3">
+                    <label for="vehicule_id" class="block text-sm font-medium text-gray-700 mb-2">Véhicule *</label>
+                    <select name="vehicule_id" id="vehicule_id" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('vehicule_id') border-red-500 @enderror">
                         <option value="">Sélectionner un véhicule</option>
                         @foreach($vehicules as $vehicule)
                             <option value="{{ $vehicule->id }}" {{ request('vehicule_id') == $vehicule->id ? 'selected' : '' }}>
-                                {{ $vehicule->name }} - {{ $vehicule->immatriculation }} ({{ $vehicule->marque->marque }})
+                                {{ $vehicule->marque ? $vehicule->marque->nom : 'Marque inconnue' }} {{ $vehicule->modele }} - {{ $vehicule->immatriculation }}
                             </option>
                         @endforeach
                     </select>
                     @error('vehicule_id')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="date_prevue" class="block text-sm font-medium text-gray-700 mb-3">Date prévue *</label>
+                    <label for="date_prevue" class="block text-sm font-medium text-gray-700 mb-2">Date prévue *</label>
                     <input type="date" name="date_prevue" id="date_prevue" value="{{ old('date_prevue') }}" required
-                           class="form-input w-full px-4 py-3">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('date_prevue') border-red-500 @enderror">
                     @error('date_prevue')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
@@ -91,7 +94,7 @@
                     <select name="filtre_huile" id="filtre_huile" class="form-input w-full px-4 py-3">
                         <option value="">Sélectionner</option>
                         <option value="standard" {{ old('filtre_huile') == 'standard' ? 'selected' : '' }}>Standard</option>
-                        <option value="premium" {{ old('filtre_huile') == 'premium' => 'selected' : '' }}>Premium</option>
+                        <option value="premium" {{ old('filtre_huile') == 'premium' ? 'selected' : '' }}>Premium</option>
                         <option value="haute_performance" {{ old('filtre_huile') == 'haute_performance' ? 'selected' : '' }}>Haute performance</option>
                     </select>
                     @error('filtre_huile')
@@ -192,7 +195,12 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('kilometrage_actuel').addEventListener('input', function() {
     const currentKm = parseInt(this.value) || 0;
     const nextKm = currentKm + 15000; // Default 15,000 km interval
-    document.getElementById('kilometrage_prochaine').value = nextKm;
+    const nextKmField = document.getElementById('kilometrage_prochaine');
+    
+    // Only auto-fill if the next mileage field is empty or has the same value as current
+    if (nextKmField && (nextKmField.value === '' || nextKmField.value === '0' || nextKmField.value === this.value)) {
+        nextKmField.value = nextKm;
+    }
 });
 </script>
 @endsection

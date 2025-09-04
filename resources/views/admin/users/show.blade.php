@@ -173,36 +173,36 @@
 
         <div class="col-lg-4">
             <!-- Agency Information -->
-            @if($user->agency)
+            @if($user->agence)
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Agency Information</h6>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
-                        @if($user->agency->logo)
-                            <img src="{{ $user->agency->logo_url }}" alt="Agency Logo" class="img-fluid mb-2" style="max-height: 60px;">
+                        @if($user->agence->logo)
+                            <img src="{{ $user->agence->logo_url }}" alt="Agency Logo" class="img-fluid mb-2" style="max-height: 60px;">
                         @else
                             <div class="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center text-white text-xl font-medium mx-auto mb-2">
                                 <i class="fas fa-building"></i>
                             </div>
                         @endif
-                        <h6 class="font-weight-bold">{{ $user->agency->nom_agence }}</h6>
+                        <h6 class="font-weight-bold">{{ $user->agence->nom_agence }}</h6>
                     </div>
                     
                     <div class="mb-2">
-                        <strong>Address:</strong> {{ $user->agency->full_address }}
+                        <strong>Address:</strong> {{ $user->agence->full_address }}
                     </div>
                     
                     <div class="mb-2">
                         <strong>Status:</strong>
-                        <span class="badge badge-{{ $user->agency->is_active ? 'success' : 'danger' }}">
-                            {{ $user->agency->is_active ? 'Active' : 'Inactive' }}
+                        <span class="badge badge-{{ $user->agence->is_active ? 'success' : 'danger' }}">
+                            {{ $user->agence->is_active ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
                     
                     <div class="mt-3">
-                        <a href="{{ route('admin.agencies.show', $user->agency) }}" class="btn btn-outline-info btn-sm w-100">
+                        <a href="{{ route('admin.agencies.show', $user->agence) }}" class="btn btn-outline-info btn-sm w-100">
                             <i class="fas fa-building mr-2"></i>View Agency Details
                         </a>
                     </div>

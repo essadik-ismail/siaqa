@@ -19,7 +19,7 @@ class UserManagementController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::with(['roles', 'tenant', 'agency'])
+        $query = User::with(['roles', 'tenant', 'agence'])
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -37,7 +37,8 @@ class UserManagementController extends Controller
             })
             ->when($request->agency, function ($query, $agency) {
                 $query->where('agency_id', $agency);
-            });
+            })
+            ->orderBy('created_at', 'desc');
 
         $users = $query->paginate(15);
         $roles = Role::all();
@@ -242,5 +243,36 @@ class UserManagementController extends Controller
 
         return redirect()->route('admin.users.permissions', $user)
             ->with('success', 'User permissions updated successfully.');
+    }
+
+    public function returnFromImpersonation()
+    {
+        $originalUserId = session('impersonated_by');
+        
+        if (!$originalUserId) {
+            return redirect()->route('dashboard')
+                ->with('error', 'No impersonation session found.');
+        }
+
+        // Get the original admin user
+        $originalUser = User::find($originalUserId);
+        
+        if (!$originalUser) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Original admin user not found.');
+        }
+
+        // Log out current user and log back in as original admin
+        auth()->logout();
+        auth()->login($originalUser);
+        
+        // Clear impersonation session
+        session()->forget('impersonated_by');
+        
+        // Regenerate session
+        request()->session()->regenerate();
+        
+        return redirect()->route('saas.global-users.index')
+            ->with('success', 'Successfully returned to admin account.');
     }
 }

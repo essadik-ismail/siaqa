@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\Vehicule;
 use App\Models\Reservation;
+use App\Models\Client;
 use App\Models\Marque;
 use App\Models\Agence;
 use App\Models\Tenant;
@@ -25,6 +26,7 @@ class LandingController extends Controller
             $featuredCars = Vehicule::with('marque', 'agence')
                 ->where('tenant_id', $currentTenant->id)
                 ->landingDisplay()
+                ->orderBy('created_at', 'desc')
                 ->limit(6)
                 ->get();
                 
@@ -35,15 +37,17 @@ class LandingController extends Controller
             $totalAgencies = Agence::where('tenant_id', $currentTenant->id)
                 ->where('is_active', true)
                 ->count();
+            $totalCustomers = Client::where('tenant_id', $currentTenant->id)->count();
         } else {
             // Fallback for when no tenant is found
             $featuredCars = collect();
             $totalCars = 0;
             $availableCars = 0;
             $totalAgencies = 0;
+            $totalCustomers = 0;
         }
         
-        return view('landing.index', compact('featuredCars', 'totalCars', 'availableCars', 'totalAgencies', 'currentTenant'));
+        return view('landing.index', compact('featuredCars', 'totalCars', 'availableCars', 'totalAgencies', 'totalCustomers', 'currentTenant'));
     }
     
     public function cars(Request $request)
@@ -92,7 +96,7 @@ class LandingController extends Controller
             $query->where('annee', '>=', $request->annee);
         }
         
-        $cars = $query->where('is_active', 1)->where('statut', 'disponible')->paginate(12);
+        $cars = $query->landingDisplay()->orderBy('created_at', 'desc')->paginate(12);
         $marques = Marque::where('tenant_id', $currentTenant->id)->where('is_active', true)->get();
         
         return view('landing.cars', compact('cars', 'marques', 'currentTenant'));
@@ -100,11 +104,17 @@ class LandingController extends Controller
     
     public function showCar(Vehicule $vehicule)
     {
+        // Check if vehicle should be displayed on landing page
+        if (!$vehicule->landing_display || !$vehicule->is_active || $vehicule->statut !== 'disponible') {
+            abort(404, 'Vehicle not found');
+        }
+        
         $vehicule->load('marque', 'agence');
         $relatedCars = Vehicule::with('marque')
             ->where('id', '!=', $vehicule->id)
             ->where('marque_id', $vehicule->marque_id)
-            ->where('statut', 'disponible')
+            ->landingDisplay()
+            ->orderBy('created_at', 'desc')
             ->limit(4)
             ->get();
             
@@ -122,7 +132,8 @@ class LandingController extends Controller
         
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->back()->with('success', 'Login successful!');
+            // Redirect directly to dashboard without success message
+            return redirect()->route('dashboard');
         }
         
         return redirect()->back()->withErrors(['email' => 'Invalid credentials.'])->withInput();
@@ -161,14 +172,14 @@ class LandingController extends Controller
         
         Auth::login($user);
         
-        return redirect()->route('landing')->with('success', 'Account created successfully! Welcome to CarRental.');
+        return redirect()->route('landing')->with('success', 'Account created successfully! Welcome to Odys.');
     }
     
     public function storeReservation(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'vehicule_id' => 'required|exists:vehicules,id',
-            'date_debut' => 'required|date|after:today',
+            'date_debut' => 'required|date|after_or_equal:today',
             'date_fin' => 'required|date|after:date_debut',
             'nom' => 'required|string|max:255',
             'email' => 'required|email|max:255',
@@ -177,6 +188,12 @@ class LandingController extends Controller
         ]);
         
         if ($validator->fails()) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
             return back()->withErrors($validator)->withInput();
         }
         
@@ -184,6 +201,12 @@ class LandingController extends Controller
         $vehicule = Vehicule::findOrFail($request->vehicule_id);
         
         if ($vehicule->statut !== 'disponible') {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['vehicule_id' => ['This car is not available for reservation.']]
+                ], 422);
+            }
             return back()->withErrors(['vehicule_id' => 'This car is not available for reservation.'])->withInput();
         }
         
@@ -200,6 +223,12 @@ class LandingController extends Controller
             ->first();
             
         if ($conflictingReservation) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['dates' => ['This car is not available for the selected dates.']]
+                ], 422);
+            }
             return back()->withErrors(['dates' => 'This car is not available for the selected dates.'])->withInput();
         }
         
@@ -207,20 +236,59 @@ class LandingController extends Controller
         $startDate = Carbon::parse($request->date_debut);
         $endDate = Carbon::parse($request->date_fin);
         $days = $startDate->diffInDays($endDate) + 1;
-        $totalAmount = $vehicule->prix_jour * $days;
+        $totalAmount = $vehicule->prix_location_jour * $days;
         
-        $reservation = Reservation::create([
-            'vehicule_id' => $request->vehicule_id,
-            'date_debut' => $request->date_debut,
-            'date_fin' => $request->date_fin,
-            'nom' => $request->nom,
-            'email' => $request->email,
-            'telephone' => $request->telephone,
-            'adresse' => $request->adresse,
-            'montant_total' => $totalAmount,
-            'statut' => 'en_attente',
-            'tenant_id' => 1, // Default tenant
-        ]);
+        try {
+            // Create or find client from form data
+            $client = Client::firstOrCreate(
+                ['email' => $request->email],
+                [
+                    'tenant_id' => 1, // Default tenant
+                    'type' => 'client',
+                    'nom' => $request->nom,
+                    'email' => $request->email,
+                    'telephone' => $request->telephone,
+                    'adresse' => $request->adresse,
+                ]
+            );
+
+            // Generate reservation number
+            $numeroReservation = 'RES-' . date('Ymd') . '-' . str_pad(Reservation::count() + 1, 4, '0', STR_PAD_LEFT);
+
+            $reservation = Reservation::create([
+                'vehicule_id' => $request->vehicule_id,
+                'client_id' => $client->id,
+                'date_debut' => $request->date_debut,
+                'date_fin' => $request->date_fin,
+                'numero_reservation' => $numeroReservation,
+                'lieu_depart' => 'Main Office', // Default pickup location
+                'lieu_retour' => 'Main Office', // Default return location
+                'nombre_passagers' => 1, // Default number of passengers
+                'prix_total' => $totalAmount,
+                'caution' => 0, // Default deposit
+                'statut' => 'en_attente',
+                'tenant_id' => 1, // Default tenant
+            ]);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('Reservation creation failed: ' . $e->getMessage());
+            
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create reservation. Please try again or contact support.'
+                ], 500);
+            }
+            
+            return back()->withErrors(['error' => 'Failed to create reservation. Please try again or contact support.'])->withInput();
+        }
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Reservation submitted successfully! We will contact you soon to confirm.'
+            ]);
+        }
         
         return redirect()->route('landing.car.show', $vehicule)
             ->with('success', 'Reservation submitted successfully! We will contact you soon to confirm.');

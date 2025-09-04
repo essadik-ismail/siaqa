@@ -32,6 +32,15 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('saas')->name('saas.')->
         
         return view('saas.dashboard', compact('stats'));
     })->name('dashboard');
+    
+    // Global Users Management
+    Route::resource('global-users', \App\Http\Controllers\SaaS\GlobalUserManagementController::class)->parameters(['global-users' => 'user']);
+    Route::post('global-users/{user}/toggle-status', [\App\Http\Controllers\SaaS\GlobalUserManagementController::class, 'toggleStatus'])->name('global-users.toggle-status');
+    Route::post('global-users/{user}/launch', [\App\Http\Controllers\SaaS\GlobalUserManagementController::class, 'launchAsUser'])->name('global-users.launch');
+    
+    // System Diagnostics (Super Admin Only)
+    Route::get('system-diagnostics', [\App\Http\Controllers\SaaS\SystemDiagnosticsController::class, 'index'])->name('system-diagnostics');
+    Route::post('system-diagnostics/clear-cache', [\App\Http\Controllers\SaaS\SystemDiagnosticsController::class, 'clearCache'])->name('system-diagnostics.clear-cache');
 });
 
 /*

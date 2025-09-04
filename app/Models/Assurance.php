@@ -14,21 +14,24 @@ class Assurance extends Model
 
     protected $fillable = [
         'vehicule_id',
-        'compagnie',
+        'numero_assurance',
         'numero_police',
-        'date_debut',
-        'date_fin',
-        'montant',
-        'type_couverture',
-        'statut',
-        'notes',
+        'date',
+        'date_prochaine',
+        'date_reglement',
+        'prix',
+        'periode',
+        'fichiers',
+        'description',
         'tenant_id',
     ];
 
     protected $casts = [
-        'date_debut' => 'date',
-        'date_fin' => 'date',
-        'montant' => 'decimal:2',
+        'date' => 'date',
+        'date_prochaine' => 'date',
+        'date_reglement' => 'date',
+        'prix' => 'decimal:2',
+        'fichiers' => 'array',
     ];
 
     /**
@@ -48,27 +51,11 @@ class Assurance extends Model
     }
 
     /**
-     * Scope a query to only include active insurance.
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('statut', 'actif');
-    }
-
-    /**
      * Scope a query to only include expiring insurance.
      */
     public function scopeExpiring($query)
     {
-        return $query->where('date_fin', '<=', now()->addDays(30));
-    }
-
-    /**
-     * Check if insurance is active.
-     */
-    public function isActive(): bool
-    {
-        return $this->statut === 'actif';
+        return $query->where('date_prochaine', '<=', now()->addDays(30));
     }
 
     /**
@@ -76,14 +63,27 @@ class Assurance extends Model
      */
     public function isExpiringSoon(): bool
     {
-        return $this->date_fin->diffInDays(now()) <= 30;
+        return $this->date_prochaine->diffInDays(now()) <= 30;
     }
 
     /**
-     * Renew the insurance.
+     * Get the file URLs.
      */
-    public function renew(): void
+    public function getFileUrlsAttribute(): array
     {
-        $this->update(['statut' => 'renouvelé']);
+        if ($this->fichiers && is_array($this->fichiers)) {
+            return array_map(function ($file) {
+                return asset('storage/' . $file);
+            }, $this->fichiers);
+        }
+        return [];
+    }
+
+    /**
+     * Check if assurance has files.
+     */
+    public function hasFiles(): bool
+    {
+        return !empty($this->fichiers);
     }
 }

@@ -38,4 +38,12 @@ class Charge extends Model
     {
         return $this->belongsTo(Tenant::class);
     }
+
+    /**
+     * Get the agence that owns the charge.
+     */
+    public function agence(): BelongsTo
+    {
+        return $this->belongsTo(Agence::class);
+    }
 }

@@ -51,6 +51,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Client</label>
                 <select id="clientFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent filter-select">
                     <option value="">Tous les clients</option>
+                    <option value="blacklisted">Clients blacklistés</option>
                     @foreach($clients as $client)
                         <option value="{{ $client->id }}">{{ $client->nom }} {{ $client->prenom }}</option>
                     @endforeach
@@ -111,21 +112,45 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($reservations as $reservation)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 {{ $reservation->client->isBlacklisted() ? 'blacklist-warning' : '' }}">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">#{{ $reservation->numero_reservation }}</div>
                                 <div class="text-sm text-gray-500">{{ $reservation->created_at->format('d/m/Y') }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-gray-600 text-xs"></i>
+                                    <div class="w-8 h-8 {{ $reservation->client->isBlacklisted() ? 'bg-red-300' : 'bg-gray-300' }} rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas {{ $reservation->client->isBlacklisted() ? 'fa-ban text-red-600' : 'fa-user text-gray-600' }} text-xs"></i>
                                     </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ $reservation->client->nom }} {{ $reservation->client->prenom }}
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $reservation->client->full_name }}
+                                            </div>
+                                            @if($reservation->client->isBlacklisted())
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium blacklist-badge">
+                                                    <i class="fas fa-ban mr-1"></i>Blacklisté
+                                                </span>
+                                            @endif
                                         </div>
                                         <div class="text-sm text-gray-500">{{ $reservation->client->email }}</div>
+                                        @if($reservation->client->isBlacklisted())
+                                            <div class="mt-1 p-3 blacklist-info">
+                                                <div class="text-xs text-red-700 font-bold mb-2 flex items-center">
+                                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                    Client Blacklisté
+                                                </div>
+                                                <div class="text-xs text-red-600 space-y-1">
+                                                    <div><strong>Nom complet:</strong> {{ $reservation->client->full_name }}</div>
+                                                    <div><strong>Email:</strong> {{ $reservation->client->email }}</div>
+                                                    <div><strong>Téléphone:</strong> {{ $reservation->client->telephone ?? 'N/A' }}</div>
+                                                    <div><strong>Adresse:</strong> {{ $reservation->client->adresse ?? 'N/A' }}</div>
+                                                    @if($reservation->client->motif_blacklist)
+                                                        <div><strong>Motif:</strong> {{ $reservation->client->motif_blacklist }}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
@@ -399,6 +424,36 @@
         opacity: .5;
     }
 }
+
+/* Blacklist warning styles */
+.blacklist-warning {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border-left: 4px solid #dc2626;
+    animation: blacklistPulse 2s ease-in-out infinite;
+}
+
+@keyframes blacklistPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+    }
+}
+
+.blacklist-info {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+}
+
+.blacklist-badge {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
 </style>
 @endpush
 
@@ -470,9 +525,13 @@ function updateActiveFilters(filters) {
                     break;
                 case 'client_id':
                     label = 'Client';
-                    const clientSelect = document.getElementById('clientFilter');
-                    const clientOption = clientSelect.querySelector(`option[value="${value}"]`);
-                    displayValue = clientOption ? clientOption.textContent : value;
+                    if (value === 'blacklisted') {
+                        displayValue = 'Clients blacklistés';
+                    } else {
+                        const clientSelect = document.getElementById('clientFilter');
+                        const clientOption = clientSelect.querySelector(`option[value="${value}"]`);
+                        displayValue = clientOption ? clientOption.textContent : value;
+                    }
                     break;
                 case 'vehicule_id':
                     label = 'Véhicule';

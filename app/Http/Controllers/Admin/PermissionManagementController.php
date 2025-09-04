@@ -36,7 +36,8 @@ class PermissionManagementController extends Controller
                 } elseif ($type === 'tenant') {
                     $query->tenant();
                 }
-            });
+            })
+            ->orderBy('created_at', 'desc');
 
         $permissions = $query->paginate(15);
         $tenants = Tenant::all();

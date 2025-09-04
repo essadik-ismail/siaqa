@@ -16,7 +16,7 @@ class ChargeController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Charge::query();
+        $query = Charge::where('tenant_id', auth()->user()->tenant_id);
 
         // Search functionality
         if ($request->has('search') && !empty($request->get('search'))) {
@@ -41,15 +41,15 @@ class ChargeController extends Controller
         }
 
         // Sort functionality
-        $sortBy = $request->get('sort_by', 'date');
+        $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
         $charges = $query->paginate($request->get('per_page', 15));
 
-        // Get data for filters
-        $vehicules = Vehicule::orderBy('name')->get();
-        $types = Charge::distinct()->pluck('designation')->filter()->sort()->values();
+        // Get data for filters - only tenant-specific data
+        $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)->orderBy('name')->get();
+        $types = Charge::where('tenant_id', auth()->user()->tenant_id)->distinct()->pluck('designation')->filter()->sort()->values();
 
         return view('charges.index', compact('charges', 'vehicules', 'types'));
     }
@@ -59,7 +59,7 @@ class ChargeController extends Controller
      */
     public function create(): View
     {
-        $vehicules = Vehicule::orderBy('name')->get();
+        $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)->orderBy('name')->get();
         $types = [
             'Carburant' => 'Carburant',
             'Maintenance' => 'Maintenance',
@@ -84,6 +84,7 @@ class ChargeController extends Controller
             'fichier' => 'nullable|string|max:255',
         ]);
 
+        $validated['tenant_id'] = auth()->user()->tenant_id;
         Charge::create($validated);
 
         return redirect()->route('charges.index')
@@ -95,6 +96,11 @@ class ChargeController extends Controller
      */
     public function show(Charge $charge): View
     {
+        // Ensure the charge belongs to the current tenant
+        if ($charge->tenant_id !== auth()->user()->tenant_id) {
+            abort(403, 'Unauthorized access to this charge.');
+        }
+        
         $charge->load(['vehicule', 'agence']);
         return view('charges.show', compact('charge'));
     }
@@ -104,7 +110,12 @@ class ChargeController extends Controller
      */
     public function edit(Charge $charge): View
     {
-        $vehicules = Vehicule::orderBy('name')->get();
+        // Ensure the charge belongs to the current tenant
+        if ($charge->tenant_id !== auth()->user()->tenant_id) {
+            abort(403, 'Unauthorized access to this charge.');
+        }
+        
+        $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)->orderBy('name')->get();
         $types = [
             'Carburant' => 'Carburant',
             'Maintenance' => 'Maintenance',
@@ -121,6 +132,11 @@ class ChargeController extends Controller
      */
     public function update(Request $request, Charge $charge): RedirectResponse
     {
+        // Ensure the charge belongs to the current tenant
+        if ($charge->tenant_id !== auth()->user()->tenant_id) {
+            abort(403, 'Unauthorized access to this charge.');
+        }
+        
         $validated = $request->validate([
             'designation' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -140,6 +156,11 @@ class ChargeController extends Controller
      */
     public function destroy(Charge $charge): RedirectResponse
     {
+        // Ensure the charge belongs to the current tenant
+        if ($charge->tenant_id !== auth()->user()->tenant_id) {
+            abort(403, 'Unauthorized access to this charge.');
+        }
+        
         $charge->delete();
 
         return redirect()->route('charges.index')
@@ -167,8 +188,8 @@ class ChargeController extends Controller
             // Headers
             fputcsv($file, ['Désignation', 'Date', 'Montant (€)', 'Description', 'Fichier']);
             
-            // Data
-            Charge::orderBy('date', 'desc')->chunk(1000, function($charges) use ($file) {
+            // Data - only tenant-specific charges
+            Charge::where('tenant_id', auth()->user()->tenant_id)->orderBy('date', 'desc')->chunk(1000, function($charges) use ($file) {
                 foreach ($charges as $charge) {
                     fputcsv($file, [
                         $charge->designation,
@@ -191,26 +212,30 @@ class ChargeController extends Controller
      */
     public function statistics(): View
     {
+        $tenantId = auth()->user()->tenant_id;
+        
         $stats = [
-            'total' => Charge::sum('montant'),
-            'this_month' => Charge::whereMonth('date_charge', now()->month)->sum('montant'),
-            'this_year' => Charge::whereYear('date_charge', now()->year)->sum('montant'),
-            'pending' => Charge::where('statut', 'en_attente')->sum('montant'),
-            'paid' => Charge::where('statut', 'payée')->sum('montant'),
-            'cancelled' => Charge::where('statut', 'annulée')->sum('montant'),
+            'total' => Charge::where('tenant_id', $tenantId)->sum('montant'),
+            'this_month' => Charge::where('tenant_id', $tenantId)->whereMonth('date', now()->month)->sum('montant'),
+            'this_year' => Charge::where('tenant_id', $tenantId)->whereYear('date', now()->year)->sum('montant'),
+            'pending' => Charge::where('tenant_id', $tenantId)->where('statut', 'en_attente')->sum('montant'),
+            'paid' => Charge::where('tenant_id', $tenantId)->where('statut', 'payée')->sum('montant'),
+            'cancelled' => Charge::where('tenant_id', $tenantId)->where('statut', 'annulée')->sum('montant'),
         ];
 
         // Monthly breakdown for current year
         $monthlyData = [];
         for ($i = 1; $i <= 12; $i++) {
-            $monthlyData[$i] = Charge::whereYear('date_charge', now()->year)
-                ->whereMonth('date_charge', $i)
+            $monthlyData[$i] = Charge::where('tenant_id', $tenantId)
+                ->whereYear('date', now()->year)
+                ->whereMonth('date', $i)
                 ->sum('montant');
         }
 
         // Top charge types
-        $topTypes = Charge::selectRaw('type_charge, SUM(montant) as total')
-            ->groupBy('type_charge')
+        $topTypes = Charge::where('tenant_id', $tenantId)
+            ->selectRaw('designation, SUM(montant) as total')
+            ->groupBy('designation')
             ->orderByDesc('total')
             ->limit(5)
             ->get();

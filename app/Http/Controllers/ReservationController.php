@@ -56,7 +56,17 @@ class ReservationController extends Controller
 
         // Filter by client
         if ($request->filled('client_id')) {
-            $query->where('client_id', $request->get('client_id'));
+            $clientFilter = $request->get('client_id');
+            if ($clientFilter === 'blacklisted') {
+                $query->whereHas('client', function ($q) {
+                    $q->where(function ($subQ) {
+                        $subQ->where('is_blacklisted', true)
+                             ->orWhere('is_blacklist', true);
+                    });
+                });
+            } else {
+                $query->where('client_id', $clientFilter);
+            }
         }
 
         // Filter by vehicle
@@ -65,13 +75,13 @@ class ReservationController extends Controller
         }
 
         // Sort functionality
-        $sortBy = $request->get('sort_by', 'date_debut');
+        $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
         
         // Validate sort fields
         $allowedSortFields = ['date_debut', 'date_fin', 'statut', 'prix_total', 'numero_reservation', 'created_at'];
         if (!in_array($sortBy, $allowedSortFields)) {
-            $sortBy = 'date_debut';
+            $sortBy = 'created_at';
         }
         
         $query->orderBy($sortBy, $sortOrder);

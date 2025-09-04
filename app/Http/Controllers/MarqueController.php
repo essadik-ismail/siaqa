@@ -15,7 +15,7 @@ class MarqueController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Marque::query();
+        $query = Marque::where('tenant_id', auth()->user()->tenant_id);
 
         // Search functionality
         if ($request->has('search')) {
@@ -24,8 +24,8 @@ class MarqueController extends Controller
         }
 
         // Sort functionality
-        $sortBy = $request->get('sort_by', 'marque');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
         $marques = $query->paginate($request->get('per_page', 15));

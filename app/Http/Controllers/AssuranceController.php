@@ -16,28 +16,24 @@ class AssuranceController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Assurance::with(['vehicule.marque', 'vehicule.agence']);
+        $query = Assurance::with(['vehicule.marque', 'vehicule.agence'])
+            ->where('tenant_id', auth()->user()->tenant_id);
 
         // Search functionality
         if ($request->has('search')) {
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
                 $q->where('numero_police', 'like', "%{$search}%")
-                  ->orWhere('compagnie', 'like', "%{$search}%")
+                  ->orWhere('numero_assurance', 'like', "%{$search}%")
                   ->orWhereHas('vehicule', function ($vehiculeQ) use ($search) {
                       $vehiculeQ->where('immatriculation', 'like', "%{$search}%");
                   });
             });
         }
 
-        // Filter by status
-        if ($request->has('statut')) {
-            $query->where('statut', $request->get('statut'));
-        }
-
         // Sort functionality
-        $sortBy = $request->get('sort_by', 'date_expiration');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
         $assurances = $query->paginate($request->get('per_page', 15));
@@ -51,6 +47,7 @@ class AssuranceController extends Controller
     public function create(): View
     {
         $vehicules = Vehicule::where('is_active', true)
+            ->where('tenant_id', auth()->user()->tenant_id)
             ->with(['marque', 'agence'])
             ->get();
 
@@ -64,6 +61,15 @@ class AssuranceController extends Controller
     {
         $data = $request->validated();
         $data['tenant_id'] = auth()->user()->tenant_id;
+
+        // Handle file uploads
+        if ($request->hasFile('fichiers')) {
+            $fichiers = [];
+            foreach ($request->file('fichiers') as $file) {
+                $fichiers[] = $file->store('assurances/files', 'public');
+            }
+            $data['fichiers'] = $fichiers;
+        }
 
         $assurance = Assurance::create($data);
 
@@ -97,6 +103,7 @@ class AssuranceController extends Controller
         }
 
         $vehicules = Vehicule::where('is_active', true)
+            ->where('tenant_id', auth()->user()->tenant_id)
             ->with(['marque', 'agence'])
             ->get();
 
@@ -114,6 +121,25 @@ class AssuranceController extends Controller
         }
 
         $data = $request->validated();
+
+        // Handle file uploads
+        if ($request->hasFile('fichiers')) {
+            // Delete old files if they exist
+            if ($assurance->fichiers) {
+                foreach ($assurance->fichiers as $file) {
+                    if (file_exists(storage_path('app/public/' . $file))) {
+                        unlink(storage_path('app/public/' . $file));
+                    }
+                }
+            }
+            
+            $fichiers = [];
+            foreach ($request->file('fichiers') as $file) {
+                $fichiers[] = $file->store('assurances/files', 'public');
+            }
+            $data['fichiers'] = $fichiers;
+        }
+
         $assurance->update($data);
 
         return redirect()->route('assurances.index')

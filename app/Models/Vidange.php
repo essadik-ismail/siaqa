@@ -14,23 +14,30 @@ class Vidange extends Model
 
     protected $fillable = [
         'vehicule_id',
-        'date_vidange',
-        'kilometrage',
+        'date_prevue',
+        'kilometrage_actuel',
+        'kilometrage_prochaine',
         'type_huile',
         'quantite_huile',
         'filtre_huile',
         'filtre_air',
-        'cout',
+        'filtre_carburant',
+        'cout_estime',
         'statut',
         'notes',
         'tenant_id',
+        // Keep old columns for backward compatibility
+        'prix',
+        'fichier',
+        'description',
     ];
 
     protected $casts = [
-        'date_vidange' => 'date',
-        'kilometrage' => 'integer',
+        'date_prevue' => 'date',
+        'kilometrage_actuel' => 'integer',
+        'kilometrage_prochaine' => 'integer',
         'quantite_huile' => 'decimal:2',
-        'cout' => 'decimal:2',
+        'cout_estime' => 'decimal:2',
     ];
 
     /**

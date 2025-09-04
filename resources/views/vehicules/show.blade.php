@@ -139,6 +139,18 @@
                 <p class="text-gray-700">{{ $vehicule->description }}</p>
             </div>
             @endif
+
+            <!-- Vehicle Image -->
+            <div class="mt-8 pt-8 border-t border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Image du Véhicule</h3>
+                <div class="flex justify-center">
+                    <div class="w-80 h-60 rounded-xl overflow-hidden shadow-lg">
+                        <img src="{{ $vehicule->image_url }}" 
+                             alt="{{ $vehicule->name }}" 
+                             class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

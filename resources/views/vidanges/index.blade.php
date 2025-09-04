@@ -50,7 +50,10 @@
                 <select id="vehicle_filter" class="form-select w-full">
                     <option value="">Tous les véhicules</option>
                     @foreach($vehicules as $vehicule)
-                        <option value="{{ $vehicule->id }}">{{ $vehicule->marque->nom }} {{ $vehicule->modele }} - {{ $vehicule->immatriculation }}</option>
+                        <option value="{{ $vehicule->id }}">
+                            {{ $vehicule->marque ? $vehicule->marque->nom : 'Marque inconnue' }} 
+                            {{ $vehicule->modele }} - {{ $vehicule->immatriculation }}
+                        </option>
                     @endforeach
                 </select>
             </div>

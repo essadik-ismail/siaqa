@@ -24,7 +24,7 @@
                         <form method="POST" action="{{ route('clients.toggle-blacklist', $client) }}" class="inline">
                             @csrf
                             <button type="button" class="bg-{{ $client->is_blacklisted ? 'green' : 'red' }}-600 hover:bg-{{ $client->is_blacklisted ? 'green' : 'red' }}-700 text-white px-3 py-1 rounded text-sm"
-                                onclick="showBlacklistModal('{{ $client->full_name }}', {{ $client->is_blacklisted ? 'false' : 'true' }}, '{{ route('clients.toggle-blacklist', $client) }}')">
+                                onclick="showBlacklistModal('{{ $client->full_name }}', {{ $client->is_blacklisted ? 'true' : 'false' }}, '{{ route('clients.toggle-blacklist', $client) }}')">
                                 <i class="fas fa-{{ $client->is_blacklisted ? 'check' : 'ban' }} mr-1"></i>{{ $client->is_blacklisted ? 'Déblacklister' : 'Blacklister' }}
                             </button>
                         </form>
@@ -414,22 +414,22 @@
         const submitText = document.getElementById('blacklistSubmitText');
         const form = document.getElementById('blacklistForm');
 
-        // Configure modal based on action
+        // Configure modal based on current status
         if (isBlacklisted) {
-            // Unblacklist - Green theme
+            // Currently blacklisted - Show unblacklist option (Green theme)
             iconContainer.className = 'w-16 h-16 bg-green-100 rounded-full flex items-center justify-center';
             icon.className = 'fas fa-user-check text-green-500 text-2xl';
-            title.textContent = 'Confirmer le déblacklistage';
-            message.innerHTML = `Êtes-vous sûr de vouloir <strong class="text-green-700">déblacklister</strong> le client <span class="font-semibold text-gray-900">${name}</span> ?`;
-            submitText.textContent = 'Déblacklister';
+            title.textContent = 'Unblock Client';
+            message.innerHTML = `Do you want to <strong class="text-green-700">unblock</strong> the client <span class="font-semibold text-gray-900">${name}</span>?`;
+            submitText.textContent = 'Unblock Client';
             submitBtn.className = 'w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2';
         } else {
-            // Blacklist - Red theme
+            // Currently active - Show blacklist option (Red theme)
             iconContainer.className = 'w-16 h-16 bg-red-100 rounded-full flex items-center justify-center';
             icon.className = 'fas fa-ban text-red-500 text-2xl';
-            title.textContent = 'Confirmer le blacklistage';
-            message.innerHTML = `Êtes-vous sûr de vouloir <strong class="text-red-700">blacklister</strong> le client <span class="font-semibold text-gray-900">${name}</span> ?`;
-            submitText.textContent = 'Blacklister';
+            title.textContent = 'Block Client';
+            message.innerHTML = `Do you want to <strong class="text-red-700">block</strong> the client <span class="font-semibold text-gray-900">${name}</span>?`;
+            submitText.textContent = 'Block Client';
             submitBtn.className = 'w-full bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2';
         }
 

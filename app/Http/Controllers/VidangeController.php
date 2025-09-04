@@ -15,7 +15,8 @@ class VidangeController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Vidange::with(['vehicule.marque', 'vehicule.agence']);
+        $query = Vidange::with(['vehicule.marque', 'vehicule.agence'])
+            ->where('tenant_id', auth()->user()->tenant_id);
 
         // Search functionality
         if ($request->has('search')) {
@@ -34,13 +35,19 @@ class VidangeController extends Controller
         }
 
         // Sort functionality
-        $sortBy = $request->get('sort_by', 'date_prevue');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
         $vidanges = $query->paginate($request->get('per_page', 15));
 
-        return view('vidanges.index', compact('vidanges'));
+        // Get all vehicles for the filter dropdown
+        $vehicules = Vehicule::with('marque')
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('vidanges.index', compact('vidanges', 'vehicules'));
     }
 
     /**
@@ -49,6 +56,7 @@ class VidangeController extends Controller
     public function create(): View
     {
         $vehicules = Vehicule::where('is_active', true)
+            ->where('tenant_id', auth()->user()->tenant_id)
             ->with(['marque', 'agence'])
             ->get();
 
@@ -64,13 +72,26 @@ class VidangeController extends Controller
             'vehicule_id' => 'required|exists:vehicules,id',
             'date_prevue' => 'required|date|after:today',
             'kilometrage_actuel' => 'required|numeric|min:0',
-            'kilometrage_prochaine' => 'required|numeric|gt:kilometrage_actuel',
+            'kilometrage_prochaine' => 'required|numeric|gte:kilometrage_actuel',
+            'type_huile' => 'nullable|string|max:50',
+            'filtre_huile' => 'nullable|string|max:50',
+            'filtre_air' => 'nullable|string|max:50',
+            'filtre_carburant' => 'nullable|string|max:50',
+            'cout_estime' => 'nullable|numeric|min:0',
+            'statut' => 'required|string|in:planifiee,en_cours,terminee,annulee',
             'notes' => 'nullable|string|max:500'
         ]);
 
         $data = $request->all();
         $data['tenant_id'] = auth()->user()->tenant_id;
-        $data['statut'] = 'planifiee';
+        // Use the statut from the form, or default to 'planifiee' if not provided
+        if (!isset($data['statut']) || empty($data['statut'])) {
+            $data['statut'] = 'planifiee';
+        }
+        // Map cout_estime to prix for backward compatibility
+        if (isset($data['cout_estime'])) {
+            $data['prix'] = $data['cout_estime'];
+        }
 
         $vidange = Vidange::create($data);
 
@@ -103,8 +124,9 @@ class VidangeController extends Controller
             abort(404, 'Vidange non trouvée');
         }
 
-        $vehicules = Vehicule::where('is_active', true)
-            ->with(['marque', 'agence'])
+        $vehicules = Vehicule::with('marque')
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('vidanges.edit', compact('vidange', 'vehicules'));
@@ -124,11 +146,22 @@ class VidangeController extends Controller
             'vehicule_id' => 'required|exists:vehicules,id',
             'date_prevue' => 'required|date',
             'kilometrage_actuel' => 'required|numeric|min:0',
-            'kilometrage_prochaine' => 'required|numeric|gt:kilometrage_actuel',
+            'kilometrage_prochaine' => 'required|numeric|gte:kilometrage_actuel',
+            'type_huile' => 'nullable|string|max:50',
+            'filtre_huile' => 'nullable|string|max:50',
+            'filtre_air' => 'nullable|string|max:50',
+            'filtre_carburant' => 'nullable|string|max:50',
+            'cout_estime' => 'nullable|numeric|min:0',
+            'statut' => 'required|string|in:planifiee,en_cours,terminee,annulee',
             'notes' => 'nullable|string|max:500'
         ]);
 
-        $vidange->update($request->all());
+        $data = $request->all();
+        // Map cout_estime to prix for backward compatibility
+        if (isset($data['cout_estime'])) {
+            $data['prix'] = $data['cout_estime'];
+        }
+        $vidange->update($data);
 
         return redirect()->route('vidanges.index')
             ->with('success', 'Vidange mise à jour avec succès');

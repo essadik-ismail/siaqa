@@ -1,9 +1,9 @@
-Ridex - Rent your favourite car
+Odys - Rent your favourite car
 
 
 # HEADER
 
-alt = Ridex logo
+alt = Odys logo
 
 Home
 Explore cars
@@ -205,9 +205,9 @@ New rules for handling our cars
 
 # FOOTER
 
-alt = Ridex logo
+alt = Odys logo
 
-Search for cheap rental cars in New York. With a diverse fleet of 19,000 vehicles, Waydex offers its consumers an attractive and fun selection.
+Search for cheap rental cars in New York. With a diverse fleet of 19,000 vehicles, Odys offers its consumers an attractive and fun selection.
 
 Company
 

@@ -37,9 +37,12 @@ class SettingsController extends Controller
             'language' => 'required|in:fr,en,es',
         ]);
 
+        $tenantId = auth()->user()->tenant_id;
+        $tenantKey = $tenantId ? ".tenant_{$tenantId}" : '';
+
         // Store settings in cache (you can also store in database)
         foreach ($validated as $key => $value) {
-            Cache::put("settings.{$key}", $value, now()->addYear());
+            Cache::put("settings{$tenantKey}.{$key}", $value, now()->addYear());
         }
 
         return redirect()->back()->with('success', 'Paramètres généraux mis à jour avec succès');
@@ -58,9 +61,12 @@ class SettingsController extends Controller
             'payment_notifications' => 'boolean',
         ]);
 
+        $tenantId = auth()->user()->tenant_id;
+        $tenantKey = $tenantId ? ".tenant_{$tenantId}" : '';
+
         // Store notification settings
         foreach ($validated as $key => $value) {
-            Cache::put("settings.notifications.{$key}", $value, now()->addYear());
+            Cache::put("settings{$tenantKey}.notifications.{$key}", $value, now()->addYear());
         }
 
         return redirect()->back()->with('success', 'Paramètres de notifications mis à jour avec succès');
@@ -78,9 +84,12 @@ class SettingsController extends Controller
             'max_login_attempts' => 'required|integer|min:3|max:10',
         ]);
 
+        $tenantId = auth()->user()->tenant_id;
+        $tenantKey = $tenantId ? ".tenant_{$tenantId}" : '';
+
         // Store security settings
         foreach ($validated as $key => $value) {
-            Cache::put("settings.security.{$key}", $value, now()->addYear());
+            Cache::put("settings{$tenantKey}.security.{$key}", $value, now()->addYear());
         }
 
         return redirect()->back()->with('success', 'Paramètres de sécurité mis à jour avec succès');
@@ -98,9 +107,12 @@ class SettingsController extends Controller
             'payment_terms' => 'nullable|integer|min:0|max:90',
         ]);
 
+        $tenantId = auth()->user()->tenant_id;
+        $tenantKey = $tenantId ? ".tenant_{$tenantId}" : '';
+
         // Store billing settings
         foreach ($validated as $key => $value) {
-            Cache::put("settings.billing.{$key}", $value, now()->addYear());
+            Cache::put("settings{$tenantKey}.billing.{$key}", $value, now()->addYear());
         }
 
         return redirect()->back()->with('success', 'Paramètres de facturation mis à jour avec succès');
@@ -111,35 +123,38 @@ class SettingsController extends Controller
      */
     private function getSettings(): array
     {
+        $tenantId = auth()->user()->tenant_id;
+        $tenantKey = $tenantId ? ".tenant_{$tenantId}" : '';
+        
         return [
             'general' => [
-                'company_name' => Cache::get('settings.company_name', 'Car Rental System'),
-                'company_email' => Cache::get('settings.company_email', 'contact@rental.com'),
-                'company_phone' => Cache::get('settings.company_phone', '+33 1 23 45 67 89'),
-                'company_address' => Cache::get('settings.company_address', '123 Rue de la Paix, Paris'),
-                'currency' => Cache::get('settings.currency', 'EUR'),
-                'timezone' => Cache::get('settings.timezone', 'Europe/Paris'),
-                'date_format' => Cache::get('settings.date_format', 'd/m/Y'),
-                'language' => Cache::get('settings.language', 'fr'),
+                'company_name' => Cache::get("settings{$tenantKey}.company_name", 'Car Rental System'),
+                'company_email' => Cache::get("settings{$tenantKey}.company_email", 'contact@rental.com'),
+                'company_phone' => Cache::get("settings{$tenantKey}.company_phone", '+33 1 23 45 67 89'),
+                'company_address' => Cache::get("settings{$tenantKey}.company_address", '123 Rue de la Paix, Paris'),
+                'currency' => Cache::get("settings{$tenantKey}.currency", 'EUR'),
+                'timezone' => Cache::get("settings{$tenantKey}.timezone", 'Europe/Paris'),
+                'date_format' => Cache::get("settings{$tenantKey}.date_format", 'd/m/Y'),
+                'language' => Cache::get("settings{$tenantKey}.language", 'fr'),
             ],
             'notifications' => [
-                'email_notifications' => Cache::get('settings.notifications.email_notifications', true),
-                'reservation_notifications' => Cache::get('settings.notifications.reservation_notifications', true),
-                'maintenance_notifications' => Cache::get('settings.notifications.maintenance_notifications', true),
-                'contract_notifications' => Cache::get('settings.notifications.contract_notifications', true),
-                'payment_notifications' => Cache::get('settings.notifications.payment_notifications', true),
+                'email_notifications' => Cache::get("settings{$tenantKey}.notifications.email_notifications", true),
+                'reservation_notifications' => Cache::get("settings{$tenantKey}.notifications.reservation_notifications", true),
+                'maintenance_notifications' => Cache::get("settings{$tenantKey}.notifications.maintenance_notifications", true),
+                'contract_notifications' => Cache::get("settings{$tenantKey}.notifications.contract_notifications", true),
+                'payment_notifications' => Cache::get("settings{$tenantKey}.notifications.payment_notifications", true),
             ],
             'security' => [
-                'session_timeout' => Cache::get('settings.security.session_timeout', 120),
-                'two_factor_auth' => Cache::get('settings.security.two_factor_auth', false),
-                'password_expiry_days' => Cache::get('settings.security.password_expiry_days', 90),
-                'max_login_attempts' => Cache::get('settings.security.max_login_attempts', 5),
+                'session_timeout' => Cache::get("settings{$tenantKey}.security.session_timeout", 120),
+                'two_factor_auth' => Cache::get("settings{$tenantKey}.security.two_factor_auth", false),
+                'password_expiry_days' => Cache::get("settings{$tenantKey}.security.password_expiry_days", 90),
+                'max_login_attempts' => Cache::get("settings{$tenantKey}.security.max_login_attempts", 5),
             ],
             'billing' => [
-                'billing_address' => Cache::get('settings.billing.billing_address', ''),
-                'tax_rate' => Cache::get('settings.billing.tax_rate', 20),
-                'invoice_prefix' => Cache::get('settings.billing.invoice_prefix', 'INV'),
-                'payment_terms' => Cache::get('settings.billing.payment_terms', 30),
+                'billing_address' => Cache::get("settings{$tenantKey}.billing.billing_address", ''),
+                'tax_rate' => Cache::get("settings{$tenantKey}.billing.tax_rate", 20),
+                'invoice_prefix' => Cache::get("settings{$tenantKey}.billing.invoice_prefix", 'INV'),
+                'payment_terms' => Cache::get("settings{$tenantKey}.billing.payment_terms", 30),
             ],
         ];
     }

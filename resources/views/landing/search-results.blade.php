@@ -24,7 +24,7 @@
                 @foreach($cars as $car)
                 <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
                     <div class="relative">
-                        <img src="{{ $car->image_url ?? 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=250&fit=crop&crop=center' }}" 
+                        <img src="{{ $car->image_url }}" 
                              alt="{{ $car->name }}" 
                              class="w-full h-48 object-cover">
                         <div class="absolute top-4 right-4">
@@ -37,7 +37,7 @@
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-semibold text-gray-900">{{ $car->name }}</h3>
-                            <span class="text-2xl font-bold text-blue-600">${{ number_format($car->prix_jour) }}</span>
+                            <span class="text-2xl font-bold text-blue-600">{{ number_format($car->prix_location_jour) }} DH</span>
                         </div>
                         
                         <div class="space-y-2 mb-6">

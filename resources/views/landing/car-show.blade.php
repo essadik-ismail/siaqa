@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $vehicule->marque->nom ?? 'Unknown' }} {{ $vehicule->modele }} - CarRental</title>
+    <title>{{ $vehicule->marque->nom ?? 'Unknown' }} {{ $vehicule->modele }} - Odys</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -37,7 +37,7 @@
                             <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                                 <span class="text-white font-bold text-xl">C</span>
                             </div>
-                            <span class="text-xl font-bold text-gray-900">CarRental</span>
+                            <span class="text-xl font-bold text-gray-900">Odys</span>
                         </a>
                     </div>
                 </div>
@@ -101,9 +101,11 @@
             <!-- Car Details -->
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <!-- Car Image Placeholder -->
-                    <div class="h-80 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
-                        <i class="fas fa-car text-8xl text-gray-400"></i>
+                    <!-- Car Image -->
+                    <div class="relative h-80 overflow-hidden">
+                        <img src="{{ $vehicule->image_url }}" 
+                             alt="{{ $vehicule->name }}" 
+                             class="w-full h-full object-cover">
                         <div class="absolute top-4 right-4">
                             <span class="px-4 py-2 rounded-full text-sm font-medium 
                                 @if($vehicule->statut === 'disponible') status-available
@@ -124,7 +126,7 @@
                                 <p class="text-xl text-gray-600">{{ $vehicule->immatriculation }}</p>
                             </div>
                             <div class="text-right">
-                                <div class="text-3xl font-bold text-blue-600">${{ number_format($vehicule->prix_jour, 2) }}</div>
+                                <div class="text-3xl font-bold text-blue-600">{{ number_format($vehicule->prix_location_jour, 2) }} DH</div>
                                 <div class="text-gray-500">per day</div>
                             </div>
                         </div>
@@ -199,14 +201,16 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         @foreach($relatedCars as $relatedCar)
                         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                            <div class="h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                <i class="fas fa-car text-3xl text-gray-400"></i>
+                            <div class="h-32 overflow-hidden">
+                                <img src="{{ $relatedCar->image_url }}" 
+                                     alt="{{ $relatedCar->name }}" 
+                                     class="w-full h-full object-cover">
                             </div>
                             <div class="p-4">
                                 <h3 class="font-semibold text-gray-900 mb-2">
                                     {{ $relatedCar->marque->nom ?? 'Unknown' }} {{ $relatedCar->modele }}
                                 </h3>
-                                <p class="text-gray-600 mb-2">${{ number_format($relatedCar->prix_jour, 2) }}/day</p>
+                                <p class="text-gray-600 mb-2">{{ number_format($relatedCar->prix_location_jour, 2) }} DH/day</p>
                                 <a href="{{ route('landing.car.show', $relatedCar) }}" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
                                     View Details →
                                 </a>
@@ -316,7 +320,7 @@
                         <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                             <span class="text-white font-bold text-xl">C</span>
                         </div>
-                        <span class="text-xl font-bold">CarRental</span>
+                        <span class="text-xl font-bold">Odys</span>
                     </div>
                     <p class="text-gray-400">
                         Premium car rental service providing quality vehicles and exceptional customer experience.
@@ -342,13 +346,13 @@
                     <h3 class="text-lg font-semibold mb-4">Contact</h3>
                     <ul class="space-y-2">
                         <li class="text-gray-400"><i class="fas fa-phone mr-2"></i>+1 (555) 123-4567</li>
-                        <li class="text-gray-400"><i class="fas fa-envelope mr-2"></i>info@carrental.com</li>
+                                                    <li class="text-gray-400"><i class="fas fa-envelope mr-2"></i>info@odys.com</li>
                         <li class="text-gray-400"><i class="fas fa-map-marker-alt mr-2"></i>123 Main St, City</li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-8 pt-8 text-center">
-                <p class="text-gray-400">&copy; {{ date('Y') }} CarRental. All rights reserved.</p>
+                <p class="text-gray-400">&copy; {{ date('Y') }} Odys. All rights reserved.</p>
             </div>
         </div>
     </footer>

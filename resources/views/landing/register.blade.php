@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'CarRental') }} - Register</title>
+    <title>{{ config('app.name', 'Odys') }} - Register</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -37,7 +37,7 @@
                             <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                                 <span class="text-white font-bold text-xl">C</span>
                             </div>
-                            <span class="text-xl font-bold text-gray-900">CarRental</span>
+                            <span class="text-xl font-bold text-gray-900">Odys</span>
                         </a>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
                 </div>
                 <h2 class="text-3xl font-bold text-gray-900">Create your account</h2>
                 <p class="mt-2 text-sm text-gray-600">
-                    Join CarRental and start exploring our premium vehicles
+                    Join Odys and start exploring our premium vehicles
                 </p>
             </div>
 
@@ -215,13 +215,13 @@
                 <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                     <span class="text-white font-bold text-sm">C</span>
                 </div>
-                <span class="text-lg font-bold">CarRental</span>
+                                        <span class="text-lg font-bold">Odys</span>
             </div>
             <p class="text-gray-400 text-sm">
                 Premium car rental service providing quality vehicles and exceptional customer experience.
             </p>
             <div class="border-t border-gray-800 mt-6 pt-6">
-                <p class="text-gray-400 text-sm">&copy; {{ date('Y') }} CarRental. All rights reserved.</p>
+                <p class="text-gray-400 text-sm">&copy; {{ date('Y') }} Odys. All rights reserved.</p>
             </div>
         </div>
     </footer>

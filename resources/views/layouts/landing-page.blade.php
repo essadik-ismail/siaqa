@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Ridex - Rent your favourite car')</title>
+            <title>@yield('title', 'Odys - Rent your favourite car')</title>
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -15,6 +15,9 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Dynamic Validation CSS -->
+    <link rel="stylesheet" href="{{ asset('css/dynamic-validation.css') }}">
     
     <script>
         tailwind.config = {
@@ -1138,12 +1141,10 @@
                 <!-- Logo and Brand -->
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-                            <img src="{{ asset('app/Rent-Car2/assets/images/logo.svg') }}" alt="Ridex logo" class="w-7 h-7">
-                        </div>
+
                     </div>
                     <div class="ml-3">
-                        <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">RIDEX</span>
+                        <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">ODYS</span>
                     </div>
                 </div>
                 
@@ -1291,7 +1292,7 @@
         <div class="max-w-7xl mx-auto px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
-                                         <h5 class="text-xl font-bold text-primary-400 mb-4">RIDEX</h5>
+                                         <h5 class="text-xl font-bold text-primary-400 mb-4">ODYS</h5>
                      <p class="text-surface-300 leading-relaxed">Premium car rental service providing quality vehicles and exceptional customer experience.</p>
                 </div>
                 <div>
@@ -1320,7 +1321,7 @@
                 </div>
             </div>
             <div class="border-t border-surface-700 mt-8 pt-8 text-center">
-                                 <p class="text-surface-400">&copy; {{ date('Y') }} RIDEX. {{ __('app.all_rights_reserved') }}</p>
+                                 <p class="text-surface-400">&copy; {{ date('Y') }} ODYS. {{ __('app.all_rights_reserved') }}</p>
             </div>
         </div>
     </footer>
@@ -1396,6 +1397,9 @@
             }, 5000);
         }
     </script>
+    
+    <!-- Dynamic Validation JavaScript -->
+    <script src="{{ asset('js/dynamic-validation.js') }}"></script>
 
     @stack('scripts')
 </body>

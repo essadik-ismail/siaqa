@@ -101,7 +101,7 @@ class ReservationRequest extends FormRequest
             'options.*' => ['string', 'in:gps,siège_bébé,chauffeur,assurance_supplementaire'],
             'prix_total' => ['required', 'numeric', 'min:0'],
             'caution' => ['required', 'numeric', 'min:0'],
-            'statut' => ['required', 'string', 'in:en_attente,confirmee,annulee,terminee'],
+            'statut' => ['required', 'string', 'in:en_attente,confirmee,en_cours,annulee,terminee'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'motif_annulation' => ['nullable', 'string', 'max:500', 'required_if:statut,annulee'],
         ];

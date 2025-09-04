@@ -89,7 +89,15 @@ class Client extends Model
      */
     public function contrats(): HasMany
     {
-        return $this->hasMany(Contrat::class, 'client_one_id');
+        return $this->hasMany(Contrat::class);
+    }
+
+    /**
+     * Check if the client is blacklisted
+     */
+    public function isBlacklisted(): bool
+    {
+        return $this->is_blacklisted || $this->is_blacklist;
     }
 
     /**

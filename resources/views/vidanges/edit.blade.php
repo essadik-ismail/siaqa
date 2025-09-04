@@ -32,7 +32,7 @@
                             <option value="">Sélectionner un véhicule</option>
                             @foreach($vehicules as $vehicule)
                                 <option value="{{ $vehicule->id }}" {{ $vidange->vehicule_id == $vehicule->id ? 'selected' : '' }}>
-                                    {{ $vehicule->marque->nom }} {{ $vehicule->modele }} - {{ $vehicule->immatriculation }}
+                                    {{ $vehicule->marque ? $vehicule->marque->nom : 'Marque inconnue' }} {{ $vehicule->modele }} - {{ $vehicule->immatriculation }}
                                 </option>
                             @endforeach
                         </select>
@@ -48,11 +48,11 @@
                 <h3 class="text-lg font-medium text-gray-800 mb-4">Informations de Planification</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="date_planifiee" class="block text-sm font-medium text-gray-700 mb-2">Date Planifiée *</label>
-                        <input type="date" id="date_planifiee" name="date_planifiee" 
-                               value="{{ $vidange->date_planifiee ? $vidange->date_planifiee->format('Y-m-d') : '' }}" 
+                        <label for="date_prevue" class="block text-sm font-medium text-gray-700 mb-2">Date Planifiée *</label>
+                        <input type="date" id="date_prevue" name="date_prevue" 
+                               value="{{ $vidange->date_prevue ? $vidange->date_prevue->format('Y-m-d') : '' }}" 
                                required class="form-input w-full">
-                        @error('date_planifiee')
+                        @error('date_prevue')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -124,6 +124,15 @@
                                value="{{ $vidange->filtre_air }}" 
                                placeholder="Ex: Référence filtre" class="form-input w-full">
                         @error('filtre_air')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="filtre_carburant" class="block text-sm font-medium text-gray-700 mb-2">Filtre à Carburant</label>
+                        <input type="text" id="filtre_carburant" name="filtre_carburant" 
+                               value="{{ $vidange->filtre_carburant }}" 
+                               placeholder="Ex: Référence filtre" class="form-input w-full">
+                        @error('filtre_carburant')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>

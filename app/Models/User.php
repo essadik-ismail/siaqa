@@ -26,7 +26,9 @@ class User extends Authenticatable
         'phone',
         'address',
         'tenant_id',
+        'agence_id',
         'is_active',
+        'email_verified_at',
     ];
 
     /**
@@ -64,9 +66,9 @@ class User extends Authenticatable
     /**
      * Get the agency that the user belongs to.
      */
-    public function agency(): BelongsTo
+    public function agence(): BelongsTo
     {
-        return $this->belongsTo(Agency::class);
+        return $this->belongsTo(Agence::class);
     }
 
     /**
@@ -194,6 +196,30 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->hasAnyRole(['super_admin', 'admin']);
+    }
+    
+    /**
+     * Check if user is a regular administrator (not super admin).
+     */
+    public function isRegularAdmin(): bool
+    {
+        return $this->hasRole('admin') && !$this->hasRole('super_admin');
+    }
+    
+    /**
+     * Check if user can access SaaS management features.
+     */
+    public function canAccessSaaS(): bool
+    {
+        return $this->isSuperAdmin();
+    }
+    
+    /**
+     * Check if user can access admin features.
+     */
+    public function canAccessAdmin(): bool
+    {
+        return $this->isAdmin();
     }
 
     /**

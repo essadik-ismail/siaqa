@@ -23,18 +23,7 @@ class VehiculeRequest extends FormRequest
         $vehiculeId = $this->route('vehicule');
         
         return [
-            'marque_id' => [
-                'required', 
-                'exists:marques,id',
-                function ($attribute, $value, $fail) {
-                    $marque = \App\Models\Marque::where('id', $value)
-                        ->where('tenant_id', auth()->user()->tenant_id)
-                        ->first();
-                    if (!$marque) {
-                        $fail('La marque sélectionnée n\'existe pas.');
-                    }
-                }
-            ],
+            'marque' => ['required', 'string', 'max:100'],
             'name' => ['required', 'string', 'max:255'],
             'immatriculation' => [
                 'required', 
@@ -80,8 +69,8 @@ class VehiculeRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'marque_id.required' => 'La marque est requise.',
-            'marque_id.exists' => 'La marque sélectionnée n\'existe pas.',
+            'marque.required' => 'La marque est requise.',
+            'marque.max' => 'La marque ne peut pas dépasser 100 caractères.',
             'name.required' => 'Le nom est requis.',
             'immatriculation.required' => 'L\'immatriculation est requise.',
             'immatriculation.unique' => 'Cette immatriculation est déjà utilisée par un autre véhicule.',
@@ -116,7 +105,7 @@ class VehiculeRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'marque_id' => 'marque',
+            'marque' => 'marque',
             'name' => 'nom',
             'immatriculation' => 'immatriculation',
             'couleur' => 'couleur',

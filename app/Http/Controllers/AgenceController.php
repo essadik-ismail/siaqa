@@ -16,7 +16,7 @@ class AgenceController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Agence::query();
+        $query = Agence::where('tenant_id', auth()->user()->tenant_id);
 
         // Search functionality
         if ($request->has('search') && !empty($request->get('search'))) {
@@ -44,8 +44,8 @@ class AgenceController extends Controller
         }
 
         // Sort functionality
-        $sortBy = $request->get('sort_by', 'nom_agence');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
         $agences = $query->paginate($request->get('per_page', 15));

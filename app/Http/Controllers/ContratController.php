@@ -72,13 +72,13 @@ class ContratController extends Controller
         }
 
         // Sort functionality
-        $sortBy = $request->get('sort_by', 'date_contrat');
+        $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
         
         // Validate sort fields
         $allowedSortFields = ['date_contrat', 'number_contrat', 'etat_contrat', 'prix', 'created_at'];
         if (!in_array($sortBy, $allowedSortFields)) {
-            $sortBy = 'date_contrat';
+            $sortBy = 'created_at';
         }
         
         $query->orderBy($sortBy, $sortOrder);
