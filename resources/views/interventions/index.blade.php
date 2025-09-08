@@ -50,7 +50,7 @@
                 <select id="vehicle_filter" class="form-select w-full">
                     <option value="">Tous les véhicules</option>
                     @foreach($vehicules as $vehicule)
-                        <option value="{{ $vehicule->id }}">{{ $vehicule->marque->nom }} {{ $vehicule->modele }} - {{ $vehicule->immatriculation }}</option>
+                        <option value="{{ $vehicule->id }}">{{ $vehicule->marque ? $vehicule->marque->marque : 'Marque inconnue' }} {{ $vehicule->modele }} - {{ $vehicule->immatriculation }}</option>
                     @endforeach
                 </select>
             </div>
@@ -96,7 +96,7 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900">
-                                            {{ $intervention->vehicule->marque->nom }} {{ $intervention->vehicule->modele }}
+                                            {{ $intervention->vehicule->marque ? $intervention->vehicule->marque->marque : 'Marque inconnue' }} {{ $intervention->vehicule->modele }}
                                         </div>
                                         <div class="text-sm text-gray-500">
                                             {{ $intervention->vehicule->immatriculation }}

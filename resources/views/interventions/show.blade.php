@@ -44,7 +44,16 @@
                             $statusClass = $statusClasses[$intervention->statut] ?? 'bg-gray-100 text-gray-800';
                         @endphp
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
-                            {{ ucfirst($intervention->statut) }}
+                            @php
+                                $statusLabels = [
+                                    'planifiee' => 'Planifiée',
+                                    'en_cours' => 'En cours',
+                                    'terminee' => 'Terminée',
+                                    'annulee' => 'Annulée',
+                                    'en_attente' => 'En attente'
+                                ];
+                                echo $statusLabels[$intervention->statut] ?? ucfirst($intervention->statut);
+                            @endphp
                         </span>
                     </div>
                     <div>
@@ -67,7 +76,15 @@
                             $priorityClass = $priorityClasses[$intervention->priorite] ?? 'bg-gray-100 text-gray-800';
                         @endphp
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $priorityClass }}">
-                            {{ ucfirst($intervention->priorite ?? 'Non spécifiée') }}
+                            @php
+                                $priorityLabels = [
+                                    'basse' => 'Basse',
+                                    'normale' => 'Normale', 
+                                    'haute' => 'Haute',
+                                    'urgente' => 'Urgente'
+                                ];
+                                echo $priorityLabels[$intervention->priorite] ?? 'Non spécifiée';
+                            @endphp
                         </span>
                     </div>
                     <div>
@@ -84,7 +101,17 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-600 mb-1">Durée Estimée</label>
-                        <p class="text-sm text-gray-900">{{ $intervention->duree_estimee ?? 'Non spécifiée' }}</p>
+                        <p class="text-sm text-gray-900">
+                            @if($intervention->duree_estimee)
+                                @if(is_numeric($intervention->duree_estimee))
+                                    {{ $intervention->duree_estimee }} jours
+                                @else
+                                    {{ $intervention->duree_estimee }}
+                                @endif
+                            @else
+                                Non spécifiée
+                            @endif
+                        </p>
                     </div>
                 </div>
             </div>
@@ -146,7 +173,7 @@
                         <i class="fas fa-car text-purple-600 text-xl"></i>
                     </div>
                     <div>
-                        <p class="font-medium text-gray-900">{{ $intervention->vehicule->marque->nom }} {{ $intervention->vehicule->modele }}</p>
+                        <p class="font-medium text-gray-900">{{ $intervention->vehicule->marque ? $intervention->vehicule->marque->marque : 'Marque inconnue' }} {{ $intervention->vehicule->modele }}</p>
                         <p class="text-sm text-gray-500">{{ $intervention->vehicule->immatriculation }}</p>
                     </div>
                 </div>
@@ -173,7 +200,11 @@
                     <div class="text-center">
                         <p class="text-2xl font-bold text-blue-600">
                             @php
-                                $daysUntil = $intervention->date_debut ? now()->diffInDays($intervention->date_debut, false) : 0;
+                                if ($intervention->date_debut) {
+                                    $daysUntil = (int) now()->diffInDays($intervention->date_debut, false);
+                                } else {
+                                    $daysUntil = 0;
+                                }
                             @endphp
                             {{ $daysUntil > 0 ? $daysUntil : 0 }}
                         </p>
@@ -191,7 +222,7 @@
                         <div class="text-center">
                             <p class="text-2xl font-bold text-green-600">
                                 @php
-                                    $duration = $intervention->date_debut->diffInDays($intervention->date_fin);
+                                    $duration = (int) $intervention->date_debut->diffInDays($intervention->date_fin);
                                 @endphp
                                 {{ $duration }}
                             </p>

@@ -60,6 +60,7 @@ class VehiculeRequest extends FormRequest
             ],
             'statut' => ['required', 'string', 'in:disponible,en_location,en_maintenance,hors_service'],
             'is_active' => ['boolean'],
+            'landing_display' => ['boolean'],
         ];
     }
 

@@ -22,6 +22,9 @@ class ReservationRequest extends FormRequest
     {
         $reservationId = $this->route('reservation');
         
+        // Debug: Log the request data
+        \Log::info('Reservation request data:', $this->all());
+        
         return [
             'client_id' => [
                 'required', 
@@ -163,5 +166,14 @@ class ReservationRequest extends FormRequest
             'notes' => 'notes',
             'motif_annulation' => 'motif d\'annulation',
         ];
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     */
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        \Log::error('Reservation validation failed:', $validator->errors()->toArray());
+        parent::failedValidation($validator);
     }
 } 

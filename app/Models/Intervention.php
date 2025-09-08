@@ -15,14 +15,21 @@ class Intervention extends Model
         'date_fin',
         'cout',
         'statut',
+        'priorite',
         'technicien',
+        'kilometrage_intervention',
+        'duree_estimee',
+        'pieces_utilisees',
+        'notes',
         'tenant_id'
     ];
 
     protected $casts = [
         'date_debut' => 'datetime',
         'date_fin' => 'datetime',
-        'cout' => 'decimal:2'
+        'cout' => 'decimal:2',
+        'kilometrage_intervention' => 'integer',
+        'duree_estimee' => 'decimal:2'
     ];
 
     public function vehicule(): BelongsTo

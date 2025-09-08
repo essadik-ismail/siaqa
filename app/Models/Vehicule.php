@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Vehicule extends Model
 {
@@ -278,8 +279,18 @@ class Vehicule extends Model
     public function getImageUrlAttribute(): string
     {
         // If vehicle has a custom image and the file exists, return it
-        if ($this->image && !empty($this->image) && file_exists(public_path('storage/' . $this->image))) {
-            return asset('storage/' . $this->image);
+        if ($this->image && !empty($this->image)) {
+            $exists = Storage::disk('public')->exists($this->image);
+            \Log::info('Vehicle image check', [
+                'vehicle_id' => $this->id,
+                'image_path' => $this->image,
+                'storage_exists' => $exists,
+                'full_path' => storage_path('app/public/' . $this->image)
+            ]);
+            
+            if ($exists) {
+                return asset('storage/' . $this->image);
+            }
         }
 
         // Return the default car image

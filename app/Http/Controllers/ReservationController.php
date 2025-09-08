@@ -101,12 +101,16 @@ class ReservationController extends Controller
      */
     public function create(): View
     {
-        $clients = Client::where('is_blacklisted', false)->orderBy('nom')->get();
+        $clients = Client::where('is_blacklisted', false)
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->orderBy('nom')->get();
         $vehicules = Vehicule::where('statut', 'disponible')
-            ->where('is_active', true)
+            ->where('tenant_id', auth()->user()->tenant_id)
             ->with(['marque', 'agence'])
             ->get();
-        $agences = \App\Models\Agence::where('is_active', true)->orderBy('nom_agence')->get();
+        $agences = \App\Models\Agence::where('is_active', true)
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->orderBy('nom_agence')->get();
 
         return view('reservations.create', compact('clients', 'vehicules', 'agences'));
     }
@@ -116,8 +120,9 @@ class ReservationController extends Controller
      */
     public function store(ReservationRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-        $data['tenant_id'] = auth()->user()->tenant_id;
+        try {
+            $data = $request->validated();
+            $data['tenant_id'] = auth()->user()->tenant_id;
         
         // Generate unique reservation number
         $data['numero_reservation'] = 'RES-' . date('Y') . '-' . str_pad(Reservation::whereYear('created_at', date('Y'))->count() + 1, 3, '0', STR_PAD_LEFT);
@@ -159,6 +164,12 @@ class ReservationController extends Controller
 
         return redirect()->route('reservations.index')
             ->with('success', 'Réservation créée avec succès');
+        } catch (\Exception $e) {
+            \Log::error('Reservation creation error: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création de la réservation: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -338,7 +349,7 @@ class ReservationController extends Controller
             'ce_mois' => Reservation::whereMonth('created_at', now()->month)->count(),
             'ce_mois_revenus' => Reservation::whereMonth('created_at', now()->month)
                 ->where('statut', '!=', 'annulee')
-                ->sum('montant_total'),
+                ->sum('prix_total'),
         ];
 
         return view('reservations.statistics', compact('stats'));

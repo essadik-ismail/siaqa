@@ -309,3 +309,4 @@ document.addEventListener('DOMContentLoaded', function() {
         window.FrontendFilters.init('contracts');
     }
 });
+

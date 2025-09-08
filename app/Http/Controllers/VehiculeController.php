@@ -18,11 +18,47 @@ class VehiculeController extends Controller
      */
     public function index(Request $request): View
     {
-        // Load all vehicles for the tenant (frontend filtering will handle the rest)
-        $vehicules = Vehicule::with(['marque', 'agence'])
-            ->where('tenant_id', auth()->user()->tenant_id)
-            ->orderBy('created_at', 'desc')
-            ->paginate(5);
+        $query = Vehicule::with(['marque', 'agence'])
+            ->where('tenant_id', auth()->user()->tenant_id);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('immatriculation', 'like', "%{$search}%")
+                  ->orWhere('couleur', 'like', "%{$search}%")
+                  ->orWhereHas('marque', function($marqueQuery) use ($search) {
+                      $marqueQuery->where('marque', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Apply status filter
+        if ($request->filled('statut')) {
+            $query->where('statut', $request->get('statut'));
+        }
+
+        // Apply brand filter
+        if ($request->filled('brand')) {
+            $query->whereHas('marque', function($marqueQuery) use ($request) {
+                $marqueQuery->where('marque', 'like', "%{$request->get('brand')}%");
+            });
+        }
+
+        // Apply landing display filter
+        if ($request->filled('landing_display')) {
+            $query->where('landing_display', $request->get('landing_display'));
+        }
+
+        $vehicules = $query->orderBy('created_at', 'desc')->paginate(5);
+
+        // Calculate statistics from ALL vehicles (not filtered) for sidebar
+        $tenantId = auth()->user()->tenant_id;
+        $totalVehicles = Vehicule::where('tenant_id', $tenantId)->count();
+        $availableVehicles = Vehicule::where('tenant_id', $tenantId)->where('statut', 'disponible')->count();
+        $onRentalVehicles = Vehicule::where('tenant_id', $tenantId)->where('statut', 'en_location')->count();
+        $maintenanceVehicles = Vehicule::where('tenant_id', $tenantId)->where('statut', 'en_maintenance')->count();
 
         // Get marques for filters
         $marques = Marque::orderBy('marque', 'asc')->get();
@@ -33,7 +69,7 @@ class VehiculeController extends Controller
             ->orderBy('nom_agence')
             ->get();
 
-        return view('vehicules.index', compact('vehicules', 'marques', 'agences'));
+        return view('vehicules.index', compact('vehicules', 'marques', 'agences', 'totalVehicles', 'availableVehicles', 'onRentalVehicles', 'maintenanceVehicles'));
     }
 
     /**
@@ -145,9 +181,80 @@ class VehiculeController extends Controller
         }
 
         $data = $request->validated();
-        $vehicule->update($data);
+        
+        \Log::info('Vehicle update data', [
+            'vehicle_id' => $vehicule->id,
+            'validated_data' => $data,
+            'has_image_file' => $request->hasFile('image'),
+            'has_images_files' => $request->hasFile('images')
+        ]);
 
-        return redirect()->route('vehicules.index')
+        // Handle marque - create or find existing
+        if (isset($data['marque'])) {
+            $marque = Marque::firstOrCreate(
+                [
+                    'marque' => $data['marque'],
+                    'tenant_id' => auth()->user()->tenant_id
+                ],
+                [
+                    'marque' => $data['marque'],
+                    'tenant_id' => auth()->user()->tenant_id,
+                    'is_active' => true
+                ]
+            );
+            $data['marque_id'] = $marque->id;
+            unset($data['marque']); // Remove marque from data as it's not a column in vehicules table
+        }
+
+        // Handle single image upload
+        if ($request->hasFile('image')) {
+            \Log::info('Image upload detected', [
+                'vehicle_id' => $vehicule->id,
+                'old_image' => $vehicule->image,
+                'new_image_name' => $request->file('image')->getClientOriginalName()
+            ]);
+            
+            // Delete old image if it exists
+            if ($vehicule->image && Storage::disk('public')->exists($vehicule->image)) {
+                Storage::disk('public')->delete($vehicule->image);
+                \Log::info('Old image deleted', ['image_path' => $vehicule->image]);
+            }
+            
+            $data['image'] = $request->file('image')->store('vehicules/images', 'public');
+            \Log::info('New image stored', ['new_image_path' => $data['image']]);
+        }
+
+        // Handle multiple images upload
+        if ($request->hasFile('images')) {
+            // Delete old images if they exist
+            if ($vehicule->images) {
+                foreach ($vehicule->images as $oldImage) {
+                    if (Storage::disk('public')->exists($oldImage)) {
+                        Storage::disk('public')->delete($oldImage);
+                    }
+                }
+            }
+            
+            $images = [];
+            foreach ($request->file('images') as $image) {
+                $images[] = $image->store('vehicules/images', 'public');
+            }
+            $data['images'] = $images;
+        }
+
+        \Log::info('Updating vehicle with data', [
+            'vehicle_id' => $vehicule->id,
+            'final_data' => $data
+        ]);
+        
+        $vehicule->update($data);
+        
+        \Log::info('Vehicle updated successfully', [
+            'vehicle_id' => $vehicule->id,
+            'new_image' => $vehicule->fresh()->image
+        ]);
+
+        return redirect()->route('vehicules.edit', $vehicule)
             ->with('success', 'Véhicule mis à jour avec succès');
     }
 

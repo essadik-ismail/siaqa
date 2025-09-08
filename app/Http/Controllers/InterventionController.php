@@ -16,8 +16,14 @@ class InterventionController extends Controller
     public function index(): View
     {
         $interventions = Intervention::where('tenant_id', auth()->user()->tenant_id)
+            ->with(['vehicule.marque'])
             ->paginate(10);
-        return view('interventions.index', compact('interventions'));
+            
+        $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)
+            ->with(['marque'])
+            ->get();
+            
+        return view('interventions.index', compact('interventions', 'vehicules'));
     }
 
     /**
@@ -44,9 +50,14 @@ class InterventionController extends Controller
             'description' => 'required|string',
             'date_debut' => 'required|date',
             'date_fin' => 'nullable|date|after:date_debut',
-            'statut' => 'required|in:planifiée,en_cours,terminée,annulée',
+            'statut' => 'required|in:planifiee,en_cours,terminee,annulee,en_attente',
+            'priorite' => 'nullable|in:basse,normale,haute,urgente',
             'cout' => 'nullable|numeric|min:0',
             'technicien' => 'nullable|string|max:255',
+            'kilometrage' => 'nullable|integer|min:0',
+            'duree_estimee' => 'nullable|numeric|min:0',
+            'pieces_utilisees' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $validated['tenant_id'] = auth()->user()->tenant_id;
@@ -69,7 +80,11 @@ class InterventionController extends Controller
      */
     public function edit(Intervention $intervention): View
     {
-        return view('interventions.edit', compact('intervention'));
+        $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)
+            ->with(['marque'])
+            ->get();
+            
+        return view('interventions.edit', compact('intervention', 'vehicules'));
     }
 
     /**
@@ -83,9 +98,14 @@ class InterventionController extends Controller
             'description' => 'required|string',
             'date_debut' => 'required|date',
             'date_fin' => 'nullable|date|after:date_debut',
-            'statut' => 'required|in:planifiée,en_cours,terminée,annulée',
+            'statut' => 'required|in:planifiee,en_cours,terminee,annulee,en_attente',
+            'priorite' => 'nullable|in:basse,normale,haute,urgente',
             'cout' => 'nullable|numeric|min:0',
             'technicien' => 'nullable|string|max:255',
+            'kilometrage' => 'nullable|integer|min:0',
+            'duree_estimee' => 'nullable|numeric|min:0',
+            'pieces_utilisees' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $intervention->update($validated);

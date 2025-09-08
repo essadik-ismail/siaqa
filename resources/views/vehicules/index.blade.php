@@ -96,64 +96,65 @@
 
     <!-- Search and Filters -->
     <div class="content-card p-8 mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="relative">
-                <label class="block text-sm font-medium text-gray-700 mb-3">Search</label>
+        <form method="GET" action="{{ route('vehicules.index') }}" id="filterForm">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="relative">
-                    <input type="text" id="searchInput" name="search" value="{{ request('search') }}" 
-                           placeholder="Name, registration, color..." 
-                           class="form-input w-full pl-4 pr-12 py-3">
-                    <button type="button" id="clearSearch" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200 {{ request('search') ? '' : 'hidden' }}">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Search</label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" name="search" value="{{ request('search') }}" 
+                               placeholder="Name, registration, color..." 
+                               class="form-input w-full pl-4 pr-12 py-3">
+                        @if(request('search'))
+                        <button type="button" onclick="clearFilter('search')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        @endif
+                    </div>
+                    <div class="mt-2 text-xs text-gray-500">
+                        <i class="fas fa-lightbulb mr-1"></i>Try searching by name, registration, color, or brand
+                    </div>
                 </div>
-                <div id="searchIndicator" class="hidden mt-2 text-xs text-blue-600">
-                    <i class="fas fa-spinner fa-spin mr-1"></i>Searching...
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Status</label>
+                    <select id="statusFilter" name="statut" class="form-input w-full px-4 py-3 {{ request('statut') !== '' ? 'border-green-300 bg-green-50' : '' }}" onchange="this.form.submit()">
+                        <option value="">All Vehicles</option>
+                        <option value="disponible" {{ request('statut') === 'disponible' ? 'selected' : '' }}>Available</option>
+                        <option value="en_location" {{ request('statut') === 'en_location' ? 'selected' : '' }}>On Rental</option>
+                        <option value="en_maintenance" {{ request('statut') === 'en_maintenance' ? 'selected' : '' }}>In Maintenance</option>
+                        <option value="hors_service" {{ request('statut') === 'hors_service' ? 'selected' : '' }}>Out of Service</option>
+                    </select>
+                    @if(request('statut') !== '')
+                    <div class="mt-2 text-xs text-green-600 flex items-center">
+                        <i class="fas fa-filter mr-1"></i>Filter active
+                    </div>
+                    @endif
                 </div>
-                <div id="searchSuggestions" class="mt-2 text-xs text-gray-500">
-                    <i class="fas fa-lightbulb mr-1"></i>Try searching by name, registration, color, or brand
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Brand</label>
+                    <input type="text" id="brandFilter" name="brand" value="{{ request('brand') }}" 
+                           class="form-input w-full px-4 py-3 {{ request('brand') && request('brand') !== '' ? 'border-purple-300 bg-purple-50' : '' }}"
+                           placeholder="Search by brand name..." onchange="this.form.submit()">
+                    @if(request('brand') && request('brand') !== '')
+                    <div class="mt-2 text-xs text-purple-600 flex items-center">
+                        <i class="fas fa-filter mr-1"></i>Filter active
+                    </div>
+                    @endif
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Landing Page</label>
+                    <select id="landingFilter" name="landing_display" class="form-input w-full px-4 py-3 {{ request('landing_display') !== '' ? 'border-orange-300 bg-orange-50' : '' }}" onchange="this.form.submit()">
+                        <option value="">All Vehicles</option>
+                        <option value="1" {{ request('landing_display') === '1' ? 'selected' : '' }}>Show on Landing</option>
+                        <option value="0" {{ request('landing_display') === '0' ? 'selected' : '' }}>Hide from Landing</option>
+                    </select>
+                    @if(request('landing_display') !== '')
+                    <div class="mt-2 text-xs text-orange-600 flex items-center">
+                        <i class="fas fa-filter mr-1"></i>Filter active
+                    </div>
+                    @endif
                 </div>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">Status</label>
-                <select id="statusFilter" name="statut" class="form-input w-full px-4 py-3 {{ request('statut') !== '' ? 'border-green-300 bg-green-50' : '' }}">
-                    <option value="">All Vehicles</option>
-                    <option value="disponible" {{ request('statut') === 'disponible' ? 'selected' : '' }}>Available</option>
-                    <option value="en_location" {{ request('statut') === 'en_location' ? 'selected' : '' }}>On Rental</option>
-                    <option value="en_maintenance" {{ request('statut') === 'en_maintenance' ? 'selected' : '' }}>In Maintenance</option>
-                    <option value="hors_service" {{ request('statut') === 'hors_service' ? 'selected' : '' }}>Out of Service</option>
-                </select>
-                @if(request('statut') !== '')
-                <div class="mt-2 text-xs text-green-600 flex items-center">
-                    <i class="fas fa-filter mr-1"></i>Filter active
-                </div>
-                @endif
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">Brand</label>
-                <input type="text" id="brandFilter" name="brand" value="{{ request('brand') }}" 
-                       class="form-input w-full px-4 py-3 {{ request('brand') && request('brand') !== '' ? 'border-purple-300 bg-purple-50' : '' }}"
-                       placeholder="Search by brand name...">
-                @if(request('brand') && request('brand') !== '')
-                <div class="mt-2 text-xs text-purple-600 flex items-center">
-                    <i class="fas fa-filter mr-1"></i>Filter active
-                </div>
-                @endif
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">Landing Page</label>
-                <select id="landingFilter" name="landing_display" class="form-input w-full px-4 py-3 {{ request('landing_display') !== '' ? 'border-orange-300 bg-orange-50' : '' }}">
-                    <option value="">All Vehicles</option>
-                    <option value="1" {{ request('landing_display') === '1' ? 'selected' : '' }}>Show on Landing</option>
-                    <option value="0" {{ request('landing_display') === '0' ? 'selected' : '' }}>Hide from Landing</option>
-                </select>
-                @if(request('landing_display') !== '')
-                <div class="mt-2 text-xs text-orange-600 flex items-center">
-                    <i class="fas fa-filter mr-1"></i>Filter active
-                </div>
-                @endif
-            </div>
-        </div>
+        </form>
         
         <!-- Active Filters Display -->
         @if(request('search') || request('statut') !== '' || request('brand') || request('landing_display') !== '')
@@ -171,7 +172,7 @@
                 @if(request('statut') !== '')
                     <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
                         Status: {{ ucfirst(request('statut')) }}
-                        <button type="button" onclick="console.log('Status filter X clicked'); clearFilter('statut')" class="ml-2 text-green-600 hover:text-green-800 transition-colors duration-200">
+                        <button type="button" onclick="clearFilter('statut')" class="ml-2 text-green-600 hover:text-green-800 transition-colors duration-200">
                             <i class="fas fa-times"></i>
                         </button>
                     </span>
@@ -187,12 +188,12 @@
                 @if(request('landing_display') !== '')
                     <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
                         Landing: {{ request('landing_display') === '1' ? 'Show on Landing' : 'Hide from Landing' }}
-                        <button type="button" onclick="console.log('Landing filter X clicked'); clearFilter('landing_display')" class="ml-2 text-orange-600 hover:text-orange-800 transition-colors duration-200">
+                        <button type="button" onclick="clearFilter('landing_display')" class="ml-2 text-orange-600 hover:text-orange-800 transition-colors duration-200">
                             <i class="fas fa-times"></i>
                         </button>
                     </span>
                 @endif
-                <button type="button" onclick="console.log('Clear all clicked'); clearAllFilters()" class="text-red-600 hover:text-red-800 text-xs underline font-medium transition-colors duration-200">
+                <button type="button" onclick="clearAllFilters()" class="text-red-600 hover:text-red-800 text-xs underline font-medium transition-colors duration-200">
                     Clear all
                 </button>
             </div>
@@ -359,7 +360,6 @@
         </div>
 
         <!-- Enhanced Pagination -->
-        @if($vehicules->hasPages())
         <div class="bg-white px-8 py-6 border-t border-gray-200">
             <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
                 <!-- Results Info -->
@@ -374,6 +374,7 @@
                 </div>
                 
                 <!-- Pagination Links -->
+                @if($vehicules->hasPages())
                 <div class="flex items-center space-x-2">
                     {{-- Previous Page Link --}}
                     @if ($vehicules->onFirstPage())
@@ -381,7 +382,7 @@
                             <i class="fas fa-chevron-left mr-2"></i>Previous
                         </span>
                     @else
-                        <a href="{{ $vehicules->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md">
+                        <a href="{{ $vehicules->appends(request()->query())->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md">
                             <i class="fas fa-chevron-left mr-2"></i>Previous
                         </a>
                     @endif
@@ -393,7 +394,7 @@
                                 {{ $page }}
                             </span>
                         @else
-                            <a href="{{ $url }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md">
+                            <a href="{{ $vehicules->appends(request()->query())->url($page) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md">
                                 {{ $page }}
                             </a>
                         @endif
@@ -401,7 +402,7 @@
 
                     {{-- Next Page Link --}}
                     @if ($vehicules->hasMorePages())
-                        <a href="{{ $vehicules->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md">
+                        <a href="{{ $vehicules->appends(request()->query())->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md">
                             Next<i class="fas fa-chevron-right ml-2"></i>
                         </a>
                     @else
@@ -410,9 +411,13 @@
                         </span>
                     @endif
                 </div>
+                @else
+                <div class="text-sm text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>All results shown on this page
+                </div>
+                @endif
             </div>
         </div>
-        @endif
     </div>
 </div>
 
@@ -446,17 +451,66 @@
     </div>
 </div>
 
-<script src="{{ asset('js/frontend-filters.js') }}"></script>
 <script>
-// Initialize frontend filtering for vehicles page
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing vehicle filters...');
+// Server-side filtering functions
+function clearFilter(filterName) {
+    console.log('clearFilter called with:', filterName);
+    const form = document.getElementById('filterForm');
+    console.log('Form found:', form);
     
-    // The global frontend filters system will handle everything automatically
-    // Just need to ensure the table has the correct ID
-    const table = document.getElementById('vehiclesTable');
-    if (!table) {
-        console.warn('Vehicles table not found');
+    if (!form) {
+        console.error('Filter form not found');
+        return;
+    }
+    
+    const input = form.querySelector(`[name="${filterName}"]`);
+    console.log('Input found:', input);
+    
+    if (input) {
+        input.value = '';
+        console.log('Input value cleared, submitting form...');
+        form.submit();
+    } else {
+        console.error('Input not found for filter:', filterName);
+    }
+}
+
+function clearAllFilters() {
+    console.log('clearAllFilters called');
+    const form = document.getElementById('filterForm');
+    console.log('Form found:', form);
+    
+    if (!form) {
+        console.error('Filter form not found');
+        return;
+    }
+    
+    const inputs = form.querySelectorAll('input, select');
+    console.log('Found inputs:', inputs.length);
+    
+    inputs.forEach(input => {
+        if (input.name && input.name !== '_token') {
+            console.log('Clearing input:', input.name, 'from', input.value, 'to empty');
+            input.value = '';
+        }
+    });
+    
+    console.log('All inputs cleared, submitting form...');
+    form.submit();
+}
+
+// Add search functionality with debounce
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    let searchTimeout;
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500); // 500ms delay
+        });
     }
 });
 
@@ -650,7 +704,7 @@ function toggleLandingDisplay(vehicleId, currentStatus) {
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-blue-700 font-medium mb-1">Total Vehicles</p>
-                        <p class="text-3xl font-bold text-blue-800">{{ number_format($vehicules->total()) }}</p>
+                        <p class="text-3xl font-bold text-blue-800">{{ number_format($totalVehicles) }}</p>
                     </div>
                     <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
                         <i class="fas fa-car text-white text-lg"></i>
@@ -662,7 +716,7 @@ function toggleLandingDisplay(vehicleId, currentStatus) {
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-green-700 font-medium mb-1">Available</p>
-                        <p class="text-3xl font-bold text-green-800">{{ number_format($vehicules->where('statut', 'disponible')->count()) }}</p>
+                        <p class="text-3xl font-bold text-green-800">{{ number_format($availableVehicles) }}</p>
                     </div>
                     <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center shadow-lg">
                         <i class="fas fa-check text-white text-lg"></i>
@@ -674,7 +728,7 @@ function toggleLandingDisplay(vehicleId, currentStatus) {
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-blue-700 font-medium mb-1">On Rental</p>
-                        <p class="text-3xl font-bold text-blue-800">{{ number_format($vehicules->where('statut', 'en_location')->count()) }}</p>
+                        <p class="text-3xl font-bold text-blue-800">{{ number_format($onRentalVehicles) }}</p>
                     </div>
                     <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
                         <i class="fas fa-key text-white text-lg"></i>
@@ -686,7 +740,7 @@ function toggleLandingDisplay(vehicleId, currentStatus) {
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-yellow-700 font-medium mb-1">In Maintenance</p>
-                        <p class="text-3xl font-bold text-yellow-800">{{ number_format($vehicules->where('statut', 'en_maintenance')->count()) }}</p>
+                        <p class="text-3xl font-bold text-yellow-800">{{ number_format($maintenanceVehicles) }}</p>
                     </div>
                     <div class="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
                         <i class="fas fa-tools text-white text-lg"></i>

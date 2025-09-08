@@ -3,28 +3,26 @@
 @section('title', 'Modifier la Visite Technique')
 
 @section('content')
+<div class="container mx-auto px-4 py-8">
     <div class="max-w-4xl mx-auto">
         <!-- Header -->
-        <div class="mb-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Modifier la Visite Technique</h2>
-                    <p class="text-gray-600">Modifier les informations de la visite technique</p>
-                </div>
-                <a href="{{ route('visites.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
-                    <i class="fas fa-arrow-left mr-2"></i>Retour
-                </a>
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Modifier la Visite Technique</h1>
+                <p class="text-gray-600">Modifier les informations de la visite technique</p>
             </div>
+            <a href="{{ route('visites.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Retour
+            </a>
         </div>
 
-        <!-- Form -->
         <div class="bg-white rounded-xl shadow-lg p-6">
-            <form action="{{ route('visites.update', $visite) }}" method="POST" class="space-y-6">
+            <form action="{{ route('visites.update', $visite) }}" method="POST">
                 @csrf
                 @method('PUT')
 
-            <!-- Vehicle Selection -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Vehicle Selection -->
                     <div>
                         <label for="vehicule_id" class="block text-sm font-medium text-gray-700 mb-2">Véhicule *</label>
                         <select id="vehicule_id" name="vehicule_id" required 
@@ -40,11 +38,8 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                </div>
-            </div>
 
-            <!-- Visit Information -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Visit Information -->
                     <div>
                         <label for="date_visite" class="block text-sm font-medium text-gray-700 mb-2">Date de Visite *</label>
                         <input type="date" id="date_visite" name="date_visite" 
@@ -54,6 +49,7 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
                     <div>
                         <label for="type_visite" class="block text-sm font-medium text-gray-700 mb-2">Type de Visite</label>
                         <select id="type_visite" name="type_visite" 
@@ -70,6 +66,7 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
                     <div>
                         <label for="statut" class="block text-sm font-medium text-gray-700 mb-2">Statut *</label>
                         <select id="statut" name="statut" required 
@@ -83,6 +80,7 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
                     <div>
                         <label for="centre_inspection" class="block text-sm font-medium text-gray-700 mb-2">Centre d'Inspection</label>
                         <input type="text" id="centre_inspection" name="centre_inspection" 
@@ -93,11 +91,8 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                </div>
-            </div>
 
-            <!-- Inspection Details -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Inspection Details -->
                     <div>
                         <label for="inspecteur" class="block text-sm font-medium text-gray-700 mb-2">Inspecteur</label>
                         <input type="text" id="inspecteur" name="inspecteur" 
@@ -108,6 +103,7 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
                     <div>
                         <label for="cout" class="block text-sm font-medium text-gray-700 mb-2">Coût (€)</label>
                         <input type="number" id="cout" name="cout" 
@@ -118,6 +114,7 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
                     <div>
                         <label for="resultat" class="block text-sm font-medium text-gray-700 mb-2">Résultats</label>
                         <select id="resultat" name="resultat" 
@@ -132,6 +129,7 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
                     <div>
                         <label for="kilometrage" class="block text-sm font-medium text-gray-700 mb-2">Kilométrage</label>
                         <input type="number" id="kilometrage" name="kilometrage" 
@@ -142,43 +140,41 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                </div>
-            </div>
 
-            <!-- Next Visit Planning -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="prochaine_visite" class="block text-sm font-medium text-gray-700 mb-2">Prochaine Visite</label>
-                    <input type="date" id="prochaine_visite" name="prochaine_visite" 
-                           value="{{ $visite->prochaine_visite ? $visite->prochaine_visite->format('Y-m-d') : '' }}" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('prochaine_visite') border-red-500 @enderror">
-                    @error('prochaine_visite')
+                    <!-- Next Visit Planning -->
+                    <div>
+                        <label for="prochaine_visite" class="block text-sm font-medium text-gray-700 mb-2">Prochaine Visite</label>
+                        <input type="date" id="prochaine_visite" name="prochaine_visite" 
+                               value="{{ $visite->prochaine_visite ? $visite->prochaine_visite->format('Y-m-d') : '' }}" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('prochaine_visite') border-red-500 @enderror">
+                        @error('prochaine_visite')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="mt-6">
+                    <label for="observations" class="block text-sm font-medium text-gray-700 mb-2">Notes et Observations</label>
+                    <textarea id="observations" name="observations" rows="4" 
+                              placeholder="Ajoutez des notes ou observations sur cette visite..." 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('observations') border-red-500 @enderror">{{ $visite->observations }}</textarea>
+                    @error('observations')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-            </div>
 
-            <!-- Notes -->
-            <div>
-                <label for="observations" class="block text-sm font-medium text-gray-700 mb-2">Notes et Observations</label>
-                <textarea id="observations" name="observations" rows="4" 
-                          placeholder="Ajoutez des notes ou observations sur cette visite..." 
-                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('observations') border-red-500 @enderror">{{ $visite->observations }}</textarea>
-                @error('observations')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Form Actions -->
-            <div class="flex space-x-4 pt-6">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center justify-center flex-1">
-                    <i class="fas fa-save mr-2"></i>Enregistrer
-                </button>
-                <a href="{{ route('visites.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium flex items-center justify-center">
-                    <i class="fas fa-times mr-2"></i>Annuler
-                </a>
-            </div>
-        </form>
+                <!-- Submit Buttons -->
+                <div class="flex space-x-3 pt-6">
+                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200">
+                        <i class="fas fa-save mr-2"></i>Enregistrer
+                    </button>
+                    <a href="{{ route('visites.index') }}" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium text-center transition-colors duration-200">
+                        Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
