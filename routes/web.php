@@ -204,7 +204,13 @@ Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\Use
 
         // Reservations
         Route::resource('reservations', ReservationController::class);
+        Route::get('reservations/{reservation}/confirm', function($reservation) {
+            return redirect()->route('reservations.index')->with('error', 'La confirmation de réservation doit être effectuée via le formulaire.');
+        });
         Route::post('reservations/{reservation}/confirm', [ReservationController::class, 'confirm'])->name('reservations.confirm');
+        Route::get('reservations/{reservation}/cancel', function($reservation) {
+            return redirect()->route('reservations.index')->with('error', 'L\'annulation de réservation doit être effectuée via le formulaire.');
+        });
         Route::post('reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
         Route::get('reservations/statistics', [ReservationController::class, 'statistics'])->name('reservations.statistics');
 

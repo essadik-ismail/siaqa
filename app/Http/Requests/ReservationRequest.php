@@ -48,7 +48,9 @@ class ReservationRequest extends FormRequest
                     if (!$vehicule) {
                         $fail('Le véhicule sélectionné n\'existe pas.');
                     }
-                    if ($vehicule && $vehicule->statut !== 'disponible') {
+                    // For editing, allow the current vehicle even if not available
+                    $currentReservation = $this->route('reservation');
+                    if ($vehicule && $vehicule->statut !== 'disponible' && (!$currentReservation || $currentReservation->vehicule_id != $value)) {
                         $fail('Le véhicule sélectionné n\'est pas disponible.');
                     }
                 }
@@ -69,8 +71,7 @@ class ReservationRequest extends FormRequest
             ],
             'date_debut' => [
                 'required', 
-                'date', 
-                'after_or_equal:today',
+                'date',
                 function ($attribute, $value, $fail) {
                     $dateFin = $this->input('date_fin');
                     if ($dateFin && $value >= $dateFin) {
@@ -101,7 +102,7 @@ class ReservationRequest extends FormRequest
             'lieu_retour' => ['required', 'string', 'max:255'],
             'nombre_passagers' => ['required', 'integer', 'min:1', 'max:20'],
             'options' => ['nullable', 'array'],
-            'options.*' => ['string', 'in:gps,siège_bébé,chauffeur,assurance_supplementaire'],
+            'options.*' => ['string', 'in:GPS,Siège bébé,Chauffeur,Assurance complète,Kilométrage illimité,Climatisation,Radio,Autres'],
             'prix_total' => ['required', 'numeric', 'min:0'],
             'caution' => ['required', 'numeric', 'min:0'],
             'statut' => ['required', 'string', 'in:en_attente,confirmee,en_cours,annulee,terminee'],

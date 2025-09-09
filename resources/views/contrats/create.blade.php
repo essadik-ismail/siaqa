@@ -323,4 +323,296 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    // Validation rules
+    const validationRules = {
+        client_one_id: {
+            required: true,
+            message: 'Le client principal est requis'
+        },
+        vehicule_id: {
+            required: true,
+            message: 'Le véhicule est requis'
+        },
+        etat_contrat: {
+            required: true,
+            message: 'L\'état du contrat est requis'
+        },
+        date_contrat: {
+            required: true,
+            message: 'La date du contrat est requise'
+        },
+        date_retour: {
+            required: false,
+            message: 'La date de retour doit être postérieure ou égale à la date du contrat'
+        },
+        km_depart: {
+            pattern: /^\d+$/,
+            message: 'Le kilométrage doit être un nombre entier'
+        },
+        nbr_jours: {
+            min: 1,
+            message: 'Le nombre de jours doit être au moins 1'
+        },
+        prix: {
+            min: 0,
+            message: 'Le prix ne peut pas être négatif'
+        },
+        total_ht: {
+            min: 0,
+            message: 'Le total HT ne peut pas être négatif'
+        },
+        total_ttc: {
+            min: 0,
+            message: 'Le total TTC ne peut pas être négatif'
+        },
+        remise: {
+            min: 0,
+            message: 'La remise ne peut pas être négative'
+        }
+    };
+
+    // Add validation styles
+    function addValidationStyles(input, isValid, message) {
+        const errorElement = input.parentNode.querySelector('.validation-error');
+        
+        // Remove existing error styling
+        input.classList.remove('border-red-500', 'border-green-500');
+        input.classList.add('border-gray-300');
+        
+        if (errorElement) {
+            errorElement.remove();
+        }
+        
+        if (!isValid) {
+            input.classList.remove('border-gray-300');
+            input.classList.add('border-red-500');
+            
+            // Add error message
+            const errorDiv = document.createElement('p');
+            errorDiv.className = 'text-red-500 text-sm mt-1 validation-error';
+            errorDiv.textContent = message;
+            input.parentNode.appendChild(errorDiv);
+        } else {
+            input.classList.remove('border-gray-300');
+            input.classList.add('border-green-500');
+        }
+    }
+
+    // Validate individual field
+    function validateField(input) {
+        const fieldName = input.name;
+        const value = input.value.trim();
+        const rules = validationRules[fieldName];
+        
+        if (!rules) return true;
+        
+        let isValid = true;
+        let message = '';
+        
+        // Required validation
+        if (rules.required && !value) {
+            isValid = false;
+            message = rules.message;
+        }
+        // Pattern validation
+        else if (value && rules.pattern && !rules.pattern.test(value)) {
+            isValid = false;
+            message = rules.message;
+        }
+        // Min value validation
+        else if (value && rules.min !== undefined && parseFloat(value) < rules.min) {
+            isValid = false;
+            message = rules.message;
+        }
+        
+        addValidationStyles(input, isValid, message);
+        return isValid;
+    }
+
+    // Validate date fields
+    function validateDates() {
+        const dateContrat = document.getElementById('date_contrat');
+        const dateRetour = document.getElementById('date_retour');
+        
+        let isValid = true;
+        
+        // Validate return date is after or equal to contract date
+        if (dateContrat.value && dateRetour.value) {
+            const contratDate = new Date(dateContrat.value);
+            const retourDate = new Date(dateRetour.value);
+            
+            if (retourDate < contratDate) {
+                addValidationStyles(dateRetour, false, 'La date de retour doit être postérieure ou égale à la date du contrat');
+                isValid = false;
+            } else {
+                addValidationStyles(dateRetour, true, '');
+            }
+        }
+        
+        return isValid;
+    }
+
+    // Auto-calculate number of days
+    function calculateDays() {
+        const dateContrat = document.getElementById('date_contrat');
+        const dateRetour = document.getElementById('date_retour');
+        const nbrJours = document.getElementById('nbr_jours');
+        
+        if (dateContrat.value && dateRetour.value) {
+            const contratDate = new Date(dateContrat.value);
+            const retourDate = new Date(dateRetour.value);
+            const days = Math.ceil((retourDate - contratDate) / (1000 * 60 * 60 * 24)) + 1;
+            
+            if (days > 0) {
+                nbrJours.value = days;
+                addValidationStyles(nbrJours, true, '');
+            }
+        }
+    }
+
+    // Auto-calculate totals
+    function calculateTotals() {
+        const prix = parseFloat(document.getElementById('prix').value) || 0;
+        const remise = parseFloat(document.getElementById('remise').value) || 0;
+        const nbrJours = parseFloat(document.getElementById('nbr_jours').value) || 1;
+        
+        // Calculate total HT
+        const totalHT = (prix * nbrJours) - remise;
+        document.getElementById('total_ht').value = totalHT.toFixed(2);
+        
+        // Calculate total TTC (assuming 20% VAT)
+        const totalTTC = totalHT * 1.20;
+        document.getElementById('total_ttc').value = totalTTC.toFixed(2);
+        
+        // Validate totals
+        addValidationStyles(document.getElementById('total_ht'), true, '');
+        addValidationStyles(document.getElementById('total_ttc'), true, '');
+    }
+
+    // Validate client selection
+    function validateClientSelection() {
+        const clientOne = document.getElementById('client_one_id');
+        const clientTwo = document.getElementById('client_two_id');
+        
+        if (clientOne.value && clientTwo.value && clientOne.value === clientTwo.value) {
+            addValidationStyles(clientTwo, false, 'Le client secondaire doit être différent du client principal');
+            return false;
+        } else {
+            addValidationStyles(clientTwo, true, '');
+            return true;
+        }
+    }
+
+    // Add event listeners
+    inputs.forEach(input => {
+        // Real-time validation on input
+        input.addEventListener('input', function() {
+            validateField(this);
+            if (this.name === 'date_contrat' || this.name === 'date_retour') {
+                validateDates();
+                calculateDays();
+            }
+            if (this.name === 'prix' || this.name === 'remise' || this.name === 'nbr_jours') {
+                calculateTotals();
+            }
+            if (this.name === 'client_one_id' || this.name === 'client_two_id') {
+                validateClientSelection();
+            }
+        });
+        
+        // Validation on blur
+        input.addEventListener('blur', function() {
+            validateField(this);
+            if (this.name === 'date_contrat' || this.name === 'date_retour') {
+                validateDates();
+                calculateDays();
+            }
+            if (this.name === 'prix' || this.name === 'remise' || this.name === 'nbr_jours') {
+                calculateTotals();
+            }
+            if (this.name === 'client_one_id' || this.name === 'client_two_id') {
+                validateClientSelection();
+            }
+        });
+    });
+
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        let isFormValid = true;
+        
+        // Validate all fields
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isFormValid = false;
+            }
+        });
+        
+        // Validate dates
+        if (!validateDates()) {
+            isFormValid = false;
+        }
+        
+        // Validate client selection
+        if (!validateClientSelection()) {
+            isFormValid = false;
+        }
+        
+        if (isFormValid) {
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Création en cours...';
+            submitBtn.disabled = true;
+            
+            // Submit form
+            form.submit();
+        } else {
+            // Scroll to first error
+            const firstError = form.querySelector('.border-red-500');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+            
+            // Show error message
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4';
+            errorAlert.innerHTML = '<strong>Erreur:</strong> Veuillez corriger les erreurs ci-dessous avant de soumettre le formulaire.';
+            
+            const formContainer = document.querySelector('.bg-white.rounded-lg.shadow-md.p-6');
+            formContainer.insertBefore(errorAlert, form);
+            
+            // Remove error alert after 5 seconds
+            setTimeout(() => {
+                if (errorAlert.parentNode) {
+                    errorAlert.remove();
+                }
+            }, 5000);
+        }
+    });
+
+    // Add visual feedback for required fields
+    const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+    requiredFields.forEach(field => {
+        const label = field.parentNode.querySelector('label');
+        if (label && !label.textContent.includes('*')) {
+            label.innerHTML = label.innerHTML + ' <span class="text-red-500">*</span>';
+        }
+    });
+
+    // Initialize calculations
+    calculateDays();
+    calculateTotals();
+});
+</script>
 @endsection 

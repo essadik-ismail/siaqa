@@ -16,6 +16,7 @@ class Contrat extends Model
     protected $fillable = [
         'tenant_id',
         'vehicule_id',
+        'reservation_id',
         'client_one_id',
         'client_two_id',
         'number_contrat',
@@ -115,6 +116,14 @@ class Contrat extends Model
     public function agence(): BelongsTo
     {
         return $this->belongsTo(Agence::class);
+    }
+
+    /**
+     * Get the reservation that owns the contract.
+     */
+    public function reservation(): BelongsTo
+    {
+        return $this->belongsTo(Reservation::class);
     }
 
     /**

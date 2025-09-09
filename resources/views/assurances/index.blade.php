@@ -195,13 +195,10 @@
                                        class="w-8 h-8 bg-indigo-100 hover:bg-indigo-200 text-indigo-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110">
                                         <i class="fas fa-edit text-sm"></i>
                                     </a>
-                                    <form method="POST" action="{{ route('assurances.destroy', $assurance) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette assurance ?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110">
-                                            <i class="fas fa-trash text-sm"></i>
-                                        </button>
-                                    </form>
+                                    <button onclick="showDeleteModal({{ $assurance->id }}, '{{ $assurance->vehicule->name ?? 'N/A' }}', '{{ $assurance->compagnie_assurance }}', '{{ $assurance->numero_police }}')" 
+                                            class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -284,5 +281,91 @@ document.getElementById('clearSearch').addEventListener('click', function() {
     this.classList.add('hidden');
     applyFilters();
 });
+
+// Delete confirmation modal functions
+function showDeleteModal(assuranceId, vehicleName, companyName, policyNumber) {
+    document.getElementById('deleteForm').action = `/assurances/${assuranceId}`;
+    document.getElementById('deleteVehicleName').textContent = vehicleName;
+    document.getElementById('deleteCompanyName').textContent = companyName;
+    document.getElementById('deletePolicyNumber').textContent = policyNumber;
+    
+    const modal = document.getElementById('deleteModal');
+    const modalContent = document.getElementById('deleteModalContent');
+    
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Animate in
+    setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+    
+    // Focus on cancel button for accessibility
+    setTimeout(() => {
+        modal.querySelector('button[onclick="hideDeleteModal()"]').focus();
+    }, 100);
+}
+
+function hideDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    const modalContent = document.getElementById('deleteModalContent');
+    
+    // Animate out
+    modalContent.classList.add('scale-95', 'opacity-0');
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }, 300);
+}
 </script>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-sm hidden z-50 transition-all duration-300 ease-in-out">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div id="deleteModalContent" class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform scale-95 opacity-0 transition-all duration-300 ease-out">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 text-center mb-2">Supprimer l'Assurance</h3>
+                <p class="text-gray-600 text-center mb-6">
+                    Êtes-vous sûr de vouloir supprimer cette assurance ?
+                </p>
+                
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div class="text-sm text-red-800">
+                        <p><strong>Véhicule:</strong> <span id="deleteVehicleName"></span></p>
+                        <p><strong>Compagnie:</strong> <span id="deleteCompanyName"></span></p>
+                        <p><strong>Numéro de police:</strong> <span id="deletePolicyNumber"></span></p>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                        <span class="text-sm text-yellow-700">Cette action est irréversible et supprimera définitivement l'assurance.</span>
+                    </div>
+                </div>
+                
+                <form id="deleteForm" method="POST" class="space-y-3">
+                    @csrf
+                    @method('DELETE')
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="hideDeleteModal()" 
+                                class="flex-1 px-4 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors duration-200">
+                            Annuler
+                        </button>
+                        <button type="submit" 
+                                class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors duration-200">
+                            <i class="fas fa-trash mr-2"></i>Supprimer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection

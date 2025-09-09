@@ -263,9 +263,8 @@
                         <button onclick="hideConfirmModal()" class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors duration-200">
                             Annuler
                         </button>
-                        <form id="confirmForm" method="POST" class="flex-1">
+                        <form id="confirmForm" method="POST" class="flex-1" onsubmit="console.log('Form submitting with method:', this.method, 'to action:', this.action);">
                             @csrf
-                            @method('PATCH')
                             <button type="submit" class="w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors duration-200">
                                 Confirmer
                             </button>
@@ -296,7 +295,6 @@
                     
                     <form id="cancelForm" method="POST">
                         @csrf
-                        @method('PATCH')
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Motif d'annulation *</label>
                             <textarea name="motif_annulation" rows="3" required
@@ -680,7 +678,9 @@ const debouncedSearch = debounce(performSearch, 300);
 
 // Modal functions
 function showConfirmModal(reservationId, reservationNumber) {
-    document.getElementById('confirmForm').action = `/reservations/${reservationId}/confirm`;
+    const form = document.getElementById('confirmForm');
+    form.action = `/reservations/${reservationId}/confirm`;
+    console.log('Setting form action to:', form.action, 'method:', form.method);
     document.getElementById('confirmReservationNumber').textContent = reservationNumber;
     
     const modal = document.getElementById('confirmModal');
