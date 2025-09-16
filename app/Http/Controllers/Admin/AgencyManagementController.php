@@ -34,7 +34,7 @@ class AgencyManagementController extends Controller
             })
             ->orderBy('created_at', 'desc');
 
-        $agencies = $query->paginate(15);
+        $agencies = $query->get();
         $tenants = Tenant::all();
 
         return view('admin.agencies.index', compact('agencies', 'tenants'));

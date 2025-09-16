@@ -225,7 +225,7 @@ class RoleManagementController extends Controller
      */
     public function users(Role $role)
     {
-        $users = $role->users()->with(['tenant', 'agency'])->paginate(15);
+        $users = $role->users()->with(['tenant', 'agence'])->paginate(15);
         
         return view('admin.roles.users', compact('role', 'users'));
     }

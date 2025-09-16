@@ -15,8 +15,9 @@ class GlobalUserManagementController extends Controller
     public function index()
     {
         $users = User::with(['tenant', 'agence', 'roles'])
+            ->distinct()
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->get();
 
         return view('saas.global-users.index', compact('users'));
     }
@@ -83,6 +84,7 @@ class GlobalUserManagementController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
             'tenant_id' => 'nullable|exists:tenants,id',
             'role_id' => 'nullable|exists:roles,id',
             'is_active' => 'boolean',
@@ -94,10 +96,21 @@ class GlobalUserManagementController extends Controller
                 ->withInput();
         }
 
-        $user->update($request->except('password'));
+        $data = $request->except('password', 'password_confirmation');
+        
+        // Only update password if provided
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
 
+        $user->update($data);
+
+        // Handle role assignment
         if ($request->role_id) {
             $user->roles()->sync([$request->role_id]);
+        } else {
+            // If no role is selected, remove all roles
+            $user->roles()->detach();
         }
 
         return redirect()->route('saas.global-users.index')

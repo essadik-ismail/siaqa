@@ -7,20 +7,20 @@
 <section class="section">
     <div class="container">
         <div class="search-filters">
-            <form action="{{ route('landing.cars') }}" method="GET" class="filter-form">
+            <div class="filter-form">
                 <div class="filter-grid">
                     <div class="input-wrapper">
                         <label for="search" class="input-label">Search Cars</label>
-                        <input type="text" name="search" id="search" class="input-field" 
-                               placeholder="Car, model, or brand" value="{{ request('search') }}">
+                        <input type="text" id="search" class="input-field" 
+                               placeholder="Car, model, or brand">
                     </div>
 
                     <div class="input-wrapper">
                         <label for="marque" class="input-label">Brand</label>
-                        <select name="marque" id="marque" class="input-field">
+                        <select id="marque" class="input-field">
                             <option value="">All Brands</option>
                             @foreach($marques as $marque)
-                                <option value="{{ $marque->marque }}" {{ request('marque') == $marque->marque ? 'selected' : '' }}>
+                                <option value="{{ $marque->marque }}">
                                     {{ $marque->marque }}
                                 </option>
                             @endforeach
@@ -29,28 +29,28 @@
 
                     <div class="input-wrapper">
                         <label for="prix_min" class="input-label">Min Price</label>
-                        <input type="number" name="prix_min" id="prix_min" class="input-field" 
-                               placeholder="Min price" value="{{ request('prix_min') }}">
+                        <input type="number" id="prix_min" class="input-field" 
+                               placeholder="Min price">
                     </div>
 
                     <div class="input-wrapper">
                         <label for="prix_max" class="input-label">Max Price</label>
-                        <input type="number" name="prix_max" id="prix_max" class="input-field" 
-                               placeholder="Max price" value="{{ request('prix_max') }}">
+                        <input type="number" id="prix_max" class="input-field" 
+                               placeholder="Max price">
                     </div>
 
                     <div class="input-wrapper">
                         <label for="annee" class="input-label">Min Year</label>
-                        <input type="number" name="annee" id="annee" class="input-field" 
-                               placeholder="Min year" value="{{ request('annee') }}">
+                        <input type="number" id="annee" class="input-field" 
+                               placeholder="Min year">
                     </div>
 
                     <div class="input-wrapper">
-                        <button type="submit" class="btn btn-primary">Search</button>
-                        <a href="{{ route('landing.cars') }}" class="btn btn-secondary">Clear</a>
+                        <button type="button" id="search-btn" class="btn btn-primary">Search</button>
+                        <button type="button" id="clear-btn" class="btn btn-secondary">Clear</button>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </section>
@@ -59,13 +59,22 @@
 <section class="section featured-car">
     <div class="container">
         <div class="title-wrapper">
-            <h2 class="h2 section-title">Available Cars ({{ $cars->total() }})</h2>
+            <h2 class="h2 section-title">Available Cars (<span id="total-cars">{{ $cars->count() }}</span>)</h2>
         </div>
 
         @if($cars->count() > 0)
-        <ul class="featured-car-list">
+        <ul class="featured-car-list" id="cars-list">
             @foreach($cars as $car)
-            <li>
+            <li class="car-item" 
+                data-name="{{ strtolower($car->name) }}"
+                data-brand="{{ strtolower($car->marque->marque ?? '') }}"
+                data-description="{{ strtolower($car->description ?? '') }}"
+                data-price="{{ $car->prix_location_jour }}"
+                data-year="{{ $car->annee ?? 0 }}"
+                data-status="{{ $car->statut }}"
+                data-fuel="{{ strtolower($car->carburant ?? '') }}"
+                data-transmission="{{ strtolower($car->transmission ?? '') }}"
+                data-seats="{{ $car->nombre_places ?? 0 }}">
                 <div class="featured-car-card">
                     <figure class="card-banner">
                         <img src="{{ $car->image_url }}" 
@@ -127,63 +136,31 @@
             @endforeach
         </ul>
 
-        <!-- Pagination -->
-        @if($cars->hasPages())
-        <div class="pagination-wrapper">
+        <!-- Frontend Pagination -->
+        <div class="pagination-wrapper" id="pagination-wrapper" style="display: none;">
             <!-- Results Summary -->
             <div class="pagination-info">
                 <span>Showing</span>
-                <span class="results-count">{{ $cars->firstItem() ?? 0 }}</span>
+                <span class="results-count" id="showing-from">0</span>
                 <span>to</span>
-                <span class="results-count">{{ $cars->lastItem() ?? 0 }}</span>
+                <span class="results-count" id="showing-to">0</span>
                 <span>of</span>
-                <span class="results-count">{{ $cars->total() }}</span>
+                <span class="results-count" id="total-results">0</span>
                 <span>results</span>
             </div>
             
             <!-- Previous/Next Navigation -->
             <div class="pagination-nav">
-                @if($cars->onFirstPage())
-                    <span class="nav-btn disabled">« Previous</span>
-                @else
-                    <a href="{{ $cars->previousPageUrl() }}" class="nav-btn">« Previous</a>
-                @endif
-                
-                @if($cars->hasMorePages())
-                    <a href="{{ $cars->nextPageUrl() }}" class="nav-btn">Next »</a>
-                @else
-                    <span class="nav-btn disabled">Next »</span>
-                @endif
-            </div>
-            
-            <!-- Page Numbers Only (without Previous/Next) -->
-            <div class="pagination-numbers">
-                <ul class="pagination">
-                    @if($cars->currentPage() > 1)
-                        <li><a href="{{ $cars->url(1) }}" class="page-link">‹</a></li>
-                    @else
-                        <li><span class="page-link disabled">‹</span></li>
-                    @endif
-                    
-                    @foreach($cars->getUrlRange(1, $cars->lastPage()) as $page => $url)
-                        <li>
-                            @if($page == $cars->currentPage())
-                                <span class="page-link active">{{ $page }}</span>
-                            @else
-                                <a href="{{ $url }}" class="page-link">{{ $page }}</a>
-                            @endif
-                        </li>
-                    @endforeach
-                    
-                    @if($cars->currentPage() < $cars->lastPage())
-                        <li><a href="{{ $cars->url($cars->lastPage()) }}" class="page-link">›</a></li>
-                    @else
-                        <li><span class="page-link disabled">›</span></li>
-                    @endif
-                </ul>
+                <button class="nav-btn" id="prev-btn" disabled>« Previous</button>
+
+                <!-- Page Numbers -->
+                <div class="page-numbers" id="page-numbers">
+                    <!-- Page numbers will be generated by JavaScript -->
+                </div>
+
+                <button class="nav-btn" id="next-btn" disabled>Next »</button>
             </div>
         </div>
-        @endif
 
         @else
         <div class="no-results">
@@ -259,6 +236,208 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all car items
+    const allCars = Array.from(document.querySelectorAll('.car-item'));
+    let filteredCars = [...allCars];
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 12;
+    let totalPages = Math.ceil(allCars.length / ITEMS_PER_PAGE);
+
+    // Get form elements
+    const searchInput = document.getElementById('search');
+    const brandSelect = document.getElementById('marque');
+    const minPriceInput = document.getElementById('prix_min');
+    const maxPriceInput = document.getElementById('prix_max');
+    const yearInput = document.getElementById('annee');
+    const searchBtn = document.getElementById('search-btn');
+    const clearBtn = document.getElementById('clear-btn');
+
+    // Pagination elements
+    const paginationWrapper = document.getElementById('pagination-wrapper');
+    const showingFrom = document.getElementById('showing-from');
+    const showingTo = document.getElementById('showing-to');
+    const totalResults = document.getElementById('total-results');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const pageNumbers = document.getElementById('page-numbers');
+
+    // Initialize
+    initializeCars();
+    setupEventListeners();
+
+    function initializeCars() {
+        displayCars();
+        updatePagination();
+    }
+
+    function setupEventListeners() {
+        // Search input with debounce
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterAndDisplayCars();
+            }, 300);
+        });
+
+        // Filter inputs
+        [brandSelect, minPriceInput, maxPriceInput, yearInput].forEach(input => {
+            input.addEventListener('change', filterAndDisplayCars);
+        });
+
+        // Search and clear buttons
+        searchBtn.addEventListener('click', filterAndDisplayCars);
+        clearBtn.addEventListener('click', clearFilters);
+
+        // Pagination buttons
+        prevBtn.addEventListener('click', goToPreviousPage);
+        nextBtn.addEventListener('click', goToNextPage);
+    }
+
+    function filterAndDisplayCars() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedBrand = brandSelect.value.toLowerCase();
+        const minPrice = parseFloat(minPriceInput.value) || 0;
+        const maxPrice = parseFloat(maxPriceInput.value) || Infinity;
+        const minYear = parseInt(yearInput.value) || 0;
+
+        filteredCars = allCars.filter(car => {
+            const name = car.dataset.name || '';
+            const brand = car.dataset.brand || '';
+            const description = car.dataset.description || '';
+            const price = parseFloat(car.dataset.price) || 0;
+            const year = parseInt(car.dataset.year) || 0;
+
+            // Search filter
+            const matchesSearch = !searchTerm || 
+                name.includes(searchTerm) || 
+                brand.includes(searchTerm) || 
+                description.includes(searchTerm);
+
+            // Brand filter
+            const matchesBrand = !selectedBrand || brand.includes(selectedBrand);
+
+            // Price filter
+            const matchesPrice = price >= minPrice && price <= maxPrice;
+
+            // Year filter
+            const matchesYear = year >= minYear;
+
+            return matchesSearch && matchesBrand && matchesPrice && matchesYear;
+        });
+
+        currentPage = 1;
+        totalPages = Math.ceil(filteredCars.length / ITEMS_PER_PAGE);
+        displayCars();
+        updatePagination();
+    }
+
+    function displayCars() {
+        const carsList = document.getElementById('cars-list');
+        const totalCarsSpan = document.getElementById('total-cars');
+        
+        // Hide all cars first
+        allCars.forEach(car => {
+            car.style.display = 'none';
+        });
+
+        // Show filtered cars for current page
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const carsToShow = filteredCars.slice(startIndex, endIndex);
+
+        carsToShow.forEach(car => {
+            car.style.display = 'block';
+        });
+
+        // Update total count
+        totalCarsSpan.textContent = filteredCars.length;
+
+        // Show/hide pagination
+        if (filteredCars.length > ITEMS_PER_PAGE) {
+            paginationWrapper.style.display = 'block';
+        } else {
+            paginationWrapper.style.display = 'none';
+        }
+    }
+
+    function updatePagination() {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+        const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, filteredCars.length);
+
+        showingFrom.textContent = filteredCars.length > 0 ? startIndex : 0;
+        showingTo.textContent = endIndex;
+        totalResults.textContent = filteredCars.length;
+
+        // Update pagination buttons
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+
+        // Generate page numbers
+        generatePageNumbers();
+    }
+
+    function generatePageNumbers() {
+        pageNumbers.innerHTML = '';
+        
+        if (totalPages <= 1) return;
+
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `page-link ${i === currentPage ? 'active' : ''}`;
+            pageBtn.textContent = i;
+            pageBtn.addEventListener('click', () => goToPage(i));
+            pageNumbers.appendChild(pageBtn);
+        }
+    }
+
+    function goToPage(page) {
+        if (page >= 1 && page <= totalPages) {
+            currentPage = page;
+            displayCars();
+            updatePagination();
+        }
+    }
+
+    function goToPreviousPage() {
+        if (currentPage > 1) {
+            goToPage(currentPage - 1);
+        }
+    }
+
+    function goToNextPage() {
+        if (currentPage < totalPages) {
+            goToPage(currentPage + 1);
+        }
+    }
+
+    function clearFilters() {
+        searchInput.value = '';
+        brandSelect.value = '';
+        minPriceInput.value = '';
+        maxPriceInput.value = '';
+        yearInput.value = '';
+        
+        filteredCars = [...allCars];
+        currentPage = 1;
+        totalPages = Math.ceil(filteredCars.length / ITEMS_PER_PAGE);
+        displayCars();
+        updatePagination();
+    }
+});
+</script>
+
 @endsection
 
 @push('styles')
@@ -512,6 +691,58 @@
     text-align: center;
     padding: 20px 0;
     border-top: 1px solid #e5e7eb;
+}
+
+/* Page numbers styling */
+.page-numbers {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 0 20px;
+}
+
+.page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+    padding: 8px 12px;
+    margin: 0;
+    line-height: 1;
+    color: var(--space-cadet);
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-link:hover:not(.active):not(:disabled) {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+    color: var(--space-cadet);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-link.active {
+    background-color: var(--space-cadet);
+    color: white;
+    border-color: var(--space-cadet);
+    transform: none;
+    box-shadow: none;
+}
+
+.page-link:disabled {
+    background-color: #f9fafb;
+    border-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Responsive pagination */

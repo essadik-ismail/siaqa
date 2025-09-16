@@ -11,7 +11,7 @@
             <p class="text-gray-600">Manage system permissions and access control</p>
         </div>
         <div class="flex space-x-3 mt-4 sm:mt-0">
-            <a href="{{ route('admin.bulk-create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+            <a href="{{ route('admin.permissions.bulk-create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
                 <i class="fas fa-layer-group mr-2"></i>
                 Bulk Create
             </a>

@@ -1,0 +1,38 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="30" cy="30" r="28" fill="url(#gradient1)" stroke="url(#gradient2)" stroke-width="2"/>
+  
+  <!-- Car Icon -->
+  <g transform="translate(15, 15)">
+    <!-- Car Body -->
+    <path d="M8 20C8 18.9 8.9 18 10 18H20C21.1 18 22 18.9 22 20V22C22 23.1 21.1 24 20 24H10C8.9 24 8 23.1 8 22V20Z" fill="white"/>
+    <!-- Car Roof -->
+    <path d="M12 12C12 10.9 12.9 10 14 10H16C17.1 10 18 10.9 18 12V18H12V12Z" fill="white"/>
+    <!-- Wheels -->
+    <circle cx="12" cy="22" r="2" fill="white"/>
+    <circle cx="18" cy="22" r="2" fill="white"/>
+    <!-- Wheel Centers -->
+    <circle cx="12" cy="22" r="1" fill="url(#gradient1)"/>
+    <circle cx="18" cy="22" r="1" fill="url(#gradient1)"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="70" y="25" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="url(#gradient3)">ODYS</text>
+  <text x="70" y="42" font-family="Arial, sans-serif" font-size="12" font-weight="500" fill="#6B7280">Rental Management</text>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1D4ED8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1E40AF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -13,6 +13,7 @@ class Tenant extends Model
         'name',
         'company_name',
         'domain',
+        'database',
         'contact_email',
         'contact_phone',
         'address',
@@ -46,6 +47,11 @@ class Tenant extends Model
     public function agence()
     {
         return $this->hasOne(Agence::class);
+    }
+
+    public function agences()
+    {
+        return $this->hasMany(Agence::class);
     }
 
     public function users()

@@ -1,0 +1,29 @@
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Compact Icon -->
+  <g transform="translate(5, 5)">
+    <circle cx="15" cy="15" r="12" fill="url(#compactGradient1)"/>
+    <circle cx="15" cy="15" r="8" fill="white"/>
+    <!-- Car -->
+    <g transform="translate(9, 9)">
+      <rect x="2" y="4" width="8" height="3" rx="0.5" fill="url(#compactGradient1)"/>
+      <rect x="3" y="2" width="6" height="2" rx="0.5" fill="url(#compactGradient1)"/>
+      <circle cx="4" cy="7" r="1" fill="url(#compactGradient1)"/>
+      <circle cx="8" cy="7" r="1" fill="url(#compactGradient1)"/>
+    </g>
+  </g>
+  
+  <!-- Compact Text -->
+  <text x="45" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="1px" fill="url(#compactGradient2)">ODYS</text>
+  <text x="45" y="28" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="500" letter-spacing="0.5px" fill="#64748B">RENTAL</text>
+  
+  <defs>
+    <linearGradient id="compactGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="compactGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1E293B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#475569;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

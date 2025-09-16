@@ -179,7 +179,7 @@
         }
         
         .content-with-fixed-sidebar {
-            margin-left: 16rem; /* Always 256px */
+            margin-left: 18rem; /* Always 288px */
         }
         
         /* Ensure content area is flexible and scrollable */
@@ -562,15 +562,9 @@
                     <!-- Enhanced Logo Section -->
                     <div class="logo-section mb-6">
                         <div class="flex items-center justify-center relative z-10">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                                    <i class="fas fa-car text-white text-lg"></i>
-                                </div>
-                                <div>
-                                    <span class="text-gray-800 font-bold text-2xl tracking-wider">Odys</span>
-                                    <div class="text-xs text-gray-500 font-medium">Rental Management</div>
-                                </div>
-                            </div>
+                            <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 hover:opacity-90 transition-opacity duration-200">
+                                <img src="{{ asset('assets/images/odys-logo-modern.svg') }}" alt="Odys Rental Management" class="h-12 w-auto">
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -603,7 +597,7 @@
 
                             <a href="{{ route('charges.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('charges.*') ? 'active' : '' }}">
                                 <i class="fas fa-money-bill-wave"></i>
-                                <span class="font-medium">Les charges</span>
+                                <span class="font-medium">Les Charges</span>
                             </a>
                         </div>
 
@@ -701,8 +695,61 @@
         </div>
 
         <!-- Main Content Area -->
-        <div class="content-with-fixed-sidebar flex-1 flex" style="margin-left: 18rem;">
-            <div class="flex-1 main-content">
+        @hasSection('sidebar')
+        <div class="content-with-fixed-sidebar flex-1">
+            <div class="flex">
+                <div class="flex-1 main-content">
+                    <!-- Mobile Menu Button -->
+                    <button class="mobile-menu-btn fixed top-4 left-4 z-50 p-3 bg-white/90 rounded-xl shadow-lg md:hidden backdrop-blur-sm" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars text-gray-700"></i>
+                    </button>
+                    
+                    <!-- Enhanced Header -->
+                    <div class="mb-8">
+                        @if(session('success'))
+                            <div class="mt-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+                        @if(session('error'))
+                            <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+                        
+                        <!-- Impersonation Notice -->
+                        @if(session('impersonated_by'))
+                        <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-user-secret mr-2"></i>
+                                    <span class="font-medium">You are impersonating: {{ auth()->user()->name }}</span>
+                                </div>
+                                <form action="{{ route('admin.return-from-impersonation') }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-yellow-800 hover:text-yellow-900 underline font-medium">
+                                        <i class="fas fa-arrow-left mr-1"></i>
+                                        Return to Admin
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Page Content -->
+                    @yield('content')
+                </div>
+
+                <!-- Right Sidebar -->
+                <div class="w-80 bg-white/80 backdrop-blur-sm shadow-lg p-6 rounded-l-2xl border-l border-gray-200">
+                    @yield('sidebar')
+                </div>
+            </div>
+        </div>
+        @else
+        <div class="content-with-fixed-sidebar flex-1">
+            <div class="main-content">
                 <!-- Mobile Menu Button -->
                 <button class="mobile-menu-btn fixed top-4 left-4 z-50 p-3 bg-white/90 rounded-xl shadow-lg md:hidden backdrop-blur-sm" onclick="toggleMobileMenu()">
                     <i class="fas fa-bars text-gray-700"></i>
@@ -710,7 +757,6 @@
                 
                 <!-- Enhanced Header -->
                 <div class="mb-8">
-                    <h1 class="text-4xl font-bold text-gray-800 mb-2">@yield('title', 'Dashboard')</h1>
                     @if(session('success'))
                         <div class="mt-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl">
                             {{ session('success') }}
@@ -745,14 +791,8 @@
                 <!-- Page Content -->
                 @yield('content')
             </div>
-
-            <!-- Right Sidebar (if needed) -->
-            @hasSection('sidebar')
-            <div class="w-80 bg-white/80 backdrop-blur-sm shadow-lg p-6 rounded-l-2xl border-l border-gray-200">
-                @yield('sidebar')
-            </div>
-            @endif
         </div>
+        @endif
         
         <!-- Mobile Overlay -->
         <div class="mobile-overlay" onclick="closeMobileMenu()"></div>

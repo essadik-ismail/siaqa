@@ -11,6 +11,57 @@
         </a>
     </div>
 
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-file-contract text-2xl text-blue-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total des Contrats</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $contrats->total() }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-check-circle text-2xl text-green-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">En Cours</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $contrats->where('etat_contrat', 'en cours')->count() }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-gray-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-flag-checkered text-2xl text-gray-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Terminés</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $contrats->where('etat_contrat', 'termine')->count() }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-euro-sign text-2xl text-purple-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Valeur Totale</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ number_format($contrats->sum('prix'), 2) }} DH</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Search and Filters -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
@@ -135,9 +186,9 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             @if($contrat->prix)
-                                {{ number_format($contrat->prix, 2) }} €
+                                {{ number_format($contrat->prix, 2) }} DH
                                 @if($contrat->total_ttc)
-                                    <br><span class="text-xs text-gray-500">TTC: {{ number_format($contrat->total_ttc, 2) }} €</span>
+                                    <br><span class="text-xs text-gray-500">TTC: {{ number_format($contrat->total_ttc, 2) }} DH</span>
                                 @endif
                             @else
                                 <span class="text-gray-400">Non défini</span>
@@ -167,10 +218,13 @@
                                         class="text-orange-600 hover:text-orange-900" title="Retour du contrat">
                                     <i class="fas fa-undo"></i>
                                 </button>
-                                <button onclick="showDeleteModal({{ $contrat->id }}, '{{ $contrat->number_contrat }}')" 
-                                        class="text-red-600 hover:text-red-900" title="Supprimer">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <form method="POST" action="{{ route('contrats.destroy', $contrat) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce contrat ?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -198,40 +252,6 @@
     </div>
 </div>
 
-<!-- Delete Contract Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-sm hidden z-50 transition-all duration-300 ease-in-out">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div id="deleteModalContent" class="bg-white rounded-xl shadow-2xl w-full max-w-md transform scale-95 opacity-0 transition-all duration-300 ease-in-out">
-            <div class="p-6">
-                <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
-                    <i class="fas fa-trash text-red-600 text-xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">Supprimer le contrat</h3>
-                <p class="text-gray-600 text-center mb-6">Êtes-vous sûr de vouloir supprimer le contrat <span id="deleteContractNumber" class="font-semibold"></span> ?</p>
-                
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                    <div class="flex items-center">
-                        <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
-                        <span class="text-sm text-red-700">Cette action est irréversible et supprimera définitivement le contrat</span>
-                    </div>
-                </div>
-                
-                <div class="flex space-x-3">
-                    <button onclick="hideDeleteModal()" class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors duration-200">
-                        Annuler
-                    </button>
-                    <form id="deleteForm" method="POST" class="flex-1">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors duration-200">
-                            Supprimer
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Retour du Contrat Modal -->
 <div id="retourModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-sm hidden z-50 transition-all duration-300 ease-in-out">
@@ -295,7 +315,7 @@
                     </div>
                     
                     <div>
-                        <label for="frais_supplementaires" class="block text-sm font-medium text-gray-700 mb-2">Frais supplémentaires (€)</label>
+                        <label for="frais_supplementaires" class="block text-sm font-medium text-gray-700 mb-2">Frais supplémentaires (DH)</label>
                         <input type="number" id="frais_supplementaires" name="frais_supplementaires" min="0" step="0.01"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                placeholder="0.00">
@@ -641,23 +661,7 @@ function performSearch() {
 // Debounced search function
 const debouncedSearch = debounce(performSearch, 300);
 
-// Function to show delete modal
-function showDeleteModal(contractId, contractNumber) {
-    document.getElementById('deleteModal').classList.remove('hidden');
-    document.getElementById('deleteContractNumber').textContent = contractNumber;
-    document.getElementById('deleteForm').action = `/contrats/${contractId}`;
-    
-    // Animate modal content
-    setTimeout(() => {
-        document.getElementById('deleteModalContent').classList.add('modal-content-enter');
-    }, 100);
-}
-
-// Function to hide delete modal
-function hideDeleteModal() {
-    document.getElementById('deleteModal').classList.add('hidden');
-    document.getElementById('deleteModalContent').classList.remove('modal-content-enter');
-}
+// Delete functionality is now handled by direct form submission
 
 // Function to show retour modal
 function showRetourModal(contractId, contractNumber) {
@@ -672,14 +676,21 @@ function showRetourModal(contractId, contractNumber) {
     
     // Animate modal content
     setTimeout(() => {
-        document.getElementById('retourModalContent').classList.add('modal-content-enter');
+        const modalContent = document.getElementById('retourModalContent');
+        modalContent.classList.add('scale-100', 'opacity-100');
+        modalContent.classList.remove('scale-95', 'opacity-0');
     }, 100);
 }
 
 // Function to hide retour modal
 function hideRetourModal() {
-    document.getElementById('retourModal').classList.add('hidden');
-    document.getElementById('retourModalContent').classList.remove('modal-content-enter');
+    const modalContent = document.getElementById('retourModalContent');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    
+    setTimeout(() => {
+        document.getElementById('retourModal').classList.add('hidden');
+    }, 300);
 }
 
 // Handle retour form submission
@@ -687,27 +698,44 @@ document.getElementById('retourForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const formData = new FormData(this);
-    const contractId = formData.get('contrat_id');
+    
+    // Debug: Log form data
+    console.log('Form data being sent:');
+    for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+    }
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enregistrement...';
+    submitBtn.disabled = true;
     
     // Submit to retour-contrats route
-    fetch(`/retour-contrats`, {
+    fetch(`{{ route('retour-contrats.store') }}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Content-Type': 'application/json',
+            'Accept': 'application/json',
         },
-        body: JSON.stringify({
-            contrat_id: contractId,
-            date_retour: formData.get('date_retour'),
-            kilometrage_retour: formData.get('kilometrage_retour'),
-            niveau_carburant: formData.get('niveau_carburant'),
-            etat_vehicule: formData.get('etat_vehicule'),
-            observations: formData.get('observations'),
-            frais_supplementaires: formData.get('frais_supplementaires') || 0,
-        })
+        body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        if (response.ok) {
+            return response.json();
+        } else {
+            return response.text().then(text => {
+                console.error('Server error response:', text);
+                throw new Error('Server error: ' + text);
+            });
+        }
+    })
     .then(data => {
+        console.log('Response data:', data);
+        
         if (data.success) {
             hideRetourModal();
             // Show success message
@@ -715,12 +743,17 @@ document.getElementById('retourForm').addEventListener('submit', function(e) {
             // Reload page to show updated data
             location.reload();
         } else {
-            alert('Erreur lors de l\'enregistrement: ' + data.message);
+            alert('Erreur lors de l\'enregistrement: ' + (data.message || 'Erreur inconnue'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Erreur lors de l\'enregistrement du retour');
+        alert('Erreur lors de l\'enregistrement du retour: ' + error.message);
+    })
+    .finally(() => {
+        // Restore button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     });
 });
 
@@ -767,9 +800,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Keyboard navigation for modals
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            if (!document.getElementById('deleteModal').classList.contains('hidden')) {
-                hideDeleteModal();
+            if (!document.getElementById('retourModal').classList.contains('hidden')) {
+                hideRetourModal();
             }
+        }
+    });
+    
+    // Close modal when clicking outside
+    document.getElementById('retourModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideRetourModal();
         }
     });
 });

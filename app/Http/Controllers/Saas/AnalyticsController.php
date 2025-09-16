@@ -32,13 +32,30 @@ class AnalyticsController extends Controller
 
     public function tenants()
     {
-        $tenantStats = Tenant::selectRaw('
-            COUNT(*) as total,
-            COUNT(CASE WHEN is_active = 1 THEN 1 END) as active,
-            COUNT(CASE WHEN is_active = 0 THEN 1 END) as inactive,
-            COUNT(CASE WHEN trial_ends_at > NOW() THEN 1 END) as trial,
-            COUNT(CASE WHEN trial_ends_at < NOW() AND trial_ends_at IS NOT NULL THEN 1 END) as expired
-        ')->first();
+        // Get basic tenant counts
+        $total = Tenant::count();
+        $active = Tenant::where('is_active', true)->count();
+        $inactive = Tenant::where('is_active', false)->count();
+        
+        // Get trial tenants (active tenants with trial_ends_at in the future)
+        $trial = Tenant::where('is_active', true)
+            ->whereNotNull('trial_ends_at')
+            ->where('trial_ends_at', '>', now())
+            ->count();
+        
+        // Get expired tenants (inactive tenants with trial_ends_at in the past)
+        $expired = Tenant::where('is_active', false)
+            ->whereNotNull('trial_ends_at')
+            ->where('trial_ends_at', '<', now())
+            ->count();
+
+        $tenantStats = (object) [
+            'total' => $total,
+            'active' => $active,
+            'inactive' => $inactive,
+            'trial' => $trial,
+            'expired' => $expired
+        ];
 
         $tenantsByPlan = Tenant::join('subscriptions', 'tenants.id', '=', 'subscriptions.tenant_id')
             ->selectRaw('subscriptions.plan_name as subscription_plan, COUNT(*) as count')

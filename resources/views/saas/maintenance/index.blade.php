@@ -5,7 +5,6 @@
 @section('content')
 <div class="container mx-auto px-6 py-8">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">System Maintenance</h1>
         <div class="flex space-x-3">
             <form action="{{ route('saas.maintenance.backup') }}" method="POST" class="inline">
                 @csrf

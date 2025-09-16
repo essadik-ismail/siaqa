@@ -220,7 +220,7 @@ class PermissionManagementController extends Controller
      */
     public function users(Permission $permission)
     {
-        $users = $permission->users()->with(['roles', 'tenant', 'agency'])->paginate(15);
+        $users = $permission->users()->with(['roles', 'tenant', 'agence'])->paginate(15);
         
         return view('admin.permissions.users', compact('permission', 'users'));
     }

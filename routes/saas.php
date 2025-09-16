@@ -14,13 +14,6 @@ use App\Http\Controllers\BillingController;
 */
 
 Route::middleware(['auth', 'role:super_admin'])->prefix('saas')->name('saas.')->group(function () {
-    // Tenant Management
-    Route::resource('tenants', TenantController::class);
-    Route::patch('tenants/{tenant}/suspend', [TenantController::class, 'suspend'])->name('tenants.suspend');
-    Route::patch('tenants/{tenant}/activate', [TenantController::class, 'activate'])->name('tenants.activate');
-    Route::get('tenants/{tenant}/usage', [TenantController::class, 'usage'])->name('tenants.usage');
-    Route::get('tenants/{tenant}/billing', [TenantController::class, 'billing'])->name('tenants.billing');
-    
     // SaaS Dashboard
     Route::get('dashboard', function () {
         $stats = [
@@ -35,7 +28,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('saas')->name('saas.')->
     
     // Global Users Management
     Route::resource('global-users', \App\Http\Controllers\SaaS\GlobalUserManagementController::class)->parameters(['global-users' => 'user']);
-    Route::post('global-users/{user}/toggle-status', [\App\Http\Controllers\SaaS\GlobalUserManagementController::class, 'toggleStatus'])->name('global-users.toggle-status');
+    Route::patch('global-users/{user}/toggle-status', [\App\Http\Controllers\SaaS\GlobalUserManagementController::class, 'toggleStatus'])->name('global-users.toggle-status');
     Route::post('global-users/{user}/launch', [\App\Http\Controllers\SaaS\GlobalUserManagementController::class, 'launchAsUser'])->name('global-users.launch');
     
     // System Diagnostics (Super Admin Only)

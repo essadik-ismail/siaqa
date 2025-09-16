@@ -51,6 +51,11 @@ Route::post('/logout', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/tab-data', [DashboardController::class, 'getTabData'])->name('dashboard.tab-data');
+    
+    // Users route (redirects to admin users)
+    Route::get('/users', function () {
+        return redirect()->route('admin.users.index');
+    })->name('users.index');
 
 // Return from impersonation
 Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\UserManagementController::class, 'returnFromImpersonation'])->name('admin.return-from-impersonation');
@@ -91,10 +96,13 @@ Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\Use
 
         // Permission Management
         Route::resource('permissions', \App\Http\Controllers\Admin\PermissionManagementController::class);
-        Route::get('permissions/bulk-create', [\App\Http\Controllers\Admin\PermissionManagementController::class, 'showBulkCreate'])->name('bulk-create');
-        Route::post('permissions/bulk-create', [\App\Http\Controllers\Admin\PermissionManagementController::class, 'bulkCreate'])->name('bulk-create.store');
-        Route::get('permissions/{permission}/roles', [\App\Http\Controllers\Admin\PermissionManagementController::class, 'roles'])->name('roles');
-        Route::get('permissions/{permission}/users', [\App\Http\Controllers\Admin\PermissionManagementController::class, 'users'])->name('users');
+        Route::get('permissions/bulk-create', [\App\Http\Controllers\Admin\PermissionManagementController::class, 'showBulkCreate'])->name('admin.permissions.bulk-create');
+        Route::post('permissions/bulk-create', [\App\Http\Controllers\Admin\PermissionManagementController::class, 'bulkCreate'])->name('admin.permissions.bulk-create.store');
+        Route::get('permissions/{permission}/roles', [\App\Http\Controllers\Admin\PermissionManagementController::class, 'roles'])->name('admin.permissions.roles');
+        Route::get('permissions/{permission}/users', [\App\Http\Controllers\Admin\PermissionManagementController::class, 'users'])->name('admin.permissions.users');
+        
+        // Route alias for backward compatibility
+        Route::get('bulk-create', [\App\Http\Controllers\Admin\PermissionManagementController::class, 'showBulkCreate'])->name('bulk-create');
         
         // Tenant Car Selection Management
         Route::get('tenant-car-selection', [\App\Http\Controllers\Admin\TenantCarSelectionController::class, 'index'])->name('car-selection.index');

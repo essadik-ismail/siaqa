@@ -31,10 +31,10 @@ class SettingsController extends Controller
             'company_email' => 'required|email|max:255',
             'company_phone' => 'required|string|max:20',
             'company_address' => 'required|string|max:500',
-            'currency' => 'required|in:EUR,USD,GBP',
+            'currency' => 'required|in:EUR,USD,GBP,DH',
             'timezone' => 'required|string|max:50',
             'date_format' => 'required|in:d/m/Y,m/d/Y,Y-m-d',
-            'language' => 'required|in:fr,en,es',
+            'language' => 'required|in:fr,ar',
         ]);
 
         $tenantId = auth()->user()->tenant_id;
@@ -132,7 +132,7 @@ class SettingsController extends Controller
                 'company_email' => Cache::get("settings{$tenantKey}.company_email", 'contact@rental.com'),
                 'company_phone' => Cache::get("settings{$tenantKey}.company_phone", '+33 1 23 45 67 89'),
                 'company_address' => Cache::get("settings{$tenantKey}.company_address", '123 Rue de la Paix, Paris'),
-                'currency' => Cache::get("settings{$tenantKey}.currency", 'EUR'),
+                'currency' => Cache::get("settings{$tenantKey}.currency", 'DH'),
                 'timezone' => Cache::get("settings{$tenantKey}.timezone", 'Europe/Paris'),
                 'date_format' => Cache::get("settings{$tenantKey}.date_format", 'd/m/Y'),
                 'language' => Cache::get("settings{$tenantKey}.language", 'fr'),

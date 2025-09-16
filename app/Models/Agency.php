@@ -45,7 +45,7 @@ class Agency extends Model
      */
     public function users(): HasMany
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class, 'agence_id');
     }
 
     /**
@@ -53,7 +53,7 @@ class Agency extends Model
      */
     public function vehicles(): HasMany
     {
-        return $this->hasMany(Vehicule::class);
+        return $this->hasMany(Vehicule::class, 'agence_id');
     }
 
     /**
@@ -61,7 +61,7 @@ class Agency extends Model
      */
     public function reservations(): HasMany
     {
-        return $this->hasMany(Reservation::class);
+        return $this->hasMany(Reservation::class, 'agence_id');
     }
 
     /**
@@ -69,7 +69,7 @@ class Agency extends Model
      */
     public function contracts(): HasMany
     {
-        return $this->hasMany(Contrat::class);
+        return $this->hasMany(Contrat::class, 'agence_id');
     }
 
     /**
@@ -77,7 +77,7 @@ class Agency extends Model
      */
     public function clients(): HasMany
     {
-        return $this->hasMany(Client::class);
+        return $this->hasMany(Client::class, 'agence_id');
     }
 
     /**

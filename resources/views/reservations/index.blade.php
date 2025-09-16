@@ -21,6 +21,69 @@
         </div>
     </div>
 
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-calendar-check text-2xl text-blue-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total des Réservations</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $statistics['total'] }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-check-circle text-2xl text-green-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Confirmées</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $statistics['confirmees'] }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-clock text-2xl text-yellow-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">En Attente</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $statistics['en_attente'] }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-times-circle text-2xl text-red-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Annulées</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $statistics['annulees'] }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-gray-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-flag-checkered text-2xl text-gray-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Terminées</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $statistics['terminees'] }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Search and Filters -->
     <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
@@ -169,9 +232,9 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ number_format($reservation->prix_total, 2) }}€</div>
+                                <div class="text-sm font-medium text-gray-900">{{ number_format($reservation->prix_total, 2) }} DH</div>
                                 @if($reservation->caution > 0)
-                                <div class="text-sm text-gray-500">Caution: {{ number_format($reservation->caution, 2) }}€</div>
+                                <div class="text-sm text-gray-500">Caution: {{ number_format($reservation->caution, 2) }} DH</div>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">

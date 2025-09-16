@@ -14,6 +14,29 @@
                 margin: 0;
                 padding: 0;
             }
+            .print-button {
+                display: none;
+            }
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .print-button:hover {
+            background: #059669;
         }
         
         body {
@@ -179,6 +202,13 @@
     </style>
 </head>
 <body>
+    <button class="print-button" onclick="window.print()" style="right: 20px;">
+        🖨️ Imprimer le Contrat
+    </button>
+    <button class="print-button" onclick="window.history.back()" style="right: 200px; background: #6b7280;">
+        ← Retour
+    </button>
+    
     <div class="main-content">
         <h1 class="header-title">CONTRAT DE LOCATION DE VOITURE ENTRE PARTICULIERS</h1>
         
@@ -242,8 +272,8 @@
 
         <div class="section-title">Article 3 - Prix</div>
         <p style="margin: 5px 0; font-size: 8px;">
-            Le prix de la location est fixé à <span class="form-field" style="width: 100px;">{{ $contrat->prix ? number_format($contrat->prix, 2) . ' €' : '___ €' }}</span> par jour,
-            soit un total de <span class="form-field" style="width: 100px;">{{ $contrat->total_ttc ? number_format($contrat->total_ttc, 2) . ' €' : '___ €' }}</span> TTC.
+            Le prix de la location est fixé à <span class="form-field" style="width: 100px;">{{ $contrat->prix ? number_format($contrat->prix, 2) . ' DH' : '___ DH' }}</span> par jour,
+            soit un total de <span class="form-field" style="width: 100px;">{{ $contrat->total_ttc ? number_format($contrat->total_ttc, 2) . ' DH' : '___ DH' }}</span> TTC.
         </p>
 
         <div class="section-title">Article 4 - Équipements inclus</div>

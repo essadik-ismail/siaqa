@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
-use App\Models\Agency;
+use App\Models\Agence;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -19,30 +19,11 @@ class UserManagementController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::with(['roles', 'tenant', 'agence'])
-            ->when($request->search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%")
-                      ->orWhere('phone', 'like', "%{$search}%");
-                });
-            })
-            ->when($request->role, function ($query, $role) {
-                $query->whereHas('roles', function ($q) use ($role) {
-                    $q->where('id', $role);
-                });
-            })
-            ->when($request->status !== null && $request->status !== '', function ($query, $status) {
-                $query->where('is_active', $request->status == '1');
-            })
-            ->when($request->agency, function ($query, $agency) {
-                $query->where('agency_id', $agency);
-            })
-            ->orderBy('created_at', 'desc');
-
-        $users = $query->paginate(15);
+        $users = User::with(['roles', 'tenant', 'agence'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         $roles = Role::all();
-        $agencies = Agency::all();
+        $agencies = Agence::all();
         $tenants = Tenant::all();
 
         return view('admin.users.index', compact('users', 'roles', 'agencies', 'tenants'));
@@ -54,7 +35,7 @@ class UserManagementController extends Controller
     public function create()
     {
         $roles = Role::all();
-        $agencies = Agency::all();
+        $agencies = Agence::all();
         $tenants = Tenant::all();
         $recentUsers = User::latest()->take(5)->get();
 
@@ -73,7 +54,7 @@ class UserManagementController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'tenant_id' => 'required|exists:tenants,id',
-            'agency_id' => 'nullable|exists:agencies,id',
+            'agence_id' => 'nullable|exists:agences,id',
             'roles' => 'array',
             'roles.*' => 'exists:roles,id',
             'is_active' => 'boolean',
@@ -92,12 +73,18 @@ class UserManagementController extends Controller
             'phone' => $request->phone,
             'address' => $request->address,
             'tenant_id' => $request->tenant_id,
-            'agency_id' => $request->agency_id,
+            'agence_id' => $request->agence_id,
             'is_active' => $request->boolean('is_active', true),
         ]);
 
         if ($request->has('roles')) {
             $user->assignRoles($request->roles);
+        }
+
+        // Check if user was created from agency users page
+        if ($request->has('agency_id') && $request->agency_id) {
+            return redirect()->route('admin.agencies.users', $request->agency_id)
+                ->with('success', 'User created successfully.');
         }
 
         return redirect()->route('admin.users.index')
@@ -109,9 +96,9 @@ class UserManagementController extends Controller
      */
     public function show(User $user)
     {
-        $user->load(['roles', 'permissions', 'tenant', 'agency']);
-        
-        return view('admin.users.show', compact('user'));
+        // Redirect to users index instead of showing user details
+        return redirect()->route('admin.users.index')
+            ->with('info', 'User details view has been removed. Use edit to modify user information.');
     }
 
     /**
@@ -120,7 +107,7 @@ class UserManagementController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
-        $agencies = Agency::all();
+        $agencies = Agence::all();
         $tenants = Tenant::all();
         $user->load(['roles']);
 
@@ -145,7 +132,7 @@ class UserManagementController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'tenant_id' => 'required|exists:tenants,id',
-            'agency_id' => 'nullable|exists:agencies,id',
+            'agence_id' => 'nullable|exists:agences,id',
             'roles' => 'array',
             'roles.*' => 'exists:roles,id',
             'is_active' => 'boolean',
@@ -163,7 +150,7 @@ class UserManagementController extends Controller
             'phone' => $request->phone,
             'address' => $request->address,
             'tenant_id' => $request->tenant_id,
-            'agency_id' => $request->agency_id,
+            'agence_id' => $request->agence_id,
             'is_active' => $request->boolean('is_active', true),
         ]);
 
@@ -173,6 +160,12 @@ class UserManagementController extends Controller
 
         if ($request->has('roles')) {
             $user->assignRoles($request->roles);
+        }
+
+        // Check if user was updated from agency users page
+        if ($request->has('agency_id') && $request->agency_id) {
+            return redirect()->route('admin.agencies.users', $request->agency_id)
+                ->with('success', 'User updated successfully.');
         }
 
         return redirect()->route('admin.users.index')
@@ -218,9 +211,9 @@ class UserManagementController extends Controller
     public function permissions(User $user)
     {
         $user->load(['roles.permissions', 'permissions']);
-        $allPermissions = \App\Models\Permission::all()->groupBy('module');
+        $permissions = \App\Models\Permission::all();
         
-        return view('admin.users.permissions', compact('user', 'allPermissions'));
+        return view('admin.users.permissions', compact('user', 'permissions'));
     }
 
     /**
@@ -240,6 +233,12 @@ class UserManagementController extends Controller
         }
 
         $user->assignPermissions($request->permissions ?? []);
+
+        // Check if user permissions were updated from agency users page
+        if ($request->has('agency_id') && $request->agency_id) {
+            return redirect()->route('admin.agencies.users', $request->agency_id)
+                ->with('success', 'User permissions updated successfully.');
+        }
 
         return redirect()->route('admin.users.permissions', $user)
             ->with('success', 'User permissions updated successfully.');

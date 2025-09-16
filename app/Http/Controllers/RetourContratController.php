@@ -47,16 +47,31 @@ class RetourContratController extends Controller
         ]);
 
         try {
-            $retourContrat = RetourContrat::create($validated);
+            // Ensure the contract belongs to the current tenant
+            $contrat = Contrat::find($validated['contrat_id']);
+            if (!$contrat || $contrat->tenant_id !== auth()->user()->tenant_id) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Contrat non trouvé ou non autorisé'
+                    ], 404);
+                }
+                return redirect()->back()
+                    ->with('error', 'Contrat non trouvé ou non autorisé');
+            }
+
+            $retourContrat = RetourContrat::create([
+                ...$validated,
+                'tenant_id' => auth()->user()->tenant_id
+            ]);
             
             // Update contract status to completed
-            $contrat = Contrat::find($validated['contrat_id']);
             $contrat->update(['etat_contrat' => 'termine']);
             
             // Update vehicle status to available
             $contrat->vehicule->update(['statut' => 'disponible']);
 
-            if ($request->expectsJson()) {
+            if ($request->expectsJson() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Retour de contrat enregistré avec succès',
@@ -67,7 +82,9 @@ class RetourContratController extends Controller
             return redirect()->route('retour-contrats.index')
                 ->with('success', 'Retour de contrat créé avec succès.');
         } catch (\Exception $e) {
-            if ($request->expectsJson()) {
+            \Log::error('Retour contrat error: ' . $e->getMessage());
+            
+            if ($request->expectsJson() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Erreur lors de l\'enregistrement: ' . $e->getMessage()

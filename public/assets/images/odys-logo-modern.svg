@@ -1,0 +1,39 @@
+<svg width="180" height="50" viewBox="0 0 180 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Modern Icon -->
+  <g transform="translate(5, 5)">
+    <!-- Outer Ring -->
+    <circle cx="20" cy="20" r="18" fill="none" stroke="url(#modernGradient1)" stroke-width="2.5"/>
+    <!-- Inner Circle -->
+    <circle cx="20" cy="20" r="12" fill="url(#modernGradient2)"/>
+    <!-- Car Symbol -->
+    <g transform="translate(12, 12)">
+      <!-- Car Body -->
+      <rect x="2" y="6" width="12" height="4" rx="1" fill="white"/>
+      <!-- Car Top -->
+      <rect x="4" y="2" width="8" height="4" rx="1" fill="white"/>
+      <!-- Wheels -->
+      <circle cx="5" cy="10" r="1.5" fill="white"/>
+      <circle cx="11" cy="10" r="1.5" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Modern Typography -->
+  <text x="60" y="22" font-family="'Segoe UI', Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="2px" fill="url(#modernGradient3)">ODYS</text>
+  <text x="60" y="36" font-family="'Segoe UI', Arial, sans-serif" font-size="9" font-weight="500" letter-spacing="1px" fill="#64748B">RENTAL MANAGEMENT</text>
+  
+  <!-- Modern Gradients -->
+  <defs>
+    <linearGradient id="modernGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0EA5E9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="modernGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="modernGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0F172A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#475569;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

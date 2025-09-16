@@ -96,7 +96,7 @@ class LandingController extends Controller
             $query->where('annee', '>=', $request->annee);
         }
         
-        $cars = $query->landingDisplay()->orderBy('created_at', 'desc')->paginate(12);
+        $cars = $query->landingDisplay()->orderBy('created_at', 'desc')->get();
         $marques = Marque::where('tenant_id', $currentTenant->id)->where('is_active', true)->get();
         
         return view('landing.cars', compact('cars', 'marques', 'currentTenant'));

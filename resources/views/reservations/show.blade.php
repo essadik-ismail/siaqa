@@ -69,11 +69,11 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Prix Total</label>
-                            <p class="text-gray-900 font-semibold">{{ number_format($reservation->prix_total, 2) }}€</p>
+                            <p class="text-gray-900 font-semibold">{{ number_format($reservation->prix_total, 2) }} DH</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Caution</label>
-                            <p class="text-gray-900">{{ number_format($reservation->caution, 2) }}€</p>
+                            <p class="text-gray-900">{{ number_format($reservation->caution, 2) }} DH</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de Passagers</label>

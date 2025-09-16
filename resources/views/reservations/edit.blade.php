@@ -50,7 +50,7 @@
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('client_id') border-red-500 @enderror">
                                 <option value="">Sélectionnez un client</option>
                                 @foreach($clients as $client)
-                                    <option value="{{ $client->id }}" {{ old('client_id', $reservation->client_id) == $client->id ? 'selected' : '' }}>
+                                    <option value="{{ $client->id }}" {{ (old('client_id', $reservation->client_id) == $client->id) ? 'selected' : '' }}>
                                         {{ $client->prenom }} {{ $client->nom }} - {{ $client->email }}
                                     </option>
                                 @endforeach
@@ -66,7 +66,7 @@
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('vehicule_id') border-red-500 @enderror">
                                 <option value="">Sélectionnez un véhicule</option>
                                 @foreach($vehicules as $vehicule)
-                                    <option value="{{ $vehicule->id }}" {{ old('vehicule_id', $reservation->vehicule_id) == $vehicule->id ? 'selected' : '' }}>
+                                    <option value="{{ $vehicule->id }}" {{ (old('vehicule_id', $reservation->vehicule_id) == $vehicule->id) ? 'selected' : '' }}>
                                         {{ $vehicule->marque->nom ?? 'N/A' }} {{ $vehicule->name }} - {{ $vehicule->plaque_immatriculation }}
                                     </option>
                                 @endforeach
@@ -190,10 +190,10 @@
                             <label for="statut" class="block text-sm font-medium text-gray-700 mb-2">Statut de la Réservation *</label>
                             <select id="statut" name="statut" required
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('statut') border-red-500 @enderror">
-                                <option value="en_attente" {{ old('statut', $reservation->statut) === 'en_attente' ? 'selected' : '' }}>En Attente</option>
-                                <option value="confirmee" {{ old('statut', $reservation->statut) === 'confirmee' ? 'selected' : '' }}>Confirmée</option>
-                                <option value="annulee" {{ old('statut', $reservation->statut) === 'annulee' ? 'selected' : '' }}>Annulée</option>
-                                <option value="terminee" {{ old('statut', $reservation->statut) === 'terminee' ? 'selected' : '' }}>Terminée</option>
+                                <option value="en_attente" {{ (old('statut', $reservation->statut) === 'en_attente') ? 'selected' : '' }}>En Attente</option>
+                                <option value="confirmee" {{ (old('statut', $reservation->statut) === 'confirmee') ? 'selected' : '' }}>Confirmée</option>
+                                <option value="annulee" {{ (old('statut', $reservation->statut) === 'annulee') ? 'selected' : '' }}>Annulée</option>
+                                <option value="terminee" {{ (old('statut', $reservation->statut) === 'terminee') ? 'selected' : '' }}>Terminée</option>
                             </select>
                             @error('statut')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

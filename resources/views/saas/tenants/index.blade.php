@@ -18,24 +18,6 @@
         </div>
     </div>
 
-    <!-- Success/Error Messages -->
-    @if(session('success'))
-        <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle mr-2"></i>
-                {{ session('success') }}
-            </div>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            <div class="flex items-center">
-                <i class="fas fa-exclamation-circle mr-2"></i>
-                {{ session('error') }}
-            </div>
-        </div>
-    @endif
 
     <!-- Admin Credentials Modal -->
     @if(session('admin_credentials'))
@@ -208,13 +190,9 @@
                                 <a href="{{ route('saas.tenants.billing', $tenant) }}" class="text-indigo-600 hover:text-indigo-900 p-1 rounded" title="Billing">
                                     <i class="fas fa-credit-card"></i>
                                 </a>
-                                <form method="POST" action="{{ route('saas.tenants.destroy', $tenant) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this tenant? This action cannot be undone.')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900 p-1 rounded" title="Delete">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                <button type="button" onclick="showDeleteModal('{{ $tenant->company_name }}', '{{ route('saas.tenants.destroy', $tenant) }}')" class="text-red-600 hover:text-red-900 p-1 rounded" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -245,6 +223,35 @@
             </div>
         </div>
         @endif
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <i class="fas fa-exclamation-triangle text-red-600"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mt-4">Confirmer la suppression</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500">
+                        Êtes-vous sûr de vouloir supprimer le tenant "<span id="deleteTenantName"></span>" ? Cette action est irréversible et supprimera toutes les données associées.
+                    </p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <form id="deleteForm" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2">
+                            Supprimer
+                        </button>
+                        <button type="button" onclick="hideDeleteModal()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                            Annuler
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -310,8 +317,23 @@ document.addEventListener('keydown', function(e) {
         if (modal && modal.style.display === 'flex') {
             hideAdminCredentialsModal();
         }
+        const deleteModal = document.getElementById('deleteModal');
+        if (deleteModal && !deleteModal.classList.contains('hidden')) {
+            hideDeleteModal();
+        }
     }
 });
+
+// Delete Modal Functions
+function showDeleteModal(tenantName, deleteUrl) {
+    document.getElementById('deleteTenantName').textContent = tenantName;
+    document.getElementById('deleteForm').action = deleteUrl;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function hideDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+}
 </script>
 @endpush
 

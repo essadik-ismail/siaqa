@@ -103,6 +103,14 @@ class Contrat extends Model
     }
 
     /**
+     * Get the primary client (alias for clientOne for backward compatibility).
+     */
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class, 'client_one_id');
+    }
+
+    /**
      * Get the vehicle that owns the contract.
      */
     public function vehicule(): BelongsTo

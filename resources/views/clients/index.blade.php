@@ -15,6 +15,45 @@
         </a>
     </div>
 
+    <!-- Client Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-blue-600 font-medium">Total Clients</p>
+                    <p class="text-3xl font-bold text-blue-800">{{ number_format($clients->count()) }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-users text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-green-600 font-medium">Active Clients</p>
+                    <p class="text-3xl font-bold text-green-800">{{ number_format($clients->where('is_blacklisted', false)->count()) }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-check text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-red-600 font-medium">Blacklisted</p>
+                    <p class="text-3xl font-bold text-red-800">{{ number_format($clients->where('is_blacklisted', true)->count()) }}</p>
+                </div>
+                <div class="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-slash text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Search and Filters -->
     <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -101,27 +140,12 @@
     </div>
 
     <!-- Search Results Counter -->
-    @if(request('search') || request('is_blacklisted') !== '')
-    <div class="mb-4 text-sm text-gray-600">
-        <span class="font-medium">{{ $clients->total() }}</span> 
-        @if($clients->total() === 1)
-            client found
-        @else
-            clients found
-        @endif
-        
-        @if(request('search'))
-            for "<span class="font-medium text-blue-600">{{ request('search') }}</span>"
-        @endif
-        
-        @if(request('is_blacklisted') !== '')
-            with status 
-            <span class="font-medium {{ request('is_blacklisted') ? 'text-red-600' : 'text-green-600' }}">
-                {{ request('is_blacklisted') ? 'Blacklisted' : 'Active' }}
-            </span>
-        @endif
+    <div id="resultsCounter" class="mb-4 text-sm text-gray-600 hidden">
+        <span id="resultsCount" class="font-medium">0</span> 
+        <span id="resultsText">clients found</span>
+        <span id="searchTerm" class="hidden">for "<span class="font-medium text-blue-600"></span>"</span>
+        <span id="statusTerm" class="hidden">with status <span class="font-medium"></span></span>
     </div>
-    @endif
 
     <!-- Clients Table -->
     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -137,16 +161,22 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody id="clientsTableBody" class="bg-white divide-y divide-gray-200">
                     @forelse($clients as $client)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="client-row hover:bg-gray-50" 
+                            data-name="{{ strtolower($client->nom . ' ' . $client->prenom) }}"
+                            data-email="{{ strtolower($client->email) }}"
+                            data-phone="{{ $client->telephone }}"
+                            data-id="{{ $client->id }}"
+                            data-status="{{ $client->is_blacklisted ? 'blacklisted' : 'active' }}"
+                            data-reservations="{{ $client->reservations_count ?? 0 }}">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center mr-3">
                                         <i class="fas fa-user text-gray-600"></i>
                                     </div>
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">
+                                        <div class="text-sm font-medium text-gray-900 client-name">
                                             {{ $client->nom }} {{ $client->prenom }}
                                         </div>
                                         <div class="text-sm text-gray-500">
@@ -156,8 +186,8 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $client->email }}</div>
-                                <div class="text-sm text-gray-500">{{ $client->telephone }}</div>
+                                <div class="text-sm text-gray-900 client-email">{{ $client->email }}</div>
+                                <div class="text-sm text-gray-500 client-phone">{{ $client->telephone }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ $client->numero_permis }}</div>
@@ -206,24 +236,15 @@
                             </td>
                         </tr>
                     @empty
-                        <tr>
+                        <tr id="noResultsRow">
                             <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                                 <div class="flex flex-col items-center py-8">
-                                    @if(request('search') || request('is_blacklisted') !== '')
-                                        <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
-                                        <p class="text-lg font-medium">No clients found</p>
-                                        <p class="text-sm">Try adjusting your search criteria or filters.</p>
-                                        <button onclick="clearAllFilters()" class="mt-3 text-blue-600 hover:text-blue-800 underline">
-                                            Clear all filters
-                                        </button>
-                                    @else
                                         <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
                                         <p class="text-lg font-medium">No clients found</p>
                                         <p class="text-sm">Get started by adding your first client.</p>
                                         <a href="{{ route('clients.create') }}" class="mt-3 inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                                             <i class="fas fa-plus mr-2"></i>Add New Client
                                         </a>
-                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -232,12 +253,43 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        @if($clients->hasPages())
-            <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-                {{ $clients->links() }}
+        <!-- Frontend Pagination -->
+        <div id="paginationContainer" class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button id="prevPageBtn" onclick="goToPreviousPage()" 
+                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Previous
+                    </button>
+                    <button id="nextPageBtn" onclick="goToNextPage()" 
+                            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Next
+                    </button>
             </div>
-        @endif
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Showing <span id="paginationStart" class="font-medium">1</span> to <span id="paginationEnd" class="font-medium">10</span> of <span id="paginationTotal" class="font-medium">0</span> results
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <button id="prevPageBtnDesktop" onclick="goToPreviousPage()" 
+                                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div id="paginationNumbers" class="flex">
+                                <!-- Page numbers will be generated by JavaScript -->
+                            </div>
+                            <button id="nextPageBtnDesktop" onclick="goToNextPage()" 
+                                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -332,179 +384,62 @@
 </div>
 @endsection
 
-@section('sidebar')
-    <!-- Quick Stats -->
-    <div class="mb-8">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Client Statistics</h3>
-        <div class="space-y-4">
-            <div class="bg-blue-50 p-4 rounded-lg">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-blue-600 font-medium">Total Clients</p>
-                        <p class="text-2xl font-bold text-blue-800">{{ number_format($clients->total()) }}</p>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-users text-white"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-green-50 p-4 rounded-lg">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-green-600 font-medium">Active Clients</p>
-                        <p class="text-2xl font-bold text-green-800">{{ number_format($clients->where('is_blacklisted', false)->count()) }}</p>
-                    </div>
-                    <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-user-check text-white"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-red-50 p-4 rounded-lg">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-red-600 font-medium">Blacklisted</p>
-                        <p class="text-2xl font-bold text-red-800">{{ number_format($clients->where('is_blacklisted', true)->count()) }}</p>
-                    </div>
-                    <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-user-slash text-white"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div>
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
-        <div class="space-y-3">
-            <a href="{{ route('clients.create') }}" class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium text-center">
-                <i class="fas fa-plus mr-2"></i>Add New Client
-            </a>
-            <a href="{{ route('clients.statistics') }}" class="block w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-medium text-center">
-                <i class="fas fa-chart-bar mr-2"></i>View Statistics
-            </a>
-        </div>
-    </div>
-@endsection
 
 @push('scripts')
 <style>
-    /* Enhanced Modal Animations */
-    .modal-backdrop {
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
+    /* Enhanced search responsiveness */
+    #searchInput {
+        transition: all 0.2s ease-in-out;
     }
     
-    /* Modal entrance animation */
-    .modal-enter {
-        opacity: 0;
-        transform: scale(0.8);
+    #searchInput:focus {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
     
-    .modal-enter-active {
-        opacity: 1;
-        transform: scale(1);
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    #searchIndicator {
+        transition: all 0.3s ease-in-out;
     }
     
-    /* Modal exit animation */
-    .modal-exit {
-        opacity: 1;
-        transform: scale(1);
+    .client-row {
+        transition: all 0.2s ease-in-out;
     }
     
-    .modal-exit-active {
-        opacity: 0;
-        transform: scale(0.8);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    .client-row:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     
-    /* Enhanced button animations */
-    .btn-primary {
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
+    /* Smooth pagination transitions */
+    .pagination-btn {
+        transition: all 0.2s ease-in-out;
     }
     
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    .pagination-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     
-    .btn-primary:active {
-        transform: translateY(0);
-        transition: transform 0.1s;
-    }
-    
-    /* Focus states for accessibility */
-    .btn-primary:focus {
-        outline: none;
-        ring: 2px;
-        ring-offset: 2px;
-    }
-    
-    /* Modal content animations */
-    .modal-content-enter {
-        opacity: 0;
-        transform: scale(0.95) translateY(20px);
-    }
-    
-    .modal-content-enter-active {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    
-    /* Icon animations */
-    .modal-icon {
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    
-    .modal-icon:hover {
-        transform: scale(1.1) rotate(5deg);
-    }
-    
-    /* Enhanced shadows and depth */
-    .modal-shadow {
-        box-shadow: 
-            0 20px 25px -5px rgba(0, 0, 0, 0.1),
-            0 10px 10px -5px rgba(0, 0, 0, 0.04),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-    }
-    
-    /* Responsive modal sizing */
-    @media (max-width: 640px) {
-        .modal-content {
-            margin: 1rem;
-            max-width: calc(100vw - 2rem);
-        }
-    }
-    
-    /* Loading state animations */
-    .loading-spinner {
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    
-    /* Pulse animation for important elements */
-    .pulse-important {
-        animation: pulse-important 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    
-    @keyframes pulse-important {
+    /* Loading animation for search */
+    @keyframes searchPulse {
         0%, 100% { opacity: 1; }
-        50% { opacity: 0.8; }
+        50% { opacity: 0.5; }
+    }
+    
+    .searching {
+        animation: searchPulse 1.5s ease-in-out infinite;
     }
 </style>
 
 <script>
-    // Debounce function to limit API calls
+    // Global variables for frontend functionality
+    let allClients = [];
+    let filteredClients = [];
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 10;
+    let totalPages = 1;
+
+    // Debounce function to limit search calls
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -513,270 +448,429 @@
                 func(...args);
             };
             clearTimeout(timeout);
-            timeout = later;
-        };
+             timeout = later;
+         };
+     }
+
+     // Immediate search function for better responsiveness
+     function immediateSearch() {
+         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+         const statusFilter = document.getElementById('statusFilter').value;
+         const sortBy = document.getElementById('sortFilter').value;
+
+
+         // Show search indicator immediately
+         updateSearchUI();
+
+         // Filter clients
+        filteredClients = allClients.filter(client => {
+            const matchesSearch = !searchTerm || 
+                 client.name.includes(searchTerm) || 
+                 client.email.includes(searchTerm) || 
+                 client.phone.includes(searchTerm) ||
+                 client.id.toString().includes(searchTerm);
+             
+             const matchesStatus = statusFilter === '' || 
+                 (statusFilter === '0' && client.status === 'active') ||
+                 (statusFilter === '1' && client.status === 'blacklisted');
+            
+            return matchesSearch && matchesStatus;
+        });
+        
+         // Sort clients
+         if (sortBy && sortBy !== '') {
+        filteredClients.sort((a, b) => {
+                 switch (sortBy) {
+                     case 'nom':
+                         return a.name.localeCompare(b.name);
+                case 'email':
+                    return a.email.localeCompare(b.email);
+                case 'created_at':
+                         return b.id - a.id; // Assuming higher ID = newer
+                default:
+                         return 0;
+            }
+        });
     }
 
-    // Function to update URL and reload page with new filters
-    function updateFilters() {
-        const search = document.getElementById('searchInput').value;
-        const status = document.getElementById('statusFilter').value;
-        const sortBy = document.getElementById('sortFilter').value;
-        
-        const params = new URLSearchParams();
-        
-        if (search) params.append('search', search);
-        if (status !== '') params.append('is_blacklisted', status);
-        if (sortBy) params.append('sort_by', sortBy);
-        
-        const url = new URL(window.location);
-        url.search = params.toString();
-        
-        // Show loading state
-        showLoadingState();
-        
-        // Navigate to new URL
-        window.location.href = url.toString();
-    }
+         // Update results counter
+         updateResultsCounter(searchTerm, statusFilter);
+         
+         // Reset to first page
+         currentPage = 1;
+         
+         // Display clients immediately
+         displayClients();
+         
+         // Update pagination
+         updatePagination();
+     }
 
-    // Function to show loading state
-    function showLoadingState() {
-        const tableBody = document.querySelector('tbody');
-        if (tableBody) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                        <div class="flex flex-col items-center py-8">
-                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div>
-                            <p class="text-lg font-medium">Loading...</p>
-                            <p class="text-sm">Please wait while we fetch your results.</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeClients();
+        setupEventListeners();
+        filterAndDisplayClients();
+    });
+
+    // Initialize clients data from the table
+    function initializeClients() {
+        const clientRows = document.querySelectorAll('.client-row');
+        allClients = Array.from(clientRows).map(row => ({
+            element: row,
+            name: row.dataset.name,
+            email: row.dataset.email,
+            phone: row.dataset.phone,
+            id: parseInt(row.dataset.id),
+            status: row.dataset.status,
+            reservations: parseInt(row.dataset.reservations)
+        }));
+        
+        // Hide the no results row initially
+        const noResultsRow = document.getElementById('noResultsRow');
+        if (noResultsRow) {
+            noResultsRow.style.display = 'none';
         }
     }
 
-    // Add event listeners for dynamic filtering
-    document.addEventListener('DOMContentLoaded', function() {
+     // Setup event listeners
+     function setupEventListeners() {
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
         const sortFilter = document.getElementById('sortFilter');
         const clearSearchButton = document.getElementById('clearSearch');
-        const searchIndicator = document.getElementById('searchIndicator');
-        const searchSuggestions = document.getElementById('searchSuggestions');
 
-        // Debounced search input handler
-        const debouncedSearch = debounce(updateFilters, 500);
+         // Note: Using immediateSearch() for better responsiveness
+         
+         // Search input event - immediate response for better UX
+        searchInput.addEventListener('input', function() {
+             // Show immediate visual feedback
+             updateSearchUI();
+             
+             // Perform immediate search for better responsiveness
+             immediateSearch();
+         });
+         
+         // Status filter change event - immediate response
+        statusFilter.addEventListener('change', function() {
+             immediateSearch();
+        });
         
-        // Search input event (with debouncing)
-        searchInput.addEventListener('input', debouncedSearch);
-        
-        // Status filter change event
-        statusFilter.addEventListener('change', updateFilters);
-        
-        // Sort filter change event
-        sortFilter.addEventListener('change', updateFilters);
+         // Sort filter change event - immediate response
+        sortFilter.addEventListener('change', function() {
+             immediateSearch();
+        });
 
-        // Clear search button event
+         // Clear search button event - immediate response
         clearSearchButton.addEventListener('click', function() {
             searchInput.value = '';
-            updateFilters(); // Update URL and reload
-            clearSearchButton.classList.add('hidden');
-            searchIndicator.classList.add('hidden');
+             immediateSearch();
         });
 
         // Keyboard shortcuts
         searchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                updateFilters();
-            } else if (e.key === 'Escape') {
+             if (e.key === 'Escape') {
                 e.preventDefault();
                 this.value = '';
-                updateFilters();
-            }
-        });
+                 immediateSearch();
+             }
+         });
+     }
 
-        // Focus management for better UX
-        searchInput.addEventListener('focus', function() {
-            if (this.value === '') {
-                searchSuggestions.classList.remove('hidden');
-            }
-        });
+     // Update search UI elements
+     function updateSearchUI() {
+         const searchInput = document.getElementById('searchInput');
+         const clearSearchButton = document.getElementById('clearSearch');
+         const searchIndicator = document.getElementById('searchIndicator');
+         const searchSuggestions = document.getElementById('searchSuggestions');
 
-        searchInput.addEventListener('blur', function() {
-            // Hide suggestions after a short delay to allow for clicks
-            setTimeout(() => {
-                searchSuggestions.classList.add('hidden');
-            }, 200);
-        });
-
-        // Add loading indicator to search input
-        searchInput.addEventListener('input', function() {
-            if (this.value.length > 0) {
-                this.classList.add('border-blue-300');
-                this.classList.remove('border-gray-300');
-                clearSearchButton.classList.remove('hidden');
+         if (searchInput.value.length > 0) {
+             searchInput.classList.add('border-blue-300', 'bg-blue-50');
+             searchInput.classList.remove('border-gray-300', 'bg-white');
+             clearSearchButton.classList.remove('hidden');
+             
+             // Show search indicator with animation
                 searchIndicator.classList.remove('hidden');
+                searchIndicator.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Searching...';
+                
                 searchSuggestions.classList.add('hidden');
             } else {
-                this.classList.remove('border-blue-300');
-                this.classList.add('border-gray-300');
+             searchInput.classList.remove('border-blue-300', 'bg-blue-50');
+             searchInput.classList.add('border-gray-300', 'bg-white');
                 clearSearchButton.classList.add('hidden');
                 searchIndicator.classList.add('hidden');
                 searchSuggestions.classList.add('hidden');
             }
+        }
+
+    // Filter and display clients
+    function filterAndDisplayClients() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const sortBy = document.getElementById('sortFilter').value;
+
+        // Filter clients
+        filteredClients = allClients.filter(client => {
+            const matchesSearch = !searchTerm || 
+                client.name.includes(searchTerm) || 
+                client.email.includes(searchTerm) || 
+                client.phone.includes(searchTerm) ||
+                client.id.toString().includes(searchTerm);
+            
+            const matchesStatus = statusFilter === '' || 
+                (statusFilter === '0' && client.status === 'active') ||
+                (statusFilter === '1' && client.status === 'blacklisted');
+            
+            return matchesSearch && matchesStatus;
         });
 
-        // Show suggestions if search input is empty
-        if (searchInput.value === '') {
-            searchSuggestions.classList.remove('hidden');
-        }
-    });
+        // Note: Sorting is handled by immediateSearch() function
 
-    // Function to clear a specific filter
-    function clearFilter(param) {
-        const params = new URLSearchParams(window.location.search);
+        // Update results counter
+        updateResultsCounter(searchTerm, statusFilter);
         
-        // Map the display parameter names to actual URL parameter names
-        const paramMap = {
-            'search': 'search',
-            'status': 'is_blacklisted',
-            'sort': 'sort_by'
-        };
+        // Reset to first page
+        currentPage = 1;
         
-        const actualParam = paramMap[param] || param;
-        params.delete(actualParam);
+        // Display clients
+        displayClients();
         
-        // Update URL and reload
-        const url = new URL(window.location);
-        url.search = params.toString();
-        window.location.href = url.toString();
+        // Update pagination
+        updatePagination();
     }
 
-    // Function to clear all filters
-    function clearAllFilters() {
-        const url = new URL(window.location);
-        url.search = '';
-        window.location.href = url.toString();
-    }
+     // Update results counter
+     function updateResultsCounter(searchTerm, statusFilter) {
+         const resultsCounter = document.getElementById('resultsCounter');
+         const resultsCount = document.getElementById('resultsCount');
+         const resultsText = document.getElementById('resultsText');
+         const searchTermSpan = document.getElementById('searchTerm');
+         const statusTermSpan = document.getElementById('statusTerm');
+         const searchIndicator = document.getElementById('searchIndicator');
 
-    // Blacklist modal functionality
-    function showBlacklistModal(clientId, clientName, currentStatus) {
-        const modal = document.getElementById('blacklistModal');
-        const modalContent = document.getElementById('blacklistModalContent');
-        
-        // Update modal content based on current status
-        const isCurrentlyBlacklisted = currentStatus === 'true' || currentStatus === true;
-        
-        document.getElementById('blacklistClientName').textContent = clientName;
-        document.getElementById('blacklistForm').action = `/clients/${clientId}/blacklist`;
-        
-        // Update modal text and button based on current status
-        const modalTitle = document.querySelector('#blacklistModal h3');
-        const modalMessage = document.querySelector('#blacklistModal p');
-        const submitButton = document.querySelector('#blacklistModal button[type="submit"]');
-        
-        if (isCurrentlyBlacklisted) {
-            modalTitle.textContent = 'Unblock Client';
-            modalMessage.textContent = `Are you sure you want to unblock ${clientName}? They will be able to make reservations again.`;
-            submitButton.textContent = 'Unblock Client';
-            submitButton.className = 'w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded';
+         const count = filteredClients.length;
+         resultsCount.textContent = count;
+         resultsText.textContent = count === 1 ? 'client found' : 'clients found';
+
+         // Hide search indicator when results are ready
+         if (searchIndicator) {
+             searchIndicator.classList.add('hidden');
+         }
+
+         // Show search term if searching
+         if (searchTerm) {
+             searchTermSpan.querySelector('span').textContent = searchTerm;
+             searchTermSpan.classList.remove('hidden');
+         } else {
+             searchTermSpan.classList.add('hidden');
+         }
+
+         // Show status term if filtering by status
+         if (statusFilter !== '') {
+             const statusText = statusFilter === '0' ? 'Active' : 'Blacklisted';
+             const statusClass = statusFilter === '0' ? 'text-green-600' : 'text-red-600';
+             statusTermSpan.querySelector('span').textContent = statusText;
+             statusTermSpan.querySelector('span').className = `font-medium ${statusClass}`;
+             statusTermSpan.classList.remove('hidden');
+         } else {
+             statusTermSpan.classList.add('hidden');
+         }
+
+         // Show/hide counter
+         if (searchTerm || statusFilter !== '') {
+             resultsCounter.classList.remove('hidden');
         } else {
-            modalTitle.textContent = 'Block Client';
-            modalMessage.textContent = `Are you sure you want to block ${clientName}? They will not be able to make new reservations.`;
-            submitButton.textContent = 'Block Client';
-            submitButton.className = 'w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded';
+             resultsCounter.classList.add('hidden');
+         }
+     }
+
+    // Display clients for current page
+    function displayClients() {
+        const tableBody = document.getElementById('clientsTableBody');
+        const noResultsRow = document.getElementById('noResultsRow');
+        
+        // Hide all client rows first
+        allClients.forEach(client => {
+            client.element.style.display = 'none';
+        });
+
+        if (filteredClients.length === 0) {
+            // Show no results message
+            if (noResultsRow) {
+                noResultsRow.style.display = '';
+            }
+            return;
         }
-        
-        modal.classList.remove('hidden');
-        
-        // Animate in
-        setTimeout(() => {
-            modalContent.classList.remove('scale-95', 'opacity-0');
-            modalContent.classList.add('scale-100', 'opacity-100');
-        }, 10);
+
+        // Hide no results row
+        if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+
+        // Calculate pagination
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const clientsToShow = filteredClients.slice(startIndex, endIndex);
+
+        // Reorder DOM elements to match the sorted order
+        clientsToShow.forEach((client, index) => {
+            // Move the element to the correct position in the DOM
+            if (index === 0) {
+                // If it's the first element, insert it after the table header
+                tableBody.insertBefore(client.element, tableBody.firstChild);
+        } else {
+                // Insert after the previous element
+                const previousClient = clientsToShow[index - 1];
+                tableBody.insertBefore(client.element, previousClient.element.nextSibling);
+            }
+            client.element.style.display = '';
+        });
     }
 
-    function hideBlacklistModal() {
-        const modal = document.getElementById('blacklistModal');
-        const modalContent = document.getElementById('blacklistModalContent');
+    // Update pagination controls
+    function updatePagination() {
+        totalPages = Math.ceil(filteredClients.length / ITEMS_PER_PAGE);
         
-        // Animate out
-        modalContent.classList.remove('scale-100', 'opacity-100');
-        modalContent.classList.add('scale-95', 'opacity-0');
+        // Update pagination info
+        const start = filteredClients.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+        const end = Math.min(currentPage * ITEMS_PER_PAGE, filteredClients.length);
         
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            document.body.style.overflow = '';
-        }, 300);
+        document.getElementById('paginationStart').textContent = start;
+        document.getElementById('paginationEnd').textContent = end;
+        document.getElementById('paginationTotal').textContent = filteredClients.length;
+
+        // Update pagination buttons
+        updatePaginationButtons();
+        
+        // Generate page numbers
+        generatePageNumbers();
     }
 
-    // Close modal when clicking outside
-    document.getElementById('blacklistModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            hideBlacklistModal();
-        }
-    });
+    // Update pagination button states
+    function updatePaginationButtons() {
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        const prevBtnDesktop = document.getElementById('prevPageBtnDesktop');
+        const nextBtnDesktop = document.getElementById('nextPageBtnDesktop');
 
-    // Form submission handling
-    document.getElementById('blacklistForm').addEventListener('submit', function(e) {
-        const submitBtn = this.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-        }
-    });
+        const isFirstPage = currentPage === 1;
+        const isLastPage = currentPage === totalPages || totalPages === 0;
 
-    // Enhanced function to show delete confirmation modal
+        [prevBtn, prevBtnDesktop].forEach(btn => {
+            btn.disabled = isFirstPage;
+        });
+
+        [nextBtn, nextBtnDesktop].forEach(btn => {
+            btn.disabled = isLastPage;
+        });
+    }
+
+    // Generate page number buttons
+    function generatePageNumbers() {
+        const container = document.getElementById('paginationNumbers');
+        container.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const button = document.createElement('button');
+            button.textContent = i;
+            button.className = `pagination-btn relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                i === currentPage 
+                    ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' 
+                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+            }`;
+            button.onclick = () => goToPage(i);
+            container.appendChild(button);
+        }
+    }
+
+    // Go to specific page
+    function goToPage(page) {
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        displayClients();
+        updatePagination();
+    }
+
+    // Go to previous page
+    function goToPreviousPage() {
+        if (currentPage > 1) {
+            goToPage(currentPage - 1);
+        }
+    }
+
+    // Go to next page
+    function goToNextPage() {
+        if (currentPage < totalPages) {
+            goToPage(currentPage + 1);
+        }
+    }
+
+     // Function to clear a specific filter
+     function clearFilter(param) {
+         switch (param) {
+             case 'search':
+                 document.getElementById('searchInput').value = '';
+                 break;
+             case 'status':
+                 document.getElementById('statusFilter').value = '';
+                 break;
+             case 'sort':
+                 document.getElementById('sortFilter').value = 'nom';
+                 break;
+         }
+         immediateSearch();
+     }
+
+     // Function to clear all filters
+     function clearAllFilters() {
+         document.getElementById('searchInput').value = '';
+         document.getElementById('statusFilter').value = '';
+         document.getElementById('sortFilter').value = 'nom';
+         immediateSearch();
+     }
+
+    // Modal functions
     function showDeleteModal(name, actionUrl) {
         const modal = document.getElementById('deleteModal');
         const modalContent = document.getElementById('deleteModalContent');
         const clientName = document.getElementById('deleteClientName');
         
-        // Set client name
         clientName.textContent = name;
-        
-        // Set form action
         document.getElementById('deleteForm').action = actionUrl;
         
-        // Show modal with backdrop
         modal.classList.remove('hidden');
         
-        // Trigger entrance animation
         setTimeout(() => {
             modalContent.style.transform = 'scale(1)';
             modalContent.style.opacity = '1';
         }, 10);
         
-        // Add backdrop blur effect
         document.body.style.overflow = 'hidden';
-        
-        // Focus management for accessibility
-        setTimeout(() => {
-            const cancelBtn = modal.querySelector('button[onclick="hideDeleteModal()"]');
-            if (cancelBtn) cancelBtn.focus();
-        }, 300);
     }
 
-    // Enhanced function to hide delete confirmation modal
     function hideDeleteModal() {
         const modal = document.getElementById('deleteModal');
         const modalContent = document.getElementById('deleteModalContent');
         
-        // Trigger exit animation
         modalContent.style.transform = 'scale(0.95)';
         modalContent.style.opacity = '0';
         
-        // Hide modal after animation
         setTimeout(() => {
             modal.classList.add('hidden');
             document.body.style.overflow = '';
         }, 200);
     }
 
-    // Enhanced function to show blacklist confirmation modal
     function showBlacklistModal(name, isBlacklisted, actionUrl) {
         const modal = document.getElementById('blacklistModal');
         const modalContent = document.getElementById('blacklistModalContent');
@@ -788,9 +882,7 @@
         const submitText = document.getElementById('blacklistSubmitText');
         const form = document.getElementById('blacklistForm');
 
-        // Configure modal based on current status
         if (isBlacklisted) {
-            // Currently blacklisted - Show unblacklist option (Green theme)
             iconContainer.className = 'w-16 h-16 bg-green-100 rounded-full flex items-center justify-center';
             icon.className = 'fas fa-user-check text-green-500 text-2xl';
             title.textContent = 'Unblock Client';
@@ -798,7 +890,6 @@
             submitText.textContent = 'Unblock Client';
             submitBtn.className = 'w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2';
         } else {
-            // Currently active - Show blacklist option (Red theme)
             iconContainer.className = 'w-16 h-16 bg-red-100 rounded-full flex items-center justify-center';
             icon.className = 'fas fa-ban text-red-500 text-2xl';
             title.textContent = 'Block Client';
@@ -807,110 +898,28 @@
             submitBtn.className = 'w-full bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2';
         }
 
-        // Set form action
         form.action = actionUrl;
-
-        // Show modal with backdrop
         modal.classList.remove('hidden');
         
-        // Trigger entrance animation
         setTimeout(() => {
             modalContent.style.transform = 'scale(1)';
             modalContent.style.opacity = '1';
         }, 10);
         
-        // Add backdrop blur effect
         document.body.style.overflow = 'hidden';
-        
-        // Focus management for accessibility
-        setTimeout(() => {
-            const cancelBtn = modal.querySelector('button[onclick="hideBlacklistModal()"]');
-            if (cancelBtn) cancelBtn.focus();
-        }, 300);
     }
 
-    // Enhanced function to hide blacklist confirmation modal
     function hideBlacklistModal() {
         const modal = document.getElementById('blacklistModal');
         const modalContent = document.getElementById('blacklistModalContent');
         
-        // Trigger exit animation
         modalContent.style.transform = 'scale(0.95)';
         modalContent.style.opacity = '0';
         
-        // Hide modal after animation
         setTimeout(() => {
             modal.classList.add('hidden');
             document.body.style.overflow = '';
         }, 200);
     }
-
-    // Enhanced modal interaction handlers
-    document.addEventListener('click', function(event) {
-        const deleteModal = document.getElementById('deleteModal');
-        const blacklistModal = document.getElementById('blacklistModal');
-        
-        // Close modals when clicking outside
-        if (event.target === deleteModal) {
-            hideDeleteModal();
-        }
-        if (event.target === blacklistModal) {
-            hideBlacklistModal();
-        }
-    });
-
-    // Enhanced keyboard navigation
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            hideDeleteModal();
-            hideBlacklistModal();
-        }
-        
-        // Tab navigation within modals
-        if (event.key === 'Tab') {
-            const activeModal = document.querySelector('#deleteModal:not(.hidden), #blacklistModal:not(.hidden)');
-            if (activeModal) {
-                const focusableElements = activeModal.querySelectorAll('button, input, textarea, select, [tabindex]:not([tabindex="-1"])');
-                const firstElement = focusableElements[0];
-                const lastElement = focusableElements[focusableElements.length - 1];
-                
-                if (event.shiftKey && document.activeElement === firstElement) {
-                    event.preventDefault();
-                    lastElement.focus();
-                } else if (!event.shiftKey && document.activeElement === lastElement) {
-                    event.preventDefault();
-                    firstElement.focus();
-                }
-            }
-        }
-    });
-
-    // Add loading states to form submissions
-    document.addEventListener('DOMContentLoaded', function() {
-        const deleteForm = document.getElementById('deleteForm');
-        const blacklistForm = document.getElementById('blacklistForm');
-        
-        if (deleteForm) {
-            deleteForm.addEventListener('submit', function() {
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-                
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Suppression...';
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-            });
-        }
-        
-        if (blacklistForm) {
-            blacklistForm.addEventListener('submit', function() {
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-                
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Traitement...';
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-            });
-        }
-    });
 </script>
 @endpush 

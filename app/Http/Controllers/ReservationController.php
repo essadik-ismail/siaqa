@@ -93,7 +93,17 @@ class ReservationController extends Controller
         $vehicules = Vehicule::where('is_active', true)->orderBy('name')->get();
         $agences = \App\Models\Agence::where('is_active', true)->orderBy('nom_agence')->get();
 
-        return view('reservations.index', compact('reservations', 'clients', 'vehicules', 'agences'));
+        // Calculate statistics
+        $allReservations = Reservation::where('tenant_id', auth()->user()->tenant_id)->get();
+        $statistics = [
+            'total' => $allReservations->count(),
+            'confirmees' => $allReservations->where('statut', 'confirmee')->count(),
+            'en_attente' => $allReservations->where('statut', 'en_attente')->count(),
+            'annulees' => $allReservations->where('statut', 'annulee')->count(),
+            'terminees' => $allReservations->where('statut', 'terminee')->count(),
+        ];
+
+        return view('reservations.index', compact('reservations', 'clients', 'vehicules', 'agences', 'statistics'));
     }
 
     /**
@@ -339,15 +349,22 @@ class ReservationController extends Controller
      */
     public function statistics(): View
     {
+        $tenantId = auth()->user()->tenant_id;
+        
         $stats = [
-            'total_reservations' => Reservation::count(),
-            'en_attente' => Reservation::where('statut', 'en_attente')->count(),
-            'confirmees' => Reservation::where('statut', 'confirmee')->count(),
-            'en_cours' => Reservation::where('statut', 'en_cours')->count(),
-            'terminees' => Reservation::where('statut', 'terminee')->count(),
-            'annulees' => Reservation::where('statut', 'annulee')->count(),
-            'ce_mois' => Reservation::whereMonth('created_at', now()->month)->count(),
-            'ce_mois_revenus' => Reservation::whereMonth('created_at', now()->month)
+            'total_reservations' => Reservation::where('tenant_id', $tenantId)->count(),
+            'en_attente' => Reservation::where('tenant_id', $tenantId)->where('statut', 'en_attente')->count(),
+            'confirmees' => Reservation::where('tenant_id', $tenantId)->where('statut', 'confirmee')->count(),
+            'en_cours' => Reservation::where('tenant_id', $tenantId)->where('statut', 'en_cours')->count(),
+            'terminees' => Reservation::where('tenant_id', $tenantId)->where('statut', 'terminee')->count(),
+            'annulees' => Reservation::where('tenant_id', $tenantId)->where('statut', 'annulee')->count(),
+            'ce_mois' => Reservation::where('tenant_id', $tenantId)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->count(),
+            'ce_mois_revenus' => Reservation::where('tenant_id', $tenantId)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
                 ->where('statut', '!=', 'annulee')
                 ->sum('prix_total'),
         ];

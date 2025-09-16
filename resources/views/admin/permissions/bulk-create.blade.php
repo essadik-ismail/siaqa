@@ -24,7 +24,7 @@
                     <h3 class="text-lg font-semibold text-gray-900">Permission Creation</h3>
                 </div>
                 <div class="p-6">
-                    <form method="POST" action="{{ route('admin.bulk-create.store') }}">
+                    <form method="POST" action="{{ route('admin.permissions.bulk-create.store') }}">
                         @csrf
                         
                         <!-- Template Selection -->

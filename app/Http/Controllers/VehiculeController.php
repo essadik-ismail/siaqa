@@ -51,7 +51,7 @@ class VehiculeController extends Controller
             $query->where('landing_display', $request->get('landing_display'));
         }
 
-        $vehicules = $query->orderBy('created_at', 'desc')->paginate(5);
+        $vehicules = $query->orderBy('created_at', 'desc')->get();
 
         // Calculate statistics from ALL vehicles (not filtered) for sidebar
         $tenantId = auth()->user()->tenant_id;

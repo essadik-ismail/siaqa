@@ -11,15 +11,18 @@ class RetourContrat extends Model
         'contrat_id',
         'date_retour',
         'kilometrage_retour',
+        'niveau_carburant',
         'etat_vehicule',
         'observations',
+        'frais_supplementaires',
         'statut',
         'tenant_id'
     ];
 
     protected $casts = [
         'date_retour' => 'datetime',
-        'kilometrage_retour' => 'integer'
+        'kilometrage_retour' => 'integer',
+        'frais_supplementaires' => 'decimal:2'
     ];
 
     public function contrat(): BelongsTo

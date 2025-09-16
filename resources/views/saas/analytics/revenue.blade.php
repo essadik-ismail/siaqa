@@ -5,7 +5,6 @@
 @section('content')
 <div class="container mx-auto px-6 py-8">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Revenue Analytics</h1>
         <div class="flex space-x-3">
             <a href="{{ route('saas.analytics.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left mr-2"></i>
@@ -28,7 +27,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Total Revenue</p>
-                    <p class="text-2xl font-bold text-gray-900">${{ number_format($revenueStats->total_revenue ?? 0, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ number_format($revenueStats->total_revenue ?? 0, 2) }} dh</p>
                 </div>
             </div>
         </div>
@@ -54,7 +53,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Avg. Reservation</p>
-                    <p class="text-2xl font-bold text-gray-900">${{ number_format($revenueStats->avg_reservation_value ?? 0, 2) }}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ number_format($revenueStats->avg_reservation_value ?? 0, 2) }} dh</p>
                 </div>
             </div>
         </div>
@@ -81,7 +80,7 @@
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="text-center">
                 <div class="text-3xl font-bold text-blue-600">
-                    ${{ $monthlyRevenue->count() > 0 ? number_format($monthlyRevenue->avg('revenue'), 2) : '0.00' }}
+                    {{ $monthlyRevenue->count() > 0 ? number_format($monthlyRevenue->avg('revenue'), 2) : '0.00' }} dh
                 </div>
                 <p class="text-sm font-medium text-gray-900">Monthly Average</p>
                 <p class="text-xs text-gray-500">Revenue per month</p>
@@ -92,7 +91,7 @@
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="text-center">
                 <div class="text-3xl font-bold text-green-600">
-                    ${{ $monthlyRevenue->count() > 0 ? number_format($monthlyRevenue->max('revenue'), 2) : '0.00' }}
+                    {{ $monthlyRevenue->count() > 0 ? number_format($monthlyRevenue->max('revenue'), 2) : '0.00' }} dh
                 </div>
                 <p class="text-sm font-medium text-gray-900">Peak Month</p>
                 <p class="text-xs text-gray-500">Highest revenue month</p>
@@ -185,7 +184,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-bold text-green-600">
-                                    ${{ number_format($tenant->total_revenue ?? 0, 2) }}
+                                    {{ number_format($tenant->total_revenue ?? 0, 2) }} dh
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -243,7 +242,7 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-sm text-gray-600">Total Revenue</span>
-                            <span class="text-sm font-medium text-blue-600">${{ number_format($totalRevenue, 2) }}</span>
+                            <span class="text-sm font-medium text-blue-600">{{ number_format($totalRevenue, 2) }} dh</span>
                         </div>
                     @else
                         <p class="text-sm text-gray-500">No revenue data available for analysis</p>
@@ -420,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     position: 'left',
                     title: {
                         display: true,
-                        text: 'Revenue ($)'
+                        text: 'Revenue (dh)'
                     }
                 },
                 y1: {

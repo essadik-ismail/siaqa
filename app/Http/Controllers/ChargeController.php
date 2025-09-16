@@ -45,7 +45,7 @@ class ChargeController extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        $charges = $query->paginate($request->get('per_page', 15));
+        $charges = $query->get();
 
         // Get data for filters - only tenant-specific data
         $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)->orderBy('name')->get();

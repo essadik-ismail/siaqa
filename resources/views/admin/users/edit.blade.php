@@ -1,348 +1,172 @@
 @extends('layouts.app')
 
-@section('title', 'Edit User: ' . $user->name)
+@section('title', 'Modifier Utilisateur')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Page Header -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Edit User: {{ $user->name }}</h1>
-        <div>
-            <a href="{{ route('admin.users.show', $user) }}" class="btn btn-info btn-sm mr-2">
-                <i class="fas fa-eye mr-2"></i>View User
-            </a>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left mr-2"></i>Back to Users
-            </a>
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center mb-6">
+            @if(request('agency_id'))
+                <a href="{{ route('admin.agencies.users', request('agency_id')) }}" class="text-gray-600 hover:text-gray-900 mr-4">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            @else
+                <a href="{{ route('users.index') }}" class="text-gray-600 hover:text-gray-900 mr-4">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            @endif
+            <h1 class="text-3xl font-bold text-gray-900">Modifier Utilisateur</h1>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- User Edit Form -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Edit User Information</h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ route('admin.users.update', $user) }}">
-                        @csrf
-                        @method('PUT')
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="name" class="form-label">Full Name *</label>
-                                    <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                           id="name" name="name" value="{{ old('name', $user->name) }}" required>
-                                    @error('name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="email" class="form-label">Email Address *</label>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                           id="email" name="email" value="{{ old('email', $user->email) }}" required>
-                                    @error('email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form method="POST" action="{{ route('admin.users.update', $user) }}">
+                @csrf
+                @method('PUT')
+                
+                @if(request('agency_id'))
+                    <input type="hidden" name="agency_id" value="{{ request('agency_id') }}">
+                @endif
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="password" class="form-label">New Password</label>
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                           id="password" name="password">
-                                    @error('password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <small class="form-text text-muted">Leave blank to keep current password. Minimum 8 characters if changing.</small>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="password_confirmation" class="form-label">Confirm New Password</label>
-                                    <input type="password" class="form-control" 
-                                           id="password_confirmation" name="password_confirmation">
-                                </div>
-                            </div>
-                        </div>
+                <div class="space-y-6">
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="agency_id" class="form-label">Agency</label>
-                                    <select class="form-control @error('agency_id') is-invalid @enderror" 
-                                            id="agency_id" name="agency_id">
-                                        <option value="">Select Agency</option>
-                                        @foreach($agencies as $agency)
-                                            <option value="{{ $agency->id }}" {{ old('agency_id', $user->agence_id) == $agency->id ? 'selected' : '' }}>
-                                                {{ $agency->nom_agence }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('agency_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="roles" class="form-label">Roles *</label>
-                                    <select class="form-control @error('roles') is-invalid @enderror" 
-                                            id="roles" name="roles[]" multiple required>
-                                        @foreach($roles as $role)
-                                            <option value="{{ $role->id }}" {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'selected' : '' }}>
-                                                {{ $role->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('roles')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple roles</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="tenant_id" class="form-label">Tenant</label>
-                                    <select class="form-control @error('tenant_id') is-invalid @enderror" 
-                                            id="tenant_id" name="tenant_id">
-                                        <option value="">Select Tenant</option>
-                                        @foreach($tenants as $tenant)
-                                            <option value="{{ $tenant->id }}" {{ old('tenant_id', $user->tenant_id) == $tenant->id ? 'selected' : '' }}>
-                                                {{ $tenant->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('tenant_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <div class="form-check mt-4">
-                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', $user->is_active) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="is_active">
-                                            Active User
-                                        </label>
-                                    </div>
-                                    <small class="form-text text-muted">Inactive users cannot log in</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control @error('notes') is-invalid @enderror" 
-                                      id="notes" name="notes" rows="3">{{ old('notes', $user->notes ?? '') }}</textarea>
-                            @error('notes')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                    <!-- Personal Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nom complet *</label>
+                            <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            @error('name')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save mr-2"></i>Update User
-                            </button>
-                            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary ml-2">Cancel</a>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                            <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            @error('email')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+                    </div>
 
-        <div class="col-lg-4">
-            <!-- User Information -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">User Information</h6>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <div class="avatar-lg mx-auto mb-3">
-                            <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-2xl font-medium">
-                                {{ substr($user->name, 0, 1) }}
-                            </div>
+                    <!-- Contact Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                            <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            @error('phone')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
-                        <h5 class="font-weight-bold">{{ $user->name }}</h5>
-                        <p class="text-muted">{{ $user->email }}</p>
-                    </div>
 
-                    <div class="mb-3">
-                        <strong>User ID:</strong> {{ $user->id }}
-                    </div>
-
-                    <div class="mb-3">
-                        <strong>Status:</strong>
-                        <span class="badge badge-{{ $user->is_active ? 'success' : 'danger' }}">
-                            {{ $user->is_active ? 'Active' : 'Inactive' }}
-                        </span>
-                    </div>
-
-                    <div class="mb-3">
-                        <strong>Email Verified:</strong>
-                        @if($user->email_verified_at)
-                            <span class="badge badge-success">Yes</span>
-                        @else
-                            <span class="badge badge-warning">No</span>
-                        @endif
-                    </div>
-
-                    <div class="mb-3">
-                        <strong>Created:</strong> {{ $user->created_at->format('M d, Y H:i') }}
-                    </div>
-
-                    <div class="mb-3">
-                        <strong>Last Updated:</strong> {{ $user->updated_at->format('M d, Y H:i') }}
-                    </div>
-
-                    @if($user->last_login_at)
-                    <div class="mb-3">
-                        <strong>Last Login:</strong> {{ $user->last_login_at->format('M d, Y H:i') }}
-                    </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Current Roles -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Current Roles</h6>
-                </div>
-                <div class="card-body">
-                    @if($user->roles->count() > 0)
-                        @foreach($user->roles as $role)
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="badge badge-primary">{{ $role->name }}</span>
-                            <small class="text-muted">{{ $role->permissions->count() }} permissions</small>
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+                            <input type="text" name="address" id="address" value="{{ old('address', $user->address) }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            @error('address')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
-                        @endforeach
-                    @else
-                        <p class="text-muted text-center small">No roles assigned</p>
-                    @endif
-                </div>
-            </div>
+                    </div>
 
-            <!-- Quick Actions -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{{ route('admin.users.permissions', $user) }}" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-key mr-2"></i>Manage Permissions
+                    <!-- Password Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
+                            <input type="password" name="password" id="password"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Laisser vide pour ne pas changer">
+                            @error('password')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
+                            <input type="password" name="password_confirmation" id="password_confirmation"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Confirmer le nouveau mot de passe">
+                        </div>
+                    </div>
+
+                    <!-- System Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="tenant_id" class="block text-sm font-medium text-gray-700 mb-2">Tenant *</label>
+                            <select name="tenant_id" id="tenant_id" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Sélectionner un tenant</option>
+                                @foreach($tenants as $tenant)
+                                    <option value="{{ $tenant->id }}" {{ old('tenant_id', $user->tenant_id) == $tenant->id ? 'selected' : '' }}>
+                                        {{ $tenant->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('tenant_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="agence_id" class="block text-sm font-medium text-gray-700 mb-2">Agence</label>
+                            <select name="agence_id" id="agence_id"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Sélectionner une agence</option>
+                                @foreach($agencies as $agency)
+                                    <option value="{{ $agency->id }}" {{ old('agence_id', $user->agence_id) == $agency->id ? 'selected' : '' }}>
+                                        {{ $agency->nom_agence }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('agence_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Roles Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Rôles</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @foreach($roles as $role)
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="roles[]" value="{{ $role->id }}" id="role_{{ $role->id }}"
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                           {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                    <label for="role_{{ $role->id }}" class="ml-2 text-sm text-gray-700">
+                                        {{ $role->display_name ?? $role->name }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        @error('roles')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Status Section -->
+                    <div class="flex items-center">
+                        <input type="checkbox" name="is_active" id="is_active" value="1"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                               {{ old('is_active', $user->is_active) ? 'checked' : '' }}>
+                        <label for="is_active" class="ml-2 text-sm text-gray-700">
+                            Utilisateur actif
+                        </label>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <a href="{{ route('users.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                            Annuler
                         </a>
-                        @if($user->id !== auth()->id())
-                        <form method="POST" action="{{ route('admin.users.toggle-status', $user) }}" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-outline-{{ $user->is_active ? 'warning' : 'success' }} btn-sm w-100">
-                                <i class="fas fa-{{ $user->is_active ? 'pause' : 'play' }} mr-2"></i>
-                                {{ $user->is_active ? 'Deactivate' : 'Activate' }} User
-                            </button>
-                        </form>
-                        @endif
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Mettre à jour
+                        </button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
 @endsection
-
-@push('styles')
-<style>
-.form-label {
-    font-weight: 600;
-    color: #374151;
-}
-
-.form-actions {
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-}
-
-.avatar-lg {
-    width: 80px;
-    height: 80px;
-}
-
-.avatar-lg > div {
-    width: 80px;
-    height: 80px;
-    font-size: 2rem;
-}
-
-select[multiple] {
-    min-height: 120px;
-}
-
-.badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-}
-</style>
-@endpush
-
-@push('scripts')
-<script>
-$(document).ready(function() {
-    // Password confirmation validation (only if password is being changed)
-    $('#password').on('input', function() {
-        const password = $(this).val();
-        const confirmPassword = $('#password_confirmation').val();
-        
-        if (password && confirmPassword && password !== confirmPassword) {
-            $('#password_confirmation').addClass('is-invalid');
-            if (!$('#password_confirmation').next('.invalid-feedback').length) {
-                $('#password_confirmation').after('<div class="invalid-feedback">Passwords do not match</div>');
-            }
-        } else if (password && confirmPassword && password === confirmPassword) {
-            $('#password_confirmation').removeClass('is-invalid');
-            $('#password_confirmation').next('.invalid-feedback').remove();
-        }
-    });
-
-    $('#password_confirmation').on('input', function() {
-        const password = $('#password').val();
-        const confirmPassword = $(this).val();
-        
-        if (password && confirmPassword && password !== confirmPassword) {
-            $(this).addClass('is-invalid');
-            if (!$(this).next('.invalid-feedback').length) {
-                $(this).after('<div class="invalid-feedback">Passwords do not match</div>');
-            }
-        } else {
-            $(this).removeClass('is-invalid');
-            $(this).next('.invalid-feedback').remove();
-        }
-    });
-
-    // Form submission validation
-    $('form').on('submit', function(e) {
-        const password = $('#password').val();
-        const confirmPassword = $('#password_confirmation').val();
-        
-        if (password && confirmPassword && password !== confirmPassword) {
-            e.preventDefault();
-            alert('Passwords do not match!');
-            return false;
-        }
-    });
-});
-</script>
-@endpush

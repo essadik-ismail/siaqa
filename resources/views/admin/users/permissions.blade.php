@@ -1,136 +1,141 @@
 @extends('layouts.app')
 
-@section('title', 'Manage Permissions: ' . $user->name)
+@section('title', 'Gestion des Permissions: ' . $user->name)
 
 @section('content')
-<div class="container-fluid">
-    <!-- Page Header -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Manage Permissions: {{ $user->name }}</h1>
-        <div>
-            <a href="{{ route('admin.users.show', $user) }}" class="btn btn-info btn-sm mr-2">
-                <i class="fas fa-eye mr-2"></i>View User
-            </a>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left mr-2"></i>Back to Users
-            </a>
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex items-center mb-6">
+            @if(request('agency_id'))
+                <a href="{{ route('admin.agencies.users', request('agency_id')) }}" class="text-gray-600 hover:text-gray-900 mr-4">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            @else
+                <a href="{{ route('users.index') }}" class="text-gray-600 hover:text-gray-900 mr-4">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            @endif
+            <h1 class="text-3xl font-bold text-gray-900">Gestion des Permissions</h1>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Permissions Management Form -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Direct Permission Assignment</h6>
-                    <small class="text-muted">Assign permissions directly to this user (in addition to role-based permissions)</small>
-                </div>
-                <div class="card-body">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Permissions Form -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-2">Permissions Directes</h2>
+                        <p class="text-gray-600 text-sm">
+                            Assignez des permissions directement à cet utilisateur (en plus des permissions basées sur les rôles).
+                            Les permissions directes ont la priorité sur les permissions des rôles.
+                        </p>
+                    </div>
+
                     <form method="POST" action="{{ route('admin.users.permissions.update', $user) }}">
                         @csrf
                         
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            <strong>Note:</strong> Permissions assigned directly to users will be combined with permissions from their assigned roles. 
-                            Direct permissions take precedence over role permissions.
-                        </div>
-
+                        @if(request('agency_id'))
+                            <input type="hidden" name="agency_id" value="{{ request('agency_id') }}">
+                        @endif
+                        
                         @php
                             $userPermissions = $user->permissions->pluck('id')->toArray();
                             $permissionsByModule = $permissions->groupBy('module');
                         @endphp
 
                         @foreach($permissionsByModule as $module => $modulePermissions)
-                        <div class="permission-module mb-4">
-                            <h6 class="font-weight-bold text-primary mb-3">
-                                <i class="fas fa-folder mr-2"></i>{{ ucfirst($module) }}
-                                <span class="badge badge-secondary ml-2">{{ $modulePermissions->count() }} permissions</span>
-                            </h6>
+                        <div class="permission-module mb-6">
+                            <div class="flex items-center justify-between mb-4 p-4 bg-gray-50 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                    <i class="fas fa-folder text-blue-600 mr-3"></i>
+                                    {{ ucfirst($module) }}
+                                </h3>
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    {{ $modulePermissions->count() }} permissions
+                                </span>
+                            </div>
                             
-                            <div class="row">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 @foreach($modulePermissions as $permission)
-                                <div class="col-md-6 mb-3">
-                                    <div class="permission-item">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" 
-                                                   id="permission_{{ $permission->id }}" 
-                                                   name="permissions[]" 
-                                                   value="{{ $permission->id }}"
-                                                   {{ in_array($permission->id, $userPermissions) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="permission_{{ $permission->id }}">
-                                                <div class="d-flex align-items-center">
-                                                    <i class="fas fa-key text-primary mr-2"></i>
-                                                    <div>
-                                                        <div class="font-weight-bold">{{ $permission->display_name }}</div>
-                                                        <small class="text-muted">{{ $permission->name }}</small>
-                                                        @if($permission->description)
-                                                            <div class="text-muted small mt-1">{{ $permission->description }}</div>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </label>
+                                <div class="permission-item">
+                                    <label class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all duration-200 {{ in_array($permission->id, $userPermissions) ? 'border-blue-500 bg-blue-50' : '' }}">
+                                        <input type="checkbox" 
+                                               class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" 
+                                               id="permission_{{ $permission->id }}" 
+                                               name="permissions[]" 
+                                               value="{{ $permission->id }}"
+                                               {{ in_array($permission->id, $userPermissions) ? 'checked' : '' }}>
+                                        <div class="flex-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-key text-blue-600 mr-2"></i>
+                                                <span class="font-medium text-gray-900">{{ $permission->display_name }}</span>
+                                            </div>
+                                            <p class="text-sm text-gray-500 mt-1">{{ $permission->name }}</p>
+                                            @if($permission->description)
+                                                <p class="text-xs text-gray-400 mt-1">{{ $permission->description }}</p>
+                                            @endif
                                         </div>
-                                    </div>
+                                    </label>
                                 </div>
                                 @endforeach
                             </div>
                         </div>
                         @endforeach
 
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save mr-2"></i>Update Permissions
+                        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                            <a href="{{ route('admin.users.show', $user) }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                                Annuler
+                            </a>
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                <i class="fas fa-save mr-2"></i>Mettre à jour les permissions
                             </button>
-                            <a href="{{ route('admin.users.show', $user) }}" class="btn btn-secondary ml-2">Cancel</a>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-4">
-            <!-- User Information -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">User Information</h6>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <div class="avatar-lg mx-auto mb-3">
-                            <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-2xl font-medium">
-                                {{ substr($user->name, 0, 1) }}
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- User Information -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations Utilisateur</h3>
+                    
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold mx-auto mb-3">
+                            {{ substr($user->name, 0, 1) }}
+                        </div>
+                        <h4 class="font-semibold text-gray-900">{{ $user->name }}</h4>
+                        <p class="text-sm text-gray-500">{{ $user->email }}</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">Statut:</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $user->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                {{ $user->is_active ? 'Actif' : 'Inactif' }}
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="text-sm font-medium text-gray-700">Rôles:</span>
+                            <div class="mt-1">
+                                @if($user->roles->count() > 0)
+                                    @foreach($user->roles as $role)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1 mb-1">
+                                            {{ $role->name }}
+                                        </span>
+                                    @endforeach
+                                @else
+                                    <span class="text-sm text-gray-500">Aucun rôle assigné</span>
+                                @endif
                             </div>
                         </div>
-                        <h5 class="font-weight-bold">{{ $user->name }}</h5>
-                        <p class="text-muted">{{ $user->email }}</p>
-                    </div>
-
-                    <div class="mb-3">
-                        <strong>Status:</strong>
-                        <span class="badge badge-{{ $user->is_active ? 'success' : 'danger' }}">
-                            {{ $user->is_active ? 'Active' : 'Inactive' }}
-                        </span>
-                    </div>
-
-                    <div class="mb-3">
-                        <strong>Roles:</strong>
-                        @if($user->roles->count() > 0)
-                            @foreach($user->roles as $role)
-                                <span class="badge badge-primary mr-1">{{ $role->name }}</span>
-                            @endforeach
-                        @else
-                            <span class="text-muted">No roles assigned</span>
-                        @endif
                     </div>
                 </div>
-            </div>
 
-            <!-- Permission Summary -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Permission Summary</h6>
-                </div>
-                <div class="card-body">
+                <!-- Permission Summary -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Résumé des Permissions</h3>
+                    
                     @php
                         $totalPermissions = $permissions->count();
                         $assignedPermissions = count($userPermissions);
@@ -138,192 +143,116 @@
                         $effectivePermissions = $user->getAllPermissions()->count();
                     @endphp
 
-                    <div class="row text-center">
-                        <div class="col-6">
-                            <div class="permission-stat">
-                                <div class="stat-number text-primary">{{ $assignedPermissions }}</div>
-                                <div class="stat-label">Direct</div>
-                            </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="text-center p-3 bg-blue-50 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600" id="direct-count">{{ $assignedPermissions }}</div>
+                            <div class="text-xs text-gray-600 uppercase tracking-wide">Directes</div>
                         </div>
-                        <div class="col-6">
-                            <div class="permission-stat">
-                                <div class="stat-number text-info">{{ $rolePermissions }}</div>
-                                <div class="stat-label">Via Roles</div>
-                            </div>
+                        <div class="text-center p-3 bg-green-50 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600" id="role-count">{{ $rolePermissions }}</div>
+                            <div class="text-xs text-gray-600 uppercase tracking-wide">Via Rôles</div>
                         </div>
                     </div>
 
-                    <hr>
-
-                    <div class="text-center">
-                        <div class="permission-stat">
-                            <div class="stat-number text-success">{{ $effectivePermissions }}</div>
-                            <div class="stat-label">Total Effective</div>
-                        </div>
+                    <div class="text-center p-3 bg-gray-50 rounded-lg mb-4">
+                        <div class="text-2xl font-bold text-gray-900" id="total-count">{{ $effectivePermissions }}</div>
+                        <div class="text-xs text-gray-600 uppercase tracking-wide">Total Effectif</div>
                     </div>
 
-                    <div class="mt-3">
-                        <div class="progress">
-                            <div class="progress-bar bg-success" role="progressbar" 
-                                 style="width: {{ $totalPermissions > 0 ? ($effectivePermissions / $totalPermissions) * 100 : 0 }}%">
-                                {{ $totalPermissions > 0 ? round(($effectivePermissions / $totalPermissions) * 100) : 0 }}%
-                            </div>
+                    <div class="mb-2">
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Couverture</span>
+                            <span id="coverage-percentage">{{ $totalPermissions > 0 ? round(($effectivePermissions / $totalPermissions) * 100) : 0 }}%</span>
                         </div>
-                        <small class="text-muted">Permission coverage</small>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                                 style="width: {{ $totalPermissions > 0 ? ($effectivePermissions / $totalPermissions) * 100 : 0 }}%"
+                                 id="coverage-bar"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Help Information -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Help & Guidelines</h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h6 class="font-weight-bold text-primary">Direct vs Role Permissions</h6>
-                        <p class="text-muted small">
-                            Direct permissions are assigned specifically to this user and will override any conflicting role permissions.
-                        </p>
-                    </div>
+                <!-- Help Information -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Aide & Conseils</h3>
                     
-                    <div class="mb-3">
-                        <h6 class="font-weight-bold text-primary">Permission Inheritance</h6>
-                        <p class="text-muted small">
-                            Users inherit permissions from their assigned roles. Direct permissions are added to these inherited permissions.
-                        </p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h6 class="font-weight-bold text-primary">Best Practices</h6>
-                        <ul class="text-muted small">
-                            <li>Use roles for common permission sets</li>
-                            <li>Use direct permissions for exceptions</li>
-                            <li>Regularly review user permissions</li>
-                            <li>Document permission changes</li>
-                        </ul>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium text-gray-900 text-sm mb-2">Permissions Directes vs Rôles</h4>
+                            <p class="text-xs text-gray-600">
+                                Les permissions directes sont assignées spécifiquement à cet utilisateur et remplaceront toute permission de rôle conflictuelle.
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-900 text-sm mb-2">Héritage des Permissions</h4>
+                            <p class="text-xs text-gray-600">
+                                Les utilisateurs héritent des permissions de leurs rôles assignés. Les permissions directes s'ajoutent à ces permissions héritées.
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-900 text-sm mb-2">Bonnes Pratiques</h4>
+                            <ul class="text-xs text-gray-600 space-y-1">
+                                <li>• Utilisez les rôles pour les ensembles de permissions courants</li>
+                                <li>• Utilisez les permissions directes pour les exceptions</li>
+                                <li>• Révisez régulièrement les permissions des utilisateurs</li>
+                                <li>• Documentez les changements de permissions</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@endsection
 
-@push('styles')
-<style>
-.permission-module {
-    border: 1px solid #e3e6f0;
-    border-radius: 0.35rem;
-    padding: 1rem;
-    background-color: #f8f9fc;
-}
-
-.permission-item {
-    background: white;
-    border: 1px solid #e3e6f0;
-    border-radius: 0.35rem;
-    padding: 0.75rem;
-    transition: all 0.2s ease;
-}
-
-.permission-item:hover {
-    border-color: #4e73df;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
-
-.form-check-input:checked + .form-check-label .permission-item {
-    border-color: #4e73df;
-    background-color: #f8f9ff;
-}
-
-.form-actions {
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-}
-
-.avatar-lg {
-    width: 80px;
-    height: 80px;
-}
-
-.avatar-lg > div {
-    width: 80px;
-    height: 80px;
-    font-size: 2rem;
-}
-
-.badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-}
-
-.permission-stat {
-    padding: 0.5rem;
-}
-
-.stat-number {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.stat-label {
-    font-size: 0.75rem;
-    color: #6c757d;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.progress {
-    height: 0.5rem;
-    border-radius: 0.25rem;
-}
-</style>
-@endpush
-
-@push('scripts')
 <script>
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Permission selection counter
     function updatePermissionCount() {
-        const checkedPermissions = $('input[name="permissions[]"]:checked').length;
-        const totalPermissions = $('input[name="permissions[]"]').length;
-        
-        // Update the direct permissions count in the summary
-        $('.permission-stat .stat-number.text-primary').text(checkedPermissions);
-        
-        // Update the total effective count (direct + role permissions)
+        const checkedPermissions = document.querySelectorAll('input[name="permissions[]"]:checked').length;
+        const totalPermissions = document.querySelectorAll('input[name="permissions[]"]').length;
         const rolePermissions = {{ $user->getPermissionsViaRoles()->count() }};
         const effectiveTotal = checkedPermissions + rolePermissions;
-        $('.permission-stat .stat-number.text-success').text(effectiveTotal);
+        
+        // Update counts
+        document.getElementById('direct-count').textContent = checkedPermissions;
+        document.getElementById('total-count').textContent = effectiveTotal;
         
         // Update progress bar
         const percentage = totalPermissions > 0 ? (effectiveTotal / totalPermissions) * 100 : 0;
-        $('.progress-bar').css('width', percentage + '%').text(Math.round(percentage) + '%');
+        document.getElementById('coverage-bar').style.width = percentage + '%';
+        document.getElementById('coverage-percentage').textContent = Math.round(percentage) + '%';
     }
 
     // Update counts when permissions are checked/unchecked
-    $('input[name="permissions[]"]').on('change', updatePermissionCount);
+    document.querySelectorAll('input[name="permissions[]"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updatePermissionCount);
+    });
 
     // Initialize counts on page load
     updatePermissionCount();
 
     // Module collapse/expand functionality
-    $('.permission-module h6').on('click', function() {
-        const module = $(this).closest('.permission-module');
-        const permissions = module.find('.permission-item').parent();
-        
-        if (permissions.is(':visible')) {
-            permissions.slideUp();
-            $(this).find('i').removeClass('fa-folder-open').addClass('fa-folder');
-        } else {
-            permissions.slideDown();
-            $(this).find('i').removeClass('fa-folder').addClass('fa-folder-open');
-        }
+    document.querySelectorAll('.permission-module h3').forEach(header => {
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', function() {
+            const module = this.closest('.permission-module');
+            const permissions = module.querySelector('.grid');
+            const icon = this.querySelector('i');
+            
+            if (permissions.style.display === 'none') {
+                permissions.style.display = 'grid';
+                icon.classList.remove('fa-folder');
+                icon.classList.add('fa-folder-open');
+            } else {
+                permissions.style.display = 'none';
+                icon.classList.remove('fa-folder-open');
+                icon.classList.add('fa-folder');
+            }
+        });
     });
-
-    // Add cursor pointer to module headers
-    $('.permission-module h6').css('cursor', 'pointer');
 });
 </script>
-@endpush
+@endsection

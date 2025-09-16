@@ -223,7 +223,7 @@ class ContratController extends Controller
     /**
      * Print the contract.
      */
-    public function print(Contrat $contrat): View
+    public function print(Contrat $contrat)
     {
         // Ensure the contrat belongs to the current tenant
         if ($contrat->tenant_id !== auth()->user()->tenant_id) {
@@ -232,6 +232,7 @@ class ContratController extends Controller
 
         $contrat->load(['clientOne', 'clientTwo', 'vehicule.marque', 'vehicule.agence']);
 
+        // For now, return the print view (PDF generation will be fixed later)
         return view('contrats.print', compact('contrat'));
     }
 } 

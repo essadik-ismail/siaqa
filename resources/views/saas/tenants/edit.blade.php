@@ -102,13 +102,13 @@
                                 required>
                             <option value="">Select a plan</option>
                             <option value="starter" {{ old('plan_name', $tenant->subscription?->plan_name) == 'starter' ? 'selected' : '' }}>
-                                Starter - $29/month
+                                Starter - 29 dh/month
                             </option>
                             <option value="professional" {{ old('plan_name', $tenant->subscription?->plan_name) == 'professional' ? 'selected' : '' }}>
-                                Professional - $79/month
+                                Professional - 79 dh/month
                             </option>
                             <option value="enterprise" {{ old('plan_name', $tenant->subscription?->plan_name) == 'enterprise' ? 'selected' : '' }}>
-                                Enterprise - $199/month
+                                Enterprise - 199 dh/month
                             </option>
                         </select>
                         @error('plan_name')

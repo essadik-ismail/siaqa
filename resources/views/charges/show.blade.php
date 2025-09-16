@@ -8,7 +8,6 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Détails de la Charge</h1>
                 <p class="text-gray-600">Informations complètes sur la charge</p>
             </div>
             <div class="flex space-x-3">
@@ -36,7 +35,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Montant</label>
-                            <p class="text-2xl font-bold text-green-600">{{ number_format($charge->montant, 2) }} €</p>
+                            <p class="text-2xl font-bold text-green-600">{{ number_format($charge->montant, 2) }} DH</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Fichier</label>

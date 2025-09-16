@@ -26,9 +26,7 @@
             <!-- Logo and Title -->
             <div class="text-center">
                 <div class="flex justify-center mb-6">
-                    <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-purple-600 rounded-xl flex items-center justify-center">
-                        <span class="text-white font-bold text-2xl">C</span>
-                    </div>
+                    <img src="{{ asset('assets/images/odys-logo-compact.svg') }}" alt="Odys Rental Management" class="h-16 w-auto">
                 </div>
                 <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
                 <p class="mt-2 text-sm text-gray-600">Sign in to your account</p>

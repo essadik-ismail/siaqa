@@ -1140,12 +1140,9 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo and Brand -->
                 <div class="flex items-center">
-                    <div class="flex-shrink-0">
-
-                    </div>
-                    <div class="ml-3">
-                        <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">ODYS</span>
-                    </div>
+                    <a href="{{ route('landing') }}" class="flex items-center space-x-3 hover:opacity-90 transition-opacity duration-200">
+                        <img src="{{ asset('assets/images/odys-logo-modern.svg') }}" alt="Odys Rental Management" class="h-10 w-auto">
+                    </a>
                 </div>
                 
                 <!-- Search Bar -->

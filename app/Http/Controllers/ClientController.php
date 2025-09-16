@@ -51,7 +51,7 @@ class ClientController extends Controller
         // Add reservations count for better performance
         $query->withCount('reservations');
 
-        $clients = $query->paginate($request->get('per_page', 15));
+        $clients = $query->get();
 
         return view('clients.index', compact('clients'));
     }

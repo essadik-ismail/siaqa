@@ -165,7 +165,7 @@
 
                     <!-- Pricing -->
                     <div>
-                        <label for="prix_total" class="block text-sm font-medium text-gray-700 mb-2">Prix total (€) *</label>
+                        <label for="prix_total" class="block text-sm font-medium text-gray-700 mb-2">Prix total (DH) *</label>
                         <input type="number" name="prix_total" id="prix_total" value="{{ old('prix_total') }}" min="0" step="0.01" required
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         @error('prix_total')
@@ -174,7 +174,7 @@
                     </div>
 
                     <div>
-                        <label for="caution" class="block text-sm font-medium text-gray-700 mb-2">Caution (€) *</label>
+                        <label for="caution" class="block text-sm font-medium text-gray-700 mb-2">Caution (DH) *</label>
                         <input type="number" name="caution" id="caution" value="{{ old('caution', 0) }}" min="0" step="0.01" required
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         @error('caution')

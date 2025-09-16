@@ -10,10 +10,17 @@
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Add New User</h1>
             <p class="text-gray-600">Create a new user account with specific roles and permissions</p>
         </div>
-        <a href="{{ route('admin.users.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 mt-4 sm:mt-0">
-            <i class="fas fa-arrow-left mr-2"></i>
-            Back to Users
-        </a>
+        @if(request('agency_id'))
+            <a href="{{ route('admin.agencies.users', request('agency_id')) }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 mt-4 sm:mt-0">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Agency Users
+            </a>
+        @else
+            <a href="{{ route('users.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 mt-4 sm:mt-0">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Users
+            </a>
+        @endif
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -26,6 +33,10 @@
                 <div class="p-6">
                     <form method="POST" action="{{ route('admin.users.store') }}" id="userForm">
                         @csrf
+                        
+                        @if(request('agency_id'))
+                            <input type="hidden" name="agency_id" value="{{ request('agency_id') }}">
+                        @endif
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -104,7 +115,7 @@
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('agency_id') border-red-500 @enderror">
                                 <option value="">Select an agency (optional)</option>
                                 @foreach($agencies as $agency)
-                                    <option value="{{ $agency->id }}" {{ old('agency_id') == $agency->id ? 'selected' : '' }}>
+                                    <option value="{{ $agency->id }}" {{ (old('agency_id') == $agency->id || request('agency_id') == $agency->id) ? 'selected' : '' }}>
                                         {{ $agency->nom_agence }}
                                     </option>
                                 @endforeach

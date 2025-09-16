@@ -33,11 +33,8 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <a href="{{ route('landing') }}" class="flex items-center space-x-2">
-                            <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                                <span class="text-white font-bold text-xl">C</span>
-                            </div>
-                            <span class="text-xl font-bold text-gray-900">Odys</span>
+                        <a href="{{ route('landing') }}" class="flex items-center space-x-2 hover:opacity-90 transition-opacity duration-200">
+                            <img src="{{ asset('assets/images/odys-logo-compact.svg') }}" alt="Odys Rental Management" class="h-8 w-auto">
                         </a>
                     </div>
                 </div>

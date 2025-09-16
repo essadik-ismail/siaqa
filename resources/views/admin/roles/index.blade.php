@@ -17,45 +17,100 @@
     </div>
 
     <!-- Search and Filters -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Search & Filters</h3>
-        </div>
-        <div class="p-6">
-            <form method="GET" action="{{ route('admin.roles.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div class="lg:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Search Roles</label>
-                    <input type="text" name="search" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Search by name, description..." value="{{ request('search') }}">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                    <select name="type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All Types</option>
-                        <option value="system" {{ request('type') == 'system' ? 'selected' : '' }}>System</option>
-                        <option value="custom" {{ request('type') == 'custom' ? 'selected' : '' }}>Custom</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tenant</label>
-                    <select name="tenant" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All Tenants</option>
-                        @foreach($tenants as $tenant)
-                            <option value="{{ $tenant->id }}" {{ request('tenant') == $tenant->id ? 'selected' : '' }}>
-                                {{ $tenant->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="flex space-x-2">
-                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                        <i class="fas fa-filter mr-2"></i>Filter
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="relative">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                <div class="relative">
+                    <input type="text" id="searchInput" name="search" value="{{ request('search') }}" 
+                           placeholder="Name, description..." 
+                           class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <button type="button" id="clearSearch" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 {{ request('search') ? '' : 'hidden' }}">
+                        <i class="fas fa-times"></i>
                     </button>
-                    <a href="{{ route('admin.roles.index') }}" class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 text-center">
-                        Clear
-                    </a>
                 </div>
-            </form>
+                <div id="searchIndicator" class="hidden mt-1 text-xs text-blue-600">
+                    <i class="fas fa-spinner fa-spin mr-1"></i>Searching...
+                </div>
+                <div id="searchSuggestions" class="hidden mt-1 text-xs text-gray-500">
+                    <i class="fas fa-lightbulb mr-1"></i>Try searching by name, description, or display name
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <select id="typeFilter" name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent {{ request('type') !== '' ? 'border-green-300 bg-green-50' : '' }}">
+                    <option value="">All Types</option>
+                    <option value="system" {{ request('type') === 'system' ? 'selected' : '' }}>System</option>
+                    <option value="custom" {{ request('type') === 'custom' ? 'selected' : '' }}>Custom</option>
+                </select>
+                @if(request('type') !== '')
+                <div class="mt-1 text-xs text-green-600">
+                    <i class="fas fa-filter mr-1"></i>Filter active
+                </div>
+                @endif
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tenant</label>
+                <select id="tenantFilter" name="tenant" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent {{ request('tenant') !== '' ? 'border-purple-300 bg-purple-50' : '' }}">
+                    <option value="">All Tenants</option>
+                    @foreach($tenants as $tenant)
+                        <option value="{{ $tenant->id }}" {{ request('tenant') == $tenant->id ? 'selected' : '' }}>
+                            {{ $tenant->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @if(request('tenant') !== '')
+                <div class="mt-1 text-xs text-purple-600">
+                    <i class="fas fa-filter mr-1"></i>Filter active
+                </div>
+                @endif
+            </div>
         </div>
+        
+        <!-- Active Filters Display -->
+        @if(request('search') || request('type') !== '' || request('tenant') !== '')
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="flex items-center space-x-2 text-sm text-gray-600">
+                <span>Active filters:</span>
+                @if(request('search'))
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Search: "{{ request('search') }}"
+                        <button type="button" onclick="clearFilter('search')" class="ml-1 text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </span>
+                @endif
+                @if(request('type') !== '')
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Type: {{ ucfirst(request('type')) }}
+                        <button type="button" onclick="clearFilter('type')" class="ml-1 text-green-600 hover:text-green-800">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </span>
+                @endif
+                @if(request('tenant') !== '')
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        Tenant: {{ $tenants->firstWhere('id', request('tenant'))->name ?? 'Unknown' }}
+                        <button type="button" onclick="clearFilter('tenant')" class="ml-1 text-purple-600 hover:text-purple-800">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </span>
+                @endif
+                <button type="button" onclick="clearAllFilters()" class="text-red-600 hover:text-red-800 text-xs underline">
+                    Clear all
+                </button>
+            </div>
+        </div>
+        @endif
+    </div>
+
+    <!-- Search Results Counter -->
+    <div id="resultsCounter" class="mb-4 text-sm text-gray-600 hidden">
+        <span id="resultsCount" class="font-medium">0</span> 
+        <span id="resultsText">roles found</span>
+        <span id="searchTerm" class="hidden">for "<span class="font-medium text-blue-600"></span>"</span>
+        <span id="typeTerm" class="hidden">with type <span class="font-medium"></span></span>
+        <span id="tenantTerm" class="hidden">for tenant <span class="font-medium"></span></span>
     </div>
 
     <!-- Roles Table -->
@@ -176,6 +231,192 @@
         @endif
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const typeFilter = document.getElementById('typeFilter');
+    const tenantFilter = document.getElementById('tenantFilter');
+    
+    function showSearchIndicator() {
+        document.getElementById('searchIndicator').classList.remove('hidden');
+        document.getElementById('searchSuggestions').classList.add('hidden');
+    }
+
+    function hideSearchIndicator() {
+        document.getElementById('searchIndicator').classList.add('hidden');
+        if (searchInput.value.trim() === '') {
+            document.getElementById('searchSuggestions').classList.remove('hidden');
+        }
+    }
+
+    function updateClearSearchButton() {
+        if (searchInput.value.trim()) {
+            clearSearchBtn.classList.remove('hidden');
+        } else {
+            clearSearchBtn.classList.add('hidden');
+        }
+    }
+
+    function updateFilterIndicators() {
+        // Type filter indicator
+        const typeIndicator = typeFilter.parentNode.querySelector('.text-green-600');
+        if (typeFilter.value) {
+            if (!typeIndicator) {
+                const indicator = document.createElement('div');
+                indicator.className = 'mt-1 text-xs text-green-600';
+                indicator.innerHTML = '<i class="fas fa-filter mr-1"></i>Filter active';
+                typeFilter.parentNode.appendChild(indicator);
+            }
+        } else {
+            if (typeIndicator) {
+                typeIndicator.remove();
+            }
+        }
+
+        // Tenant filter indicator
+        const tenantIndicator = tenantFilter.parentNode.querySelector('.text-purple-600');
+        if (tenantFilter.value) {
+            if (!tenantIndicator) {
+                const indicator = document.createElement('div');
+                indicator.className = 'mt-1 text-xs text-purple-600';
+                indicator.innerHTML = '<i class="fas fa-filter mr-1"></i>Filter active';
+                tenantFilter.parentNode.appendChild(indicator);
+            }
+        } else {
+            if (tenantIndicator) {
+                tenantIndicator.remove();
+            }
+        }
+    }
+
+    function updateResultsCounter() {
+        const resultsCounter = document.getElementById('resultsCounter');
+        const searchValue = searchInput.value.trim();
+        const typeValue = typeFilter.value;
+        const tenantValue = tenantFilter.value;
+
+        if (searchValue || typeValue || tenantValue) {
+            resultsCounter.classList.remove('hidden');
+            
+            const searchTerm = document.getElementById('searchTerm');
+            const typeTerm = document.getElementById('typeTerm');
+            const tenantTerm = document.getElementById('tenantTerm');
+            
+            if (searchValue) {
+                searchTerm.querySelector('span').textContent = searchValue;
+                searchTerm.classList.remove('hidden');
+            } else {
+                searchTerm.classList.add('hidden');
+            }
+            
+            if (typeValue) {
+                typeTerm.querySelector('span').textContent = typeValue.charAt(0).toUpperCase() + typeValue.slice(1);
+                typeTerm.classList.remove('hidden');
+            } else {
+                typeTerm.classList.add('hidden');
+            }
+            
+            if (tenantValue) {
+                const tenantName = tenantFilter.options[tenantFilter.selectedIndex].text;
+                tenantTerm.querySelector('span').textContent = tenantName;
+                tenantTerm.classList.remove('hidden');
+            } else {
+                tenantTerm.classList.add('hidden');
+            }
+        } else {
+            resultsCounter.classList.add('hidden');
+        }
+    }
+
+    // Event listeners
+    searchInput.addEventListener('input', function() {
+        showSearchIndicator();
+        updateClearSearchButton();
+        debounce(updateResultsCounter, 300)();
+    });
+    
+    searchInput.addEventListener('blur', function() {
+        setTimeout(hideSearchIndicator, 200);
+    });
+    
+    clearSearchBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        updateClearSearchButton();
+        hideSearchIndicator();
+        updateResultsCounter();
+    });
+    
+    typeFilter.addEventListener('change', function() {
+        updateFilterIndicators();
+        updateResultsCounter();
+    });
+    
+    tenantFilter.addEventListener('change', function() {
+        updateFilterIndicators();
+        updateResultsCounter();
+    });
+
+    // Initialize
+    updateClearSearchButton();
+    updateFilterIndicators();
+    updateResultsCounter();
+});
+
+// Global functions for filter clearing
+function clearFilter(type) {
+    switch(type) {
+        case 'search':
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearch').classList.add('hidden');
+            break;
+        case 'type':
+            document.getElementById('typeFilter').value = '';
+            break;
+        case 'tenant':
+            document.getElementById('tenantFilter').value = '';
+            break;
+    }
+    
+    // Trigger filter update
+    const changeEvent = new Event('change');
+    const inputEvent = new Event('input');
+    
+    document.getElementById('typeFilter').dispatchEvent(changeEvent);
+    document.getElementById('tenantFilter').dispatchEvent(changeEvent);
+    
+    if (type === 'search') {
+        document.getElementById('searchInput').dispatchEvent(inputEvent);
+    }
+}
+
+function clearAllFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('typeFilter').value = '';
+    document.getElementById('tenantFilter').value = '';
+    
+    // Trigger all updates
+    const changeEvent = new Event('change');
+    const inputEvent = new Event('input');
+    
+    document.getElementById('searchInput').dispatchEvent(inputEvent);
+    document.getElementById('typeFilter').dispatchEvent(changeEvent);
+    document.getElementById('tenantFilter').dispatchEvent(changeEvent);
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+</script>
 @endsection
 
 @push('styles')

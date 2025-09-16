@@ -9,7 +9,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-green-100 text-sm font-medium">Total Clients</p>
-                    <p class="text-3xl font-bold">{{ number_format($stats['total_clients'] ?? 1251) }}</p>
+                    <p class="text-3xl font-bold">{{ number_format($stats['total_clients']) }}</p>
                 </div>
                 <div class="w-12 h-12 bg-green-400 rounded-lg flex items-center justify-center">
                     <i class="fas fa-users text-xl"></i>
@@ -21,7 +21,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-blue-100 text-sm font-medium">Total Reservations</p>
-                    <p class="text-3xl font-bold">{{ number_format($stats['total_reservations'] ?? 2870) }}</p>
+                    <p class="text-3xl font-bold">{{ number_format($stats['total_reservations']) }}</p>
                 </div>
                 <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
                     <i class="fas fa-calendar-check text-xl"></i>
@@ -33,7 +33,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-red-100 text-sm font-medium">Total Revenue</p>
-                    <p class="text-3xl font-bold">{{ number_format($stats['total_revenue'] ?? 95540) }} DH</p>
+                    <p class="text-3xl font-bold">{{ number_format($stats['total_revenue']) }} DH</p>
                 </div>
                 <div class="w-12 h-12 bg-red-400 rounded-lg flex items-center justify-center">
                     <i class="fas fa-dollar-sign text-xl"></i>
@@ -182,7 +182,7 @@
                                 <span class="text-2xl font-bold">{{ $stats['estimated_utilization'] ?? 0 }}%</span>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold">{{ number_format($stats['estimated_revenue'] ?? 0) }} DH</p>
+                        <p class="text-3xl font-bold">{{ number_format($stats['estimated_revenue']) }} DH</p>
                         <div class="mt-4">
                             <div class="w-full bg-blue-400 rounded-full h-2">
                                 <div class="bg-white h-2 rounded-full" style="width: {{ $stats['estimated_utilization'] ?? 0 }}%"></div>
@@ -197,7 +197,7 @@
                                 <span class="text-2xl font-bold">{{ $stats['actual_utilization'] ?? 0 }}%</span>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold">{{ number_format($stats['actual_revenue'] ?? 0) }} DH</p>
+                        <p class="text-3xl font-bold">{{ number_format($stats['actual_revenue']) }} DH</p>
                         <div class="mt-4">
                             <div class="w-full bg-green-400 rounded-full h-2">
                                 <div class="bg-white h-2 rounded-full" style="width: {{ $stats['actual_utilization'] ?? 0 }}%"></div>
@@ -254,7 +254,7 @@
         <div class="relative chart-container">
             <canvas id="revenueChart"></canvas>
             <div class="absolute top-0 right-0 bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-medium">
-                {{ number_format($stats['current_month_revenue'] ?? 0) }} DH
+                {{ number_format($stats['current_month_revenue']) }} DH
             </div>
         </div>
     </div>
@@ -272,7 +272,7 @@
             @endfor
         </div>
         <div class="bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-medium inline-block">
-            {{ number_format($stats['current_clients_revenue'] ?? 6230) }} DH
+            {{ number_format($stats['current_clients_revenue']) }} DH
         </div>
     </div>
 
@@ -282,7 +282,7 @@
         <div class="relative mb-6 chart-container">
             <canvas id="breakdownChart"></canvas>
             <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-2xl font-bold text-gray-800">43%</span>
+                <span class="text-2xl font-bold text-gray-800">{{ $revenueBreakdown['percentages']['vehicle_rentals'] }}%</span>
             </div>
         </div>
 
@@ -292,28 +292,28 @@
                     <div class="w-3 h-3 bg-blue-600 rounded-full"></div>
                     <span class="text-sm text-gray-600">Vehicle Rentals</span>
                 </div>
-                <span class="text-sm font-medium">50%</span>
+                <span class="text-sm font-medium">{{ $revenueBreakdown['percentages']['vehicle_rentals'] }}%</span>
             </div>
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
                     <span class="text-sm text-gray-600">Insurance</span>
                 </div>
-                <span class="text-sm font-medium">20%</span>
+                <span class="text-sm font-medium">{{ $revenueBreakdown['percentages']['insurance'] }}%</span>
             </div>
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <div class="w-3 h-3 bg-green-400 rounded-full"></div>
                     <span class="text-sm text-gray-600">Maintenance</span>
                 </div>
-                <span class="text-sm font-medium">20%</span>
+                <span class="text-sm font-medium">{{ $revenueBreakdown['percentages']['maintenance'] }}%</span>
             </div>
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <div class="w-3 h-3 bg-red-500 rounded-full"></div>
                     <span class="text-sm text-gray-600">Other Services</span>
                 </div>
-                <span class="text-sm font-medium">10%</span>
+                <span class="text-sm font-medium">{{ $revenueBreakdown['percentages']['other_services'] }}%</span>
             </div>
         </div>
     </div>
@@ -425,7 +425,12 @@ const breakdownChart = new Chart(breakdownCtx, {
     data: {
         labels: ['Vehicle Rentals', 'Insurance', 'Maintenance', 'Other Services'],
         datasets: [{
-            data: [50, 20, 20, 10],
+            data: [
+                {{ $revenueBreakdown['percentages']['vehicle_rentals'] }}, 
+                {{ $revenueBreakdown['percentages']['insurance'] }}, 
+                {{ $revenueBreakdown['percentages']['maintenance'] }}, 
+                {{ $revenueBreakdown['percentages']['other_services'] }}
+            ],
             backgroundColor: [
                 'rgba(37, 99, 235, 0.8)',
                 'rgba(250, 204, 21, 0.8)',

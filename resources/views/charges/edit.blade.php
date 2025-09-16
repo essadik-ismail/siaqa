@@ -8,7 +8,6 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Modifier la Charge</h1>
                 <p class="text-gray-600">Modifier les informations de la charge</p>
             </div>
             <a href="{{ route('charges.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
@@ -45,7 +44,7 @@
 
                     <!-- Montant -->
                     <div>
-                        <label for="montant" class="block text-sm font-medium text-gray-700 mb-2">Montant (€) *</label>
+                        <label for="montant" class="block text-sm font-medium text-gray-700 mb-2">Montant (DH) *</label>
                         <input type="number" id="montant" name="montant" value="{{ old('montant', $charge->montant) }}" required min="0" step="0.01"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('montant') border-red-500 @enderror" placeholder="0.00">
                         @error('montant') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
@@ -53,9 +52,11 @@
 
                     <!-- Fichier -->
                     <div>
-                        <label for="fichier" class="block text-sm font-medium text-gray-700 mb-2">Fichier</label>
+                        <label for="fichier" class="block text-sm font-medium text-gray-700 mb-2">Référence du fichier</label>
                         <input type="text" id="fichier" name="fichier" value="{{ old('fichier', $charge->fichier) }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('fichier') border-red-500 @enderror" placeholder="Nom du fichier">
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('fichier') border-red-500 @enderror" 
+                               placeholder="Ex: facture_001.pdf, reçu_maintenance_123.pdf">
+                        <p class="mt-1 text-sm text-gray-500">Nom du fichier ou référence du document (facture, reçu, etc.)</p>
                         @error('fichier') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
                 </div>

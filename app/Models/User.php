@@ -88,6 +88,34 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all permissions for the user (both direct and through roles).
+     */
+    public function getAllPermissions()
+    {
+        // Get direct permissions
+        $directPermissions = $this->permissions;
+        
+        // Get permissions through roles
+        $rolePermissions = $this->roles()->with('permissions')->get()
+            ->pluck('permissions')
+            ->flatten();
+        
+        // Merge and remove duplicates
+        return $directPermissions->merge($rolePermissions)->unique('id');
+    }
+
+    /**
+     * Get permissions assigned to the user through their roles.
+     */
+    public function getPermissionsViaRoles()
+    {
+        return $this->roles()->with('permissions')->get()
+            ->pluck('permissions')
+            ->flatten()
+            ->unique('id');
+    }
+
+    /**
      * Check if the user has a specific role.
      */
     public function hasRole(string $role): bool

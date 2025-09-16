@@ -17,10 +17,16 @@ class TenantCreationService
             // Create tenant record
             $tenant = Tenant::create([
                 'name' => $data['name'],
+                'company_name' => $data['company_name'],
                 'domain' => $data['domain'],
                 'database' => $this->generateDatabaseName($data['domain']),
-                'subscription_plan' => $data['subscription_plan'] ?? 'starter',
+                'contact_email' => $data['contact_email'],
+                'contact_phone' => $data['contact_phone'] ?? null,
+                'address' => $data['address'] ?? null,
+                'notes' => $data['notes'] ?? null,
                 'trial_ends_at' => now()->addDays(14),
+                'max_users' => $data['max_users'] ?? 10,
+                'max_vehicles' => $data['max_vehicles'] ?? 50,
                 'is_active' => true,
             ]);
 
@@ -50,7 +56,7 @@ class TenantCreationService
         DB::beginTransaction();
 
         try {
-            // Drop tenant database
+            // Drop tenant database (with safety checks)
             $this->dropTenantDatabase($tenant);
 
             // Delete tenant record
@@ -88,12 +94,23 @@ class TenantCreationService
 
     protected function createTenantDatabase(Tenant $tenant)
     {
-        DB::statement("CREATE DATABASE IF NOT EXISTS {$tenant->database}");
+        DB::statement("CREATE DATABASE IF NOT EXISTS `{$tenant->database}`");
     }
 
     protected function dropTenantDatabase(Tenant $tenant)
     {
-        DB::statement("DROP DATABASE IF EXISTS {$tenant->database}");
+        // Only drop database if it exists and has a valid name
+        if (!empty($tenant->database) && $tenant->database !== '') {
+            try {
+                DB::statement("DROP DATABASE IF EXISTS `{$tenant->database}`");
+                Log::info("Database dropped successfully: {$tenant->database}");
+            } catch (\Exception $e) {
+                Log::warning("Failed to drop database {$tenant->database}: " . $e->getMessage());
+                // Don't throw exception, just log the warning
+            }
+        } else {
+            Log::warning("Cannot drop database for tenant {$tenant->domain}: database name is empty");
+        }
     }
 
     protected function runTenantMigrations(Tenant $tenant)

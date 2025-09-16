@@ -15,7 +15,7 @@
                 <a href="{{ route('contrats.edit', $contrat) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">
                     <i class="fas fa-edit mr-2"></i>Modifier
                 </a>
-                <a href="{{ route('contrats.print', $contrat) }}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                <a href="{{ route('contrats.print', $contrat) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
                     <i class="fas fa-print mr-2"></i>Imprimer
                 </a>
                 <button onclick="showRetourModal({{ $contrat->id }}, '{{ $contrat->number_contrat }}')" 
@@ -68,7 +68,7 @@
                             <label class="block text-sm font-medium text-gray-700">Prix</label>
                             <p class="text-gray-900">
                                 @if($contrat->prix)
-                                    {{ number_format($contrat->prix, 2) }} €
+                                    {{ number_format($contrat->prix, 2) }} DH
                                 @else
                                     <span class="text-gray-400">Non défini</span>
                                 @endif
@@ -78,7 +78,7 @@
                             <label class="block text-sm font-medium text-gray-700">Total TTC</label>
                             <p class="text-gray-900">
                                 @if($contrat->total_ttc)
-                                    {{ number_format($contrat->total_ttc, 2) }} €
+                                    {{ number_format($contrat->total_ttc, 2) }} DH
                                 @else
                                     <span class="text-gray-400">Non défini</span>
                                 @endif
@@ -203,22 +203,6 @@
 
             <!-- Sidebar -->
             <div class="space-y-6">
-                <!-- Quick Actions -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h3>
-                    <div class="space-y-3">
-                        <a href="{{ route('contrats.edit', $contrat) }}" class="block w-full bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium text-center">
-                            <i class="fas fa-edit mr-2"></i>Modifier le contrat
-                        </a>
-                        <a href="{{ route('contrats.print', $contrat) }}" target="_blank" class="block w-full bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-medium text-center">
-                            <i class="fas fa-print mr-2"></i>Imprimer le contrat
-                        </a>
-                        <button onclick="showRetourModal({{ $contrat->id }}, '{{ $contrat->number_contrat }}')" 
-                                class="block w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg font-medium text-center">
-                            <i class="fas fa-undo mr-2"></i>Retour du contrat
-                        </button>
-                    </div>
-                </div>
 
                 <!-- Contract Status -->
                 <div class="bg-white rounded-lg shadow-md p-6">
@@ -350,14 +334,21 @@ function showRetourModal(contractId, contractNumber) {
     
     // Animate modal content
     setTimeout(() => {
-        document.getElementById('retourModalContent').classList.add('modal-content-enter');
+        const modalContent = document.getElementById('retourModalContent');
+        modalContent.classList.add('scale-100', 'opacity-100');
+        modalContent.classList.remove('scale-95', 'opacity-0');
     }, 100);
 }
 
 // Function to hide retour modal
 function hideRetourModal() {
-    document.getElementById('retourModal').classList.add('hidden');
-    document.getElementById('retourModalContent').classList.remove('modal-content-enter');
+    const modalContent = document.getElementById('retourModalContent');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    
+    setTimeout(() => {
+        document.getElementById('retourModal').classList.add('hidden');
+    }, 300);
 }
 
 // Handle retour form submission
@@ -367,12 +358,19 @@ document.getElementById('retourForm').addEventListener('submit', function(e) {
     const formData = new FormData(this);
     const contractId = formData.get('contrat_id');
     
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Enregistrement...';
+    submitBtn.disabled = true;
+    
     // Submit to retour-contrats route
     fetch(`/retour-contrats`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
         },
         body: JSON.stringify({
             contrat_id: contractId,
@@ -384,7 +382,12 @@ document.getElementById('retourForm').addEventListener('submit', function(e) {
             frais_supplementaires: formData.get('frais_supplementaires') || 0,
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             hideRetourModal();
@@ -393,13 +396,32 @@ document.getElementById('retourForm').addEventListener('submit', function(e) {
             // Reload page to show updated data
             location.reload();
         } else {
-            alert('Erreur lors de l\'enregistrement: ' + data.message);
+            alert('Erreur lors de l\'enregistrement: ' + (data.message || 'Erreur inconnue'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Erreur lors de l\'enregistrement du retour');
+        alert('Erreur lors de l\'enregistrement du retour: ' + error.message);
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     });
+});
+
+// Close modal when clicking outside
+document.getElementById('retourModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideRetourModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !document.getElementById('retourModal').classList.contains('hidden')) {
+        hideRetourModal();
+    }
 });
 </script>
 @endsection
