@@ -40,8 +40,8 @@
         <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-car text-gray-400 text-xl"></i>
         </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No vehicles found</h3>
-        <p class="text-gray-600">Get started by adding your first vehicle to the fleet.</p>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('app.no_vehicles_found') }}</h3>
+        <p class="text-gray-600">{{ __('app.get_started_adding_vehicle') }}</p>
     </div>
     @endforelse
 </div>
@@ -50,16 +50,16 @@
 <div id="vehiclesPagination" class="mt-6 flex items-center justify-between">
     <div class="flex-1 flex justify-between sm:hidden">
         <button id="prevVehiclesMobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-            Précédent
+            {{ __('app.previous') }}
         </button>
         <button id="nextVehiclesMobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-            Suivant
+            {{ __('app.next') }}
         </button>
     </div>
     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
         <div>
             <p class="text-sm text-gray-700">
-                Affichage de <span id="vehiclesShowingFrom">1</span> à <span id="vehiclesShowingTo">5</span> sur <span id="vehiclesTotalItems">{{ isset($data) ? $data->count() : 0 }}</span> résultats
+                {{ __('app.showing') }} <span id="vehiclesShowingFrom">1</span> {{ __('app.to') }} <span id="vehiclesShowingTo">5</span> {{ __('app.of') }} <span id="vehiclesTotalItems">{{ isset($data) ? $data->count() : 0 }}</span> {{ __('app.results') }}
             </p>
         </div>
         <div>

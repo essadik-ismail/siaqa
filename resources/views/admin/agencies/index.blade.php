@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Agency Management')
+@section('title', __('app.agency_management'))
 
 @section('content')
 <div class="container mx-auto px-6 py-8">

@@ -1,18 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'User Management')
+@section('title', __('app.user_management'))
 
 @section('content')
 <div class="container mx-auto px-6 py-8">
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">User Management</h1>
-            <p class="text-gray-600">Manage users, roles, and permissions across all agencies</p>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ __('app.user_management') }}</h1>
+            <p class="text-gray-600">{{ __('app.manage_users_roles_permissions') }}</p>
         </div>
         <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 mt-4 sm:mt-0">
             <i class="fas fa-user-plus mr-2"></i>
-            Add New User
+            {{ __('app.add_new_user') }}
         </a>
     </div>
 
@@ -20,10 +20,10 @@
     <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="relative">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('app.search') }}</label>
                 <div class="relative">
                     <input type="text" id="searchInput" name="search" value="{{ request('search') }}" 
-                           placeholder="Name, email..." 
+                           placeholder="{{ __('app.name_email_placeholder') }}" 
                            class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <button type="button" id="clearSearch" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 {{ request('search') ? '' : 'hidden' }}">
                         <i class="fas fa-times"></i>

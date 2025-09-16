@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Global Users Management')
+@section('title', __('app.global_users'))
 
 @section('content')
 <div class="container mx-auto px-6 py-8">

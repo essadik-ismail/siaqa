@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Role Management')
+@section('title', __('app.role_management'))
 
 @section('content')
 <div class="container mx-auto px-6 py-8">

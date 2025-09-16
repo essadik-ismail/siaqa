@@ -39,8 +39,8 @@
         <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-file-contract text-gray-400 text-xl"></i>
         </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No contracts found</h3>
-        <p class="text-gray-600">Contracts will appear here once reservations are confirmed and converted.</p>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('app.no_contracts_found') }}</h3>
+        <p class="text-gray-600">{{ __('app.contracts_will_appear_here') }}</p>
     </div>
     @endforelse
 </div>

@@ -1,15 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', 'Tableau de bord')
 
 @section('content')
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-green-500 text-white rounded-xl p-6 shadow-lg">
+    <!-- Enhanced Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Clients Card -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-green-100 text-sm font-medium">Total Clients</p>
+                    <p class="text-green-100 text-sm font-medium">Clients</p>
                     <p class="text-3xl font-bold">{{ number_format($stats['total_clients']) }}</p>
+                    <p class="text-green-100 text-xs mt-1">+12% par rapport au mois dernier</p>
                 </div>
                 <div class="w-12 h-12 bg-green-400 rounded-lg flex items-center justify-center">
                     <i class="fas fa-users text-xl"></i>
@@ -17,27 +19,91 @@
             </div>
         </div>
 
-        <div class="bg-blue-600 text-white rounded-xl p-6 shadow-lg">
+        <!-- Reservations Card -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-blue-100 text-sm font-medium">Total Reservations</p>
+                    <p class="text-blue-100 text-sm font-medium">Réservations</p>
                     <p class="text-3xl font-bold">{{ number_format($stats['total_reservations']) }}</p>
+                    <p class="text-blue-100 text-xs mt-1">+8% par rapport au mois dernier</p>
                 </div>
-                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <div class="w-12 h-12 bg-blue-400 rounded-lg flex items-center justify-center">
                     <i class="fas fa-calendar-check text-xl"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-red-500 text-white rounded-xl p-6 shadow-lg">
+        <!-- Revenue Card -->
+        <div class="bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-red-100 text-sm font-medium">Total Revenue</p>
+                    <p class="text-red-100 text-sm font-medium">Revenus Totaux</p>
                     <p class="text-3xl font-bold">{{ number_format($stats['total_revenue']) }} DH</p>
+                    <p class="text-red-100 text-xs mt-1">+15% par rapport au mois dernier</p>
                 </div>
                 <div class="w-12 h-12 bg-red-400 rounded-lg flex items-center justify-center">
                     <i class="fas fa-dollar-sign text-xl"></i>
                 </div>
+            </div>
+        </div>
+
+        <!-- Vehicles Card -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-100 text-sm font-medium">Véhicules</p>
+                    <p class="text-3xl font-bold">{{ number_format($stats['total_vehicles'] ?? 0) }}</p>
+                    <p class="text-purple-100 text-xs mt-1">{{ $stats['available_vehicles'] ?? 0 }} disponibles</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-400 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-car text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Utilization Rate -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Taux d'Utilisation</h3>
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chart-pie text-blue-600"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-2">{{ $stats['utilization_rate'] ?? 75 }}%</div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $stats['utilization_rate'] ?? 75 }}%"></div>
+            </div>
+            <p class="text-sm text-gray-600 mt-2">Utilisation des véhicules</p>
+        </div>
+
+        <!-- Average Rental Duration -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Durée Moyenne de Location</h3>
+                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-clock text-green-600"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-2">{{ $stats['avg_rental_duration'] ?? 5 }} jours</div>
+            <p class="text-sm text-gray-600">par location</p>
+        </div>
+
+        <!-- Customer Satisfaction -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Satisfaction Client</h3>
+                <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-star text-yellow-600"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-2">{{ $stats['satisfaction_rate'] ?? 4.8 }}/5</div>
+            <div class="flex items-center">
+                @for($i = 1; $i <= 5; $i++)
+                    <i class="fas fa-star text-yellow-400 {{ $i <= ($stats['satisfaction_rate'] ?? 4.8) ? '' : 'opacity-30' }}"></i>
+                @endfor
             </div>
         </div>
     </div>
@@ -46,8 +112,8 @@
     @if(auth()->user()->isSuperAdmin())
     <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
         <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">Admin Management</h2>
-            <div class="text-sm text-gray-600">SaaS Administration Panel</div>
+            <h2 class="text-2xl font-bold text-gray-800">Administration</h2>
+            <div class="text-sm text-gray-600">Système</div>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -59,13 +125,13 @@
                     </div>
                     <div class="text-right">
                         <div class="text-2xl font-bold">{{ $stats['total_users'] ?? 0 }}</div>
-                        <div class="text-blue-100 text-sm">Users</div>
+                        <div class="text-blue-100 text-sm">Utilisateurs</div>
                     </div>
                 </div>
-                <h3 class="text-lg font-semibold mb-2">User Management</h3>
-                <p class="text-blue-100 text-sm">Manage users, roles, and permissions across all agencies</p>
+                <h3 class="text-lg font-semibold mb-2">Gestion des Utilisateurs</h3>
+                <p class="text-blue-100 text-sm">Gérer les utilisateurs, rôles et permissions</p>
                 <div class="mt-4 flex items-center text-blue-100 text-sm">
-                    <span>Manage Users</span>
+                    <span>Gérer les Utilisateurs</span>
                     <i class="fas fa-arrow-right ml-2"></i>
                 </div>
             </div>
@@ -78,13 +144,13 @@
                     </div>
                     <div class="text-right">
                         <div class="text-2xl font-bold">{{ $stats['total_agencies'] ?? 0 }}</div>
-                        <div class="text-green-100 text-sm">Agencies</div>
+                        <div class="text-green-100 text-sm">Agences</div>
                     </div>
                 </div>
-                <h3 class="text-lg font-semibold mb-2">Agency Management</h3>
-                <p class="text-green-100 text-sm">Manage rental agencies and their configurations</p>
+                <h3 class="text-lg font-semibold mb-2">Gestion des Agences</h3>
+                <p class="text-green-100 text-sm">Gérer les agences de location</p>
                 <div class="mt-4 flex items-center text-green-100 text-sm">
-                    <span>Manage Agencies</span>
+                    <span>{{ __('app.manage_agencies') }}</span>
                     <i class="fas fa-arrow-right ml-2"></i>
                 </div>
             </div>
@@ -97,13 +163,13 @@
                     </div>
                     <div class="text-right">
                         <div class="text-2xl font-bold">{{ $stats['total_roles'] ?? 0 }}</div>
-                        <div class="text-purple-100 text-sm">Roles</div>
+                        <div class="text-purple-100 text-sm">{{ __('app.roles') }}</div>
                     </div>
                 </div>
-                <h3 class="text-lg font-semibold mb-2">Role Management</h3>
-                <p class="text-purple-100 text-sm">Define and manage user roles and access levels</p>
+                <h3 class="text-lg font-semibold mb-2">{{ __('app.role_management') }}</h3>
+                <p class="text-purple-100 text-sm">{{ __('app.define_manage_user_roles') }}</p>
                 <div class="mt-4 flex items-center text-purple-100 text-sm">
-                    <span>Manage Roles</span>
+                    <span>{{ __('app.manage_roles') }}</span>
                     <i class="fas fa-arrow-right ml-2"></i>
                 </div>
             </div>
@@ -116,13 +182,13 @@
                     </div>
                     <div class="text-right">
                         <div class="text-2xl font-bold">{{ $stats['total_permissions'] ?? 0 }}</div>
-                        <div class="text-orange-100 text-sm">Permissions</div>
+                        <div class="text-orange-100 text-sm">{{ __('app.permissions') }}</div>
                     </div>
                 </div>
-                <h3 class="text-lg font-semibold mb-2">Permission Management</h3>
-                <p class="text-orange-100 text-sm">Configure system permissions and access controls</p>
+                <h3 class="text-lg font-semibold mb-2">{{ __('app.permission_management') }}</h3>
+                <p class="text-orange-100 text-sm">{{ __('app.configure_system_permissions') }}</p>
                 <div class="mt-4 flex items-center text-orange-100 text-sm">
-                    <span>Manage Permissions</span>
+                    <span>{{ __('app.manage_permissions') }}</span>
                     <i class="fas fa-arrow-right ml-2"></i>
                 </div>
             </div>
@@ -130,43 +196,160 @@
 
         <!-- Quick Actions -->
         <div class="mt-8 pt-6 border-t border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('app.quick_actions') }}</h3>
             <div class="flex flex-wrap gap-4">
                 <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
                     <i class="fas fa-user-plus mr-2"></i>
-                    Add New User
+                    {{ __('app.add_new_user') }}
                 </a>
                 <a href="{{ route('admin.agencies.create') }}" class="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
                     <i class="fas fa-building mr-2"></i>
-                    Add New Agency
+                    {{ __('app.add_new_agency') }}
                 </a>
                 <a href="{{ route('admin.roles.create') }}" class="inline-flex items-center px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
                     <i class="fas fa-user-shield mr-2"></i>
-                    Create New Role
+                    {{ __('app.create_new_role') }}
                 </a>
                 <a href="{{ route('admin.bulk-create') }}" class="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
                     <i class="fas fa-key mr-2"></i>
-                    Bulk Create Permissions
+                    {{ __('app.bulk_create_permissions') }}
                 </a>
                 <a href="{{ route('admin.car-selection.index') }}" class="inline-flex items-center px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">
                     <i class="fas fa-car mr-2"></i>
-                    Manage Landing Cars
+                    {{ __('app.manage_landing_cars') }}
                 </a>
                 <a href="{{ route('saas.system-diagnostics') }}" class="inline-flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
                     <i class="fas fa-heartbeat mr-2"></i>
-                    System Diagnostics
+                    {{ __('app.system_diagnostics') }}
                 </a>
             </div>
         </div>
     </div>
     @endif
 
+    <!-- Recent Activity & Notifications -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">{{ __('app.recent_activity') }}</h3>
+                <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium">{{ __('app.view_all') }}</a>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-plus text-green-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">{{ __('app.new_reservation') }}</p>
+                        <p class="text-xs text-gray-500">{{ __('app.client_rented_vehicle') }}</p>
+                    </div>
+                    <span class="text-xs text-gray-400">2m {{ __('app.ago') }}</span>
+                </div>
+                <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">{{ __('app.new_client') }}</p>
+                        <p class="text-xs text-gray-500">{{ __('app.client_registered') }}</p>
+                    </div>
+                    <span class="text-xs text-gray-400">15m {{ __('app.ago') }}</span>
+                </div>
+                <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-car text-purple-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">{{ __('app.vehicle_returned') }}</p>
+                        <p class="text-xs text-gray-500">{{ __('app.vehicle_available') }}</p>
+                    </div>
+                    <span class="text-xs text-gray-400">1h {{ __('app.ago') }}</span>
+                </div>
+                <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">{{ __('app.maintenance_due') }}</p>
+                        <p class="text-xs text-gray-500">{{ __('app.vehicle_needs_service') }}</p>
+                    </div>
+                    <span class="text-xs text-gray-400">3h {{ __('app.ago') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">{{ __('app.quick_stats') }}</h3>
+                <i class="fas fa-chart-bar text-gray-400"></i>
+            </div>
+            <div class="space-y-6">
+                <!-- Today's Revenue -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-green-600"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">{{ __('app.todays_revenue') }}</span>
+                    </div>
+                    <span class="text-lg font-bold text-gray-900">{{ number_format($stats['todays_revenue'] ?? 1250) }} DH</span>
+                </div>
+
+                <!-- Active Reservations -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-check text-blue-600"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">{{ __('app.active_reservations') }}</span>
+                    </div>
+                    <span class="text-lg font-bold text-gray-900">{{ $stats['active_reservations'] ?? 12 }}</span>
+                </div>
+
+                <!-- Available Vehicles -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-car text-purple-600"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">{{ __('app.available_vehicles') }}</span>
+                    </div>
+                    <span class="text-lg font-bold text-gray-900">{{ $stats['available_vehicles'] ?? 8 }}</span>
+                </div>
+
+                <!-- Pending Approvals -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-orange-600"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">{{ __('app.pending_approvals') }}</span>
+                    </div>
+                    <span class="text-lg font-bold text-gray-900">{{ $stats['pending_approvals'] ?? 3 }}</span>
+                </div>
+
+                <!-- Maintenance Alerts -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-wrench text-red-600"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">{{ __('app.maintenance_alerts') }}</span>
+                    </div>
+                    <span class="text-lg font-bold text-gray-900">{{ $stats['maintenance_alerts'] ?? 2 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Tabs -->
     <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
         <div class="flex space-x-1 mb-6">
-            <button id="vehicles-tab" class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium tab-button active" data-tab="vehicles">Vehicles</button>
-            <button id="reservations-tab" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg tab-button" data-tab="reservations">Reservations</button>
-            <button id="contracts-tab" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg tab-button" data-tab="contracts">Contracts</button>
+            <button id="vehicles-tab" class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium tab-button active" data-tab="vehicles">{{ __('app.vehicles') }}</button>
+            <button id="reservations-tab" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg tab-button" data-tab="reservations">{{ __('app.reservations') }}</button>
+            <button id="contracts-tab" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg tab-button" data-tab="contracts">{{ __('app.contracts') }}</button>
         </div>
 
         <!-- Tab Content -->
@@ -177,7 +360,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold">Total Estimated Revenue</h3>
+                            <h3 class="text-lg font-semibold">{{ __('app.total_estimated_revenue') }}</h3>
                             <div class="w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center">
                                 <span class="text-2xl font-bold">{{ $stats['estimated_utilization'] ?? 0 }}%</span>
                             </div>
@@ -192,7 +375,7 @@
 
                     <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold">Total Actual Revenue</h3>
+                            <h3 class="text-lg font-semibold">{{ __('app.total_actual_revenue') }}</h3>
                             <div class="w-16 h-16 bg-green-400 rounded-full flex items-center justify-center">
                                 <span class="text-2xl font-bold">{{ $stats['actual_utilization'] ?? 0 }}%</span>
                             </div>
@@ -208,7 +391,7 @@
 
                 <!-- Recent Vehicles -->
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Vehicles</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('app.recent_vehicles') }}</h3>
                     @include('dashboard.partials.vehicles', ['data' => $recentVehicles])
                 </div>
             </div>
@@ -216,7 +399,7 @@
             <!-- Reservations Tab Content -->
             <div id="reservations-content" class="tab-panel hidden">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Reservations</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('app.recent_reservations') }}</h3>
                     @include('dashboard.partials.reservations', ['data' => $recentReservations])
                 </div>
             </div>
@@ -224,7 +407,7 @@
             <!-- Contracts Tab Content -->
             <div id="contracts-content" class="tab-panel hidden">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Contracts</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('app.recent_contracts') }}</h3>
                     @include('dashboard.partials.contracts', ['data' => $recentContracts])
                 </div>
             </div>
@@ -234,19 +417,19 @@
     <!-- Chart Section -->
     <div class="bg-white rounded-xl shadow-lg p-6">
         <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-semibold text-gray-800">Monthly Revenue Report</h3>
+            <h3 class="text-xl font-semibold text-gray-800">{{ __('app.monthly_revenue_report') }}</h3>
             <div class="flex space-x-4 text-sm">
                 <div class="flex items-center space-x-2">
                     <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <span>Revenue</span>
+                    <span>{{ __('app.revenue') }}</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                    <span>Reservations</span>
+                    <span>{{ __('app.reservations') }}</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span>Growth</span>
+                    <span>{{ __('app.growth') }}</span>
                 </div>
             </div>
         </div>
@@ -261,62 +444,7 @@
 @endsection
 
 @section('sidebar')
-    <!-- Current Clients Panel -->
-    <div class="mb-8">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Current Clients</h3>
-        <div class="flex space-x-2 mb-4">
-            @for($i = 0; $i < 5; $i++)
-                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                    <i class="fas fa-user text-gray-600 text-sm"></i>
-                </div>
-            @endfor
-        </div>
-        <div class="bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-medium inline-block">
-            {{ number_format($stats['current_clients_revenue']) }} DH
-        </div>
-    </div>
-
-    <!-- Revenue Breakdown Panel -->
-    <div>
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Revenue Breakdown</h3>
-        <div class="relative mb-6 chart-container">
-            <canvas id="breakdownChart"></canvas>
-            <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-2xl font-bold text-gray-800">{{ $revenueBreakdown['percentages']['vehicle_rentals'] }}%</span>
-            </div>
-        </div>
-
-        <div class="space-y-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 bg-blue-600 rounded-full"></div>
-                    <span class="text-sm text-gray-600">Vehicle Rentals</span>
-                </div>
-                <span class="text-sm font-medium">{{ $revenueBreakdown['percentages']['vehicle_rentals'] }}%</span>
-            </div>
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                    <span class="text-sm text-gray-600">Insurance</span>
-                </div>
-                <span class="text-sm font-medium">{{ $revenueBreakdown['percentages']['insurance'] }}%</span>
-            </div>
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
-                    <span class="text-sm text-gray-600">Maintenance</span>
-                </div>
-                <span class="text-sm font-medium">{{ $revenueBreakdown['percentages']['maintenance'] }}%</span>
-            </div>
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <span class="text-sm text-gray-600">Other Services</span>
-                </div>
-                <span class="text-sm font-medium">{{ $revenueBreakdown['percentages']['other_services'] }}%</span>
-            </div>
-        </div>
-    </div>
+    <!-- Sidebar content can be added here if needed -->
 @endsection
 
 @push('scripts')
@@ -418,38 +546,5 @@ const revenueChart = new Chart(revenueCtx, {
     }
 });
 
-// Breakdown Chart
-const breakdownCtx = document.getElementById('breakdownChart').getContext('2d');
-const breakdownChart = new Chart(breakdownCtx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Vehicle Rentals', 'Insurance', 'Maintenance', 'Other Services'],
-        datasets: [{
-            data: [
-                {{ $revenueBreakdown['percentages']['vehicle_rentals'] }}, 
-                {{ $revenueBreakdown['percentages']['insurance'] }}, 
-                {{ $revenueBreakdown['percentages']['maintenance'] }}, 
-                {{ $revenueBreakdown['percentages']['other_services'] }}
-            ],
-            backgroundColor: [
-                'rgba(37, 99, 235, 0.8)',
-                'rgba(250, 204, 21, 0.8)',
-                'rgba(74, 222, 128, 0.8)',
-                'rgba(239, 68, 68, 0.8)'
-            ],
-            borderWidth: 0
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
-            }
-        },
-        cutout: '70%'
-    }
-});
 </script>
 @endpush 

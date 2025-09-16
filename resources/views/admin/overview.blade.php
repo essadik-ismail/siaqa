@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Overview')
+@section('title', __('app.admin') . ' - ' . __('app.overview'))
 
 @section('content')
 <div class="container-fluid">
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Admin Overview</h1>
+        <h1 class="h3 mb-0 text-gray-800">{{ __('app.admin') }} - {{ __('app.overview') }}</h1>
         <div class="text-sm text-gray-600">
             @if(auth()->user()->isSuperAdmin())
-                SaaS Administration Odys
+                {{ __('app.system') }} {{ __('app.admin') }} Odys
             @else
-                Administration Panel
+                {{ __('app.admin') }} {{ __('app.panel') }}
             @endif
         </div>
     </div>
@@ -26,11 +26,11 @@
                 </div>
                 <div class="text-right">
                     <div class="text-2xl font-bold">{{ $stats['total_tenants'] ?? 0 }}</div>
-                    <div class="text-indigo-100 text-sm">Tenants</div>
+                    <div class="text-indigo-100 text-sm">{{ __('app.tenants') }}</div>
                 </div>
             </div>
-            <h3 class="text-lg font-semibold mb-2">Multi-Tenant System</h3>
-            <p class="text-indigo-100 text-sm">Manage all rental agencies and their data</p>
+            <h3 class="text-lg font-semibold mb-2">{{ __('app.multi_tenant_system') }}</h3>
+            <p class="text-indigo-100 text-sm">{{ __('app.manage_all_agencies') }}</p>
         </div>
 
         <!-- Users -->
@@ -41,11 +41,11 @@
                 </div>
                 <div class="text-right">
                     <div class="text-2xl font-bold">{{ $stats['total_users'] ?? 0 }}</div>
-                    <div class="text-blue-100 text-sm">Users</div>
+                    <div class="text-blue-100 text-sm">{{ __('app.users') }}</div>
                 </div>
             </div>
-            <h3 class="text-lg font-semibold mb-2">User Management</h3>
-            <p class="text-blue-100 text-sm">Control access and permissions across the system</p>
+            <h3 class="text-lg font-semibold mb-2">{{ __('app.user_management') }}</h3>
+            <p class="text-blue-100 text-sm">{{ __('app.control_access_permissions') }}</p>
         </div>
 
         <!-- Agencies -->
@@ -56,11 +56,11 @@
                 </div>
                 <div class="text-right">
                     <div class="text-2xl font-bold">{{ $stats['total_agencies'] ?? 0 }}</div>
-                    <div class="text-green-100 text-sm">Agencies</div>
+                    <div class="text-green-100 text-sm">{{ __('app.agencies') }}</div>
                 </div>
             </div>
-            <h3 class="text-lg font-semibold mb-2">Agency Management</h3>
-            <p class="text-green-100 text-sm">Manage rental agencies and their configurations</p>
+            <h3 class="text-lg font-semibold mb-2">{{ __('app.agency_management') }}</h3>
+            <p class="text-green-100 text-sm">{{ __('app.manage_rental_agencies') }}</p>
         </div>
 
         <!-- Revenue -->
@@ -71,11 +71,11 @@
                 </div>
                 <div class="text-right">
                     <div class="text-2xl font-bold">${{ number_format($stats['total_revenue'] ?? 0) }}</div>
-                    <div class="text-red-100 text-sm">Total Revenue</div>
+                    <div class="text-red-100 text-sm">{{ __('app.total_revenue') }}</div>
                 </div>
             </div>
-            <h3 class="text-lg font-semibold mb-2">Financial Overview</h3>
-            <p class="text-red-100 text-sm">Monitor revenue across all agencies</p>
+            <h3 class="text-lg font-semibold mb-2">{{ __('app.financial_overview') }}</h3>
+            <p class="text-red-100 text-sm">{{ __('app.monitor_revenue_agencies') }}</p>
         </div>
     </div>
 
@@ -84,8 +84,8 @@
         <!-- User & Role Management -->
         <div class="bg-white rounded-xl shadow-lg p-6">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">User & Role Management</h3>
-                <div class="text-sm text-gray-600">Access Control</div>
+                <h3 class="text-xl font-semibold text-gray-800">{{ __('app.user_role_management') }}</h3>
+                <div class="text-sm text-gray-600">{{ __('app.access_control') }}</div>
             </div>
             
             <div class="space-y-4">
@@ -95,12 +95,12 @@
                             <i class="fas fa-users text-blue-600"></i>
                         </div>
                         <div>
-                            <div class="font-medium text-gray-800">Users</div>
-                            <div class="text-sm text-gray-600">{{ $stats['total_users'] ?? 0 }} total users</div>
+                            <div class="font-medium text-gray-800">{{ __('app.users') }}</div>
+                            <div class="text-sm text-gray-600">{{ $stats['total_users'] ?? 0 }} {{ __('app.total_users') }}</div>
                         </div>
                     </div>
                     <a href="{{ route('admin.users.index') }}" class="btn btn-primary btn-sm">
-                        Manage Users
+                        {{ __('app.manage_users') }}
                     </a>
                 </div>
 
@@ -110,12 +110,12 @@
                             <i class="fas fa-user-shield text-purple-600"></i>
                         </div>
                         <div>
-                            <div class="font-medium text-gray-800">Roles</div>
-                            <div class="text-sm text-gray-600">{{ $stats['total_roles'] ?? 0 }} defined roles</div>
+                            <div class="font-medium text-gray-800">{{ __('app.roles') }}</div>
+                            <div class="text-sm text-gray-600">{{ $stats['total_roles'] ?? 0 }} {{ __('app.defined_roles') }}</div>
                         </div>
                     </div>
                     <a href="{{ route('admin.roles.index') }}" class="btn btn-primary btn-sm">
-                        Manage Roles
+                        {{ __('app.manage_roles') }}
                     </a>
                 </div>
 
@@ -125,12 +125,12 @@
                             <i class="fas fa-key text-orange-600"></i>
                         </div>
                         <div>
-                            <div class="font-medium text-gray-800">Permissions</div>
-                            <div class="text-sm text-gray-600">{{ $stats['total_permissions'] ?? 0 }} system permissions</div>
+                            <div class="font-medium text-gray-800">{{ __('app.permissions') }}</div>
+                            <div class="text-sm text-gray-600">{{ $stats['total_permissions'] ?? 0 }} {{ __('app.system_permissions') }}</div>
                         </div>
                     </div>
                     <a href="{{ route('admin.permissions.index') }}" class="btn btn-primary btn-sm">
-                        Manage Permissions
+                        {{ __('app.manage_permissions') }}
                     </a>
                 </div>
             </div>
@@ -139,8 +139,8 @@
         <!-- Agency & Tenant Management -->
         <div class="bg-white rounded-xl shadow-lg p-6">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Agency & Tenant Management</h3>
-                <div class="text-sm text-gray-600">Multi-Tenant Control</div>
+                <h3 class="text-xl font-semibold text-gray-800">{{ __('app.agency_tenant_management') }}</h3>
+                <div class="text-sm text-gray-600">{{ __('app.multi_tenant_control') }}</div>
             </div>
             
             <div class="space-y-4">
@@ -150,12 +150,12 @@
                             <i class="fas fa-building text-green-600"></i>
                         </div>
                         <div>
-                            <div class="font-medium text-gray-800">Agencies</div>
-                            <div class="text-sm text-gray-600">{{ $stats['total_agencies'] ?? 0 }} rental agencies</div>
+                            <div class="font-medium text-gray-800">{{ __('app.agencies') }}</div>
+                            <div class="text-sm text-gray-600">{{ $stats['total_agencies'] ?? 0 }} {{ __('app.rental_agencies') }}</div>
                         </div>
                     </div>
                     <a href="{{ route('admin.agencies.index') }}" class="btn btn-primary btn-sm">
-                        Manage Agencies
+                        {{ __('app.manage_agencies') }}
                     </a>
                 </div>
 
@@ -165,12 +165,12 @@
                             <i class="fas fa-server text-indigo-600"></i>
                         </div>
                         <div>
-                            <div class="font-medium text-gray-800">Tenants</div>
-                            <div class="text-sm text-gray-600">{{ $stats['total_tenants'] ?? 0 }} active tenants</div>
+                            <div class="font-medium text-gray-800">{{ __('app.tenants') }}</div>
+                            <div class="text-sm text-gray-600">{{ $stats['total_tenants'] ?? 0 }} {{ __('app.active_tenants') }}</div>
                         </div>
                     </div>
                     <a href="#" class="btn btn-secondary btn-sm">
-                        View Tenants
+                        {{ __('app.view_tenants') }}
                     </a>
                 </div>
 
@@ -180,12 +180,12 @@
                             <i class="fas fa-chart-line text-yellow-600"></i>
                         </div>
                         <div>
-                            <div class="font-medium text-gray-800">Analytics</div>
-                            <div class="text-sm text-gray-600">System performance metrics</div>
+                            <div class="font-medium text-gray-800">{{ __('app.analytics') }}</div>
+                            <div class="text-sm text-gray-600">{{ __('app.system_performance_metrics') }}</div>
                         </div>
                     </div>
                     <a href="#" class="btn btn-secondary btn-sm">
-                        View Analytics
+                        {{ __('app.view_analytics') }}
                     </a>
                 </div>
             </div>
@@ -194,15 +194,15 @@
 
     <!-- Quick Actions -->
     <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
-        <h3 class="text-xl font-semibold text-gray-800 mb-6">Quick Actions</h3>
+        <h3 class="text-xl font-semibold text-gray-800 mb-6">{{ __('app.quick_actions') }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <a href="{{ route('admin.users.create') }}" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
                 <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                     <i class="fas fa-user-plus text-blue-600"></i>
                 </div>
                 <div>
-                    <div class="font-medium text-gray-800">Add User</div>
-                    <div class="text-sm text-gray-600">Create new user account</div>
+                    <div class="font-medium text-gray-800">{{ __('app.add_user') }}</div>
+                    <div class="text-sm text-gray-600">{{ __('app.create_new_user_account') }}</div>
                 </div>
             </a>
 
@@ -211,8 +211,8 @@
                     <i class="fas fa-building text-green-600"></i>
                 </div>
                 <div>
-                    <div class="font-medium text-gray-800">Add Agency</div>
-                    <div class="text-sm text-gray-600">Create new rental agency</div>
+                    <div class="font-medium text-gray-800">{{ __('app.add_agency') }}</div>
+                    <div class="text-sm text-gray-600">{{ __('app.create_new_rental_agency') }}</div>
                 </div>
             </a>
 
@@ -221,8 +221,8 @@
                     <i class="fas fa-user-shield text-purple-600"></i>
                 </div>
                 <div>
-                    <div class="font-medium text-gray-800">Create Role</div>
-                    <div class="text-sm text-gray-600">Define new user role</div>
+                    <div class="font-medium text-gray-800">{{ __('app.create_role') }}</div>
+                    <div class="text-sm text-gray-600">{{ __('app.define_new_user_role') }}</div>
                 </div>
             </a>
 
@@ -231,8 +231,8 @@
                     <i class="fas fa-key text-orange-600"></i>
                 </div>
                 <div>
-                    <div class="font-medium text-gray-800">Bulk Permissions</div>
-                    <div class="text-sm text-gray-600">Create multiple permissions</div>
+                    <div class="font-medium text-gray-800">{{ __('app.bulk_permissions') }}</div>
+                    <div class="text-sm text-gray-600">{{ __('app.create_multiple_permissions') }}</div>
                 </div>
             </a>
         </div>

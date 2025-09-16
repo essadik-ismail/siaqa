@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="fr" dir="ltr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,6 +13,8 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- RTL Support for Arabic -->
     
     <!-- Chart.js for charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -577,13 +579,13 @@
                         <div class="nav-section">
                             <a href="{{ route('dashboard') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                                 <i class="fas fa-tachometer-alt"></i>
-                                <span class="font-medium">Dashboard</span>
+                                <span class="font-medium">Tableau de bord</span>
                             </a>
                         </div>
 
                         <!-- Business Management -->
                         <div class="nav-section">
-                            <div class="nav-group-header">Business</div>
+                            <div class="nav-group-header">Entreprise</div>
                             
                             <a href="{{ route('clients.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('clients.*') ? 'active' : '' }}">
                                 <i class="fas fa-users"></i>
@@ -592,27 +594,27 @@
 
                             <a href="{{ route('vehicules.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('vehicules.*') ? 'active' : '' }}">
                                 <i class="fas fa-car"></i>
-                                <span class="font-medium">Vehicles</span>
+                                <span class="font-medium">Véhicules</span>
                             </a>
 
                             <a href="{{ route('charges.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('charges.*') ? 'active' : '' }}">
                                 <i class="fas fa-money-bill-wave"></i>
-                                <span class="font-medium">Les Charges</span>
+                                <span class="font-medium">Charges</span>
                             </a>
                         </div>
 
                         <!-- Operations -->
                         <div class="nav-section">
-                            <div class="nav-group-header">Operations</div>
+                            <div class="nav-group-header">Opérations</div>
                             
                             <a href="{{ route('reservations.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
                                 <i class="fas fa-calendar-check"></i>
-                                <span class="font-medium">Reservations</span>
+                                <span class="font-medium">Réservations</span>
                             </a>
 
                             <a href="{{ route('contrats.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('contrats.*') ? 'active' : '' }}">
                                 <i class="fas fa-file-contract"></i>
-                                <span class="font-medium">Contracts</span>
+                                <span class="font-medium">Contrats</span>
                             </a>
 
 
@@ -620,41 +622,41 @@
 
                         <!-- System -->
                         <div class="nav-section">
-                            <div class="nav-group-header">System</div>
+                            <div class="nav-group-header">Système</div>
                             
                             <a href="{{ route('settings.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                                 <i class="fas fa-cog"></i>
-                                <span class="font-medium">Settings</span>
+                                <span class="font-medium">Paramètres</span>
                             </a>
                             
                             <!-- SaaS Management - Super Admin Only -->
                             @if(auth()->user()->isSuperAdmin())
                             <div class="nav-subsection">
-                                <div class="nav-subheader">SaaS Management</div>
+                                <div class="nav-subheader">Gestion SaaS</div>
                                 
                                 <a href="{{ route('saas.overview') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.overview') ? 'active' : '' }}">
                                     <i class="fas fa-server"></i>
-                                    <span class="font-medium">SaaS Overview</span>
+                                    <span class="font-medium">Vue d'ensemble SaaS</span>
                                 </a>
                                 
                                 <a href="{{ route('saas.tenants.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.tenants.*') ? 'active' : '' }}">
                                     <i class="fas fa-building"></i>
-                                    <span class="font-medium">Tenant Management</span>
+                                    <span class="font-medium">Gestion des Locataires</span>
                                 </a>
                                 
                                 <a href="{{ route('saas.global-users.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.global-users.*') ? 'active' : '' }}">
                                     <i class="fas fa-users"></i>
-                                    <span class="font-medium">Global Users</span>
+                                    <span class="font-medium">Utilisateurs Globaux</span>
                                 </a>
                                 
                                 <a href="{{ route('saas.analytics.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.analytics.*') ? 'active' : '' }}">
                                     <i class="fas fa-chart-line"></i>
-                                    <span class="font-medium">System Analytics</span>
+                                    <span class="font-medium">Analyses Système</span>
                                 </a>
                                 
                                 <a href="{{ route('saas.maintenance.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.maintenance.*') ? 'active' : '' }}">
                                     <i class="fas fa-tools"></i>
-                                    <span class="font-medium">System Maintenance</span>
+                                    <span class="font-medium">Maintenance du Système</span>
                                 </a>
                             </div>
                             @endif
@@ -663,7 +665,7 @@
                                 @csrf
                                 <button type="submit" class="sidebar-nav-item text-gray-700 w-full text-left hover:text-red-600">
                                     <i class="fas fa-sign-out-alt"></i>
-                                    <span class="font-medium">Logout</span>
+                                    <span class="font-medium">Déconnexion</span>
                                 </button>
                             </form>
                         </div>
@@ -672,24 +674,10 @@
 
                 <!-- Sidebar Footer -->
                 <div class="sidebar-footer p-6">
-                    <!-- Enhanced User Profile -->
-                    <div class="user-profile p-5">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg border-2 border-white/20 relative">
-                                <i class="fas fa-user text-white text-xl"></i>
-                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="text-sm font-bold text-gray-800">{{ auth()->user()->name ?? 'User' }}</div>
-                                <div class="text-xs text-gray-500 truncate">{{ auth()->user()->email ?? 'user@example.com' }}</div>
-                                <div class="flex items-center mt-2">
-                                    <div class="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-1 rounded-full">
-                                        {{ auth()->user()->isSuperAdmin() ? 'Super Admin' : 'Administrator' }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Language Switcher -->
+                    <div class="mb-4">
                     </div>
+                    
                 </div>
             </div>
         </div>
@@ -741,10 +729,6 @@
                     @yield('content')
                 </div>
 
-                <!-- Right Sidebar -->
-                <div class="w-80 bg-white/80 backdrop-blur-sm shadow-lg p-6 rounded-l-2xl border-l border-gray-200">
-                    @yield('sidebar')
-                </div>
             </div>
         </div>
         @else

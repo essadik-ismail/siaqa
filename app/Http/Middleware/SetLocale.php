@@ -18,11 +18,8 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next)
     {
-        // Get locale from session or default to 'fr'
-        $locale = Session::get('locale', 'fr');
-        
-        // Set the application locale
-        App::setLocale($locale);
+        // Force French as the only language
+        App::setLocale('fr');
         
         return $next($request);
     }

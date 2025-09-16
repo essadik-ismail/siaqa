@@ -35,7 +35,7 @@ Route::get('/register', [App\Http\Controllers\LandingController::class, 'showReg
 Route::post('/register', [App\Http\Controllers\LandingController::class, 'register'])->name('landing.register.post');
 
 // Language switching route
-Route::get('/language/{locale}', [LanguageController::class, 'switch'])->name('language.switch');
+// Language switching disabled - French only
 
 // Generic logout route for dashboard
 Route::post('/logout', function () {

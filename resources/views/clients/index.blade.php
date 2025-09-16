@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Clients')
+@section('title', __('app.clients'))
 
 @section('content')
     <!-- Header with Actions -->

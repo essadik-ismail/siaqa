@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Gestion des Charges')
+@section('title', __('app.charges'))
 
 @section('content')
 <div class="main-content">

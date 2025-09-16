@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Paramètres')
+@section('title', __('app.settings'))
 
 @section('content')
 <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold text-gray-800 mb-8">Paramètres</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">{{ __('app.settings') }}</h1>
 
     <!-- Success/Error Messages -->
     @if(session('success'))
@@ -24,16 +24,16 @@
             <div class="border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
                     <button class="border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 tab-button active" id="general-tab" data-tab="general">
-                        Général
+                        {{ __('app.general') }}
                     </button>
                     <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 tab-button" id="notifications-tab" data-tab="notifications">
-                        Notifications
+                        {{ __('app.notifications') }}
                     </button>
                     <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 tab-button" id="security-tab" data-tab="security">
-                        Sécurité
+                        {{ __('app.security') }}
                     </button>
                     <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 tab-button" id="billing-tab" data-tab="billing">
-                        Facturation
+                        {{ __('app.billing') }}
                     </button>
                 </nav>
             </div>
@@ -46,7 +46,7 @@
                     
                     <div class="space-y-6">
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Informations de l'entreprise</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('app.business_information') }}</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">Nom de l'entreprise</label>

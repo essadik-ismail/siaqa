@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'System Maintenance')
+@section('title', __('app.system_maintenance'))
 
 @section('content')
 <div class="container mx-auto px-6 py-8">
@@ -10,21 +10,21 @@
                 @csrf
                 <button type="submit" class="btn btn-success">
                     <i class="fas fa-download mr-2"></i>
-                    Create Backup
+                    {{ __('app.create_backup') }}
                 </button>
             </form>
             <form action="{{ route('saas.maintenance.clear-cache') }}" method="POST" class="inline">
                 @csrf
                 <button type="submit" class="btn btn-warning">
                     <i class="fas fa-broom mr-2"></i>
-                    Clear Cache
+                    {{ __('app.clear_cache') }}
                 </button>
             </form>
             <form action="{{ route('saas.maintenance.optimize') }}" method="POST" class="inline">
                 @csrf
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-rocket mr-2"></i>
-                    Optimize System
+                    {{ __('app.optimize_system') }}
                 </button>
             </form>
         </div>
@@ -51,7 +51,7 @@
                     <i class="fas fa-code text-blue-600 text-xl"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">PHP Version</p>
+                    <p class="text-sm font-medium text-gray-500">{{ __('app.php_version') }}</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $systemInfo['php_version'] }}</p>
                 </div>
             </div>
