@@ -130,65 +130,67 @@
             </div>
         </section>
 
-<!-- Blog Section -->
+<!-- Blog Section - Flyer -->
 <section class="section blog" id="blog">
     <div class="container">
-        <div class="title-wrapper">
-            <h2 class="h2 section-title">Latest Blog Posts</h2>
-            <a href="#" class="blog-link">
-                <span>View more</span>
-                <ion-icon name="arrow-forward-outline"></ion-icon>
-                    </a>
-                </div>
-                
-        <ul class="blog-list">
-            <li>
-                <div class="blog-card">
-                    <figure class="card-banner">
-                        <img src="{{ asset('app/Rent-Car2/assets/images/blog-1.jpg') }}" alt="Blog Post 1" loading="lazy" width="440" height="300" class="w-100">
-                    </figure>
-                    <div class="card-content">
-                        <h3 class="h3 card-title">
-                            <a href="#">Best Car Rental Tips for Travelers</a>
-                        </h3>
-                        <p class="card-text">Discover the essential tips for a smooth car rental experience...</p>
-                        <a href="#" class="btn">Read More</a>
+        <div class="blog-flyer">
+            <div class="flyer-content">
+                <div class="flyer-text">
+                    <h2 class="h2 section-title">Découvrez Notre Blog</h2>
+                    <p class="flyer-description">
+                        Restez informé des dernières actualités, conseils et tendances 
+                        dans le monde de la location de véhicules. Notre blog vous offre 
+                        des articles exclusifs pour optimiser votre expérience de location.
+                    </p>
+                    <div class="flyer-features">
+                        <div class="feature-item">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Articles exclusifs</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Conseils d'experts</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Tendances du marché</span>
+                        </div>
                     </div>
                 </div>
-            </li>
-
-            <li>
-                <div class="blog-card">
-                    <figure class="card-banner">
-                        <img src="{{ asset('app/Rent-Car2/assets/images/blog-2.jpg') }}" alt="Blog Post 2" loading="lazy" width="440" height="300" class="w-100">
-                    </figure>
-                    <div class="card-content">
-                        <h3 class="h3 card-title">
-                            <a href="#">Top 10 Most Popular Rental Cars</a>
-                        </h3>
-                        <p class="card-text">Find out which cars are most in demand for rentals...</p>
-                        <a href="#" class="btn">Read More</a>
-                    </div>
+                <div class="flyer-visual">
+                    <div class="flyer-card">
+                        <div class="card-header">
+                            <div class="blog-icon">
+                                <i class="fas fa-blog"></i>
                             </div>
-            </li>
-
-            <li>
-                <div class="blog-card">
-                    <figure class="card-banner">
-                        <img src="{{ asset('app/Rent-Car2/assets/images/blog-3.jpg') }}" alt="Blog Post 3" loading="lazy" width="440" height="300" class="w-100">
-                    </figure>
-                    <div class="card-content">
-                        <h3 class="h3 card-title">
-                            <a href="#">How to Choose the Right Rental Car</a>
-                        </h3>
-                        <p class="card-text">A comprehensive guide to selecting the perfect rental vehicle...</p>
-                        <a href="#" class="btn">Read More</a>
+                            <h3>Blog Odys</h3>
+                        </div>
+                        <div class="card-preview">
+                            <div class="preview-item">
+                                <div class="preview-dot"></div>
+                                <span>Conseils de location</span>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-dot"></div>
+                                <span>Actualités auto</span>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-dot"></div>
+                                <span>Guides pratiques</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </li>
-        </ul>
             </div>
-        </section>
+            <div class="flyer-action">
+                <a href="https://blog.odys.ma" target="_blank" class="btn btn-primary flyer-btn">
+                    <span>Visiter le Blog</span>
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Reservation Modal -->
 <div id="reservationModal" class="modal" style="display: none;">
@@ -209,8 +211,8 @@
             </div>
             
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required class="form-control" value="{{ old('email') }}">
+                <label for="reservation-email">Email</label>
+                <input type="email" id="reservation-email" name="email" required class="form-control" value="{{ old('email') }}">
                 <div class="error-message" id="email-error" style="display: none;"></div>
             </div>
             
@@ -254,7 +256,7 @@
 @endsection
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('app/Rent-Car2/assets/css/style.css') }}">
+<link rel="stylesheet" href="{{ asset('appp/Rent-Car2/assets/css/style.css') }}">
 <style>
 /* Additional styles for modal and stats */
 .modal {
@@ -433,68 +435,167 @@
     font-size: var(--fs-6);
 }
 
+/* Blog Flyer Styles */
 .blog {
     padding: var(--section-padding) 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
-.blog-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-top: 30px;
-}
-
-.blog-card {
+.blog-flyer {
     background: white;
-    border-radius: var(--radius-14);
+    border-radius: 20px;
+    padding: 60px 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
     overflow: hidden;
-    box-shadow: var(--shadow-1);
-    transition: var(--transition);
 }
 
-.blog-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-2);
+.blog-flyer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
 }
 
-.blog-card .card-banner img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+.flyer-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    margin-bottom: 40px;
 }
 
-.blog-card .card-content {
-    padding: 20px;
-}
-
-.blog-card .card-title a {
+.flyer-text .section-title {
     color: var(--space-cadet);
-    text-decoration: none;
-    font-weight: var(--fw-600);
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+    font-weight: 700;
 }
 
-.blog-card .card-title a:hover {
-    color: var(--carolina-blue);
-}
-
-.blog-card .card-text {
+.flyer-description {
     color: var(--manatee);
-    margin: 15px 0;
-    line-height: 1.6;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 30px;
 }
 
-.blog-link {
+.flyer-features {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--space-cadet);
+    font-weight: 500;
+}
+
+.feature-item i {
+    color: var(--carolina-blue);
+    font-size: 1.2rem;
+    width: 20px;
+    text-align: center;
+}
+
+.flyer-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flyer-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+    transform: rotate(-5deg);
+    transition: transform 0.3s ease;
+}
+
+.flyer-card:hover {
+    transform: rotate(-2deg) scale(1.05);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.blog-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.card-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.card-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.preview-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.preview-dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+}
+
+.flyer-action {
+    text-align: center;
+}
+
+.flyer-btn {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    padding: 15px 40px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    color: var(--carolina-blue);
-    text-decoration: none;
-    font-weight: var(--fw-600);
-    transition: var(--transition);
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
 }
 
-.blog-link:hover {
-    color: var(--deep-cerise);
+.flyer-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.flyer-btn i {
+    font-size: 0.9rem;
 }
 
 /* Error styling for form validation */
@@ -540,8 +641,41 @@
         gap: 20px;
     }
     
-    .blog-list {
+    .blog-flyer {
+        padding: 40px 20px;
+    }
+    
+    .flyer-content {
         grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+    }
+    
+    .flyer-text .section-title {
+        font-size: 2rem;
+    }
+    
+    .flyer-description {
+        font-size: 1rem;
+    }
+    
+    .flyer-features {
+        align-items: center;
+    }
+    
+    .flyer-card {
+        transform: rotate(0deg);
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    
+    .flyer-card:hover {
+        transform: scale(1.02);
+    }
+    
+    .flyer-btn {
+        padding: 12px 30px;
+        font-size: 1rem;
     }
     
     .modal-content {
@@ -555,7 +689,7 @@
 @push('scripts')
 <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-<script src="{{ asset('app/Rent-Car2/assets/js/script.js') }}"></script>
+<script src="{{ asset('appp/Rent-Car2/assets/js/script.js') }}"></script>
     <script>
 // Reservation Modal Functions
 function showReservationModal(vehiculeId) {

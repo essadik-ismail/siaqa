@@ -41,7 +41,7 @@ return new class extends Migration
 
         Schema::create('usage', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('tenant_id');
             $table->string('feature');
             $table->integer('usage_count')->default(0);
             $table->integer('limit');
@@ -60,6 +60,11 @@ return new class extends Migration
             $table->date('due_date');
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
+        });
+
+        // Add foreign key constraint for usage table after all tables are created
+        Schema::table('usage', function (Blueprint $table) {
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
         });
     }
 

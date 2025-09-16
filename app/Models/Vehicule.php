@@ -306,7 +306,7 @@ class Vehicule extends Model
             'car-1.jpg', 'car-2.jpg', 'car-3.jpg', 'car-4.jpg', 'car-5.jpg', 'car-6.jpg'
         ];
         
-        return asset('app/Rent-Car2/assets/images/' . $defaultImages[array_rand($defaultImages)]);
+        return asset('appp/Rent-Car2/assets/images/' . $defaultImages[array_rand($defaultImages)]);
     }
 
 }

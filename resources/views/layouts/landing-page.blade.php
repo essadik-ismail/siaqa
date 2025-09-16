@@ -1168,22 +1168,6 @@
                 
                 <!-- Right Side Navigation -->
                 <div class="flex items-center space-x-4">
-                    <!-- Language Switcher -->
-                    <div class="hidden sm:flex items-center space-x-1 bg-gray-50 rounded-lg p-1">
-                        <a href="{{ route('language.switch', 'en') }}" 
-                           class="px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 {{ app()->getLocale() === 'en' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
-                            EN
-                        </a>
-                        <a href="{{ route('language.switch', 'fr') }}" 
-                           class="px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 {{ app()->getLocale() === 'fr' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
-                            FR
-                        </a>
-                        <a href="{{ route('language.switch', 'ar') }}" 
-                           class="px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 {{ app()->getLocale() === 'ar' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
-                            AR
-                        </a>
-                    </div>
-                    
                     <!-- User Actions -->
                     <div class="flex items-center space-x-3">
                         @guest
@@ -1267,8 +1251,8 @@
             <form method="POST" action="{{ route('landing.login') }}" class="login-form">
                 @csrf
                 <div class="form-group">
-                    <label for="email">{{ __('app.email') }}</label>
-                    <input type="email" id="email" name="email" value="superadmin@rental.com" required>
+                    <label for="login-email">{{ __('app.email') }}</label>
+                    <input type="email" id="login-email" name="email" value="superadmin@rental.com" required>
                 </div>
                 <div class="form-group">
                     <label for="password">{{ __('app.password') }}</label>

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Saas\TenantController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\BillingController;
 
 /*
@@ -27,13 +27,13 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('saas')->name('saas.')->
     })->name('dashboard');
     
     // Global Users Management
-    Route::resource('global-users', \App\Http\Controllers\SaaS\GlobalUserManagementController::class)->parameters(['global-users' => 'user']);
-    Route::patch('global-users/{user}/toggle-status', [\App\Http\Controllers\SaaS\GlobalUserManagementController::class, 'toggleStatus'])->name('global-users.toggle-status');
-    Route::post('global-users/{user}/launch', [\App\Http\Controllers\SaaS\GlobalUserManagementController::class, 'launchAsUser'])->name('global-users.launch');
+    Route::resource('global-users', \App\Http\Controllers\GlobalUserManagementController::class)->parameters(['global-users' => 'user']);
+    Route::patch('global-users/{user}/toggle-status', [\App\Http\Controllers\GlobalUserManagementController::class, 'toggleStatus'])->name('global-users.toggle-status');
+    Route::post('global-users/{user}/launch', [\App\Http\Controllers\GlobalUserManagementController::class, 'launchAsUser'])->name('global-users.launch');
     
     // System Diagnostics (Super Admin Only)
-    Route::get('system-diagnostics', [\App\Http\Controllers\SaaS\SystemDiagnosticsController::class, 'index'])->name('system-diagnostics');
-    Route::post('system-diagnostics/clear-cache', [\App\Http\Controllers\SaaS\SystemDiagnosticsController::class, 'clearCache'])->name('system-diagnostics.clear-cache');
+    Route::get('system-diagnostics', [\App\Http\Controllers\SystemDiagnosticsController::class, 'index'])->name('system-diagnostics');
+    Route::post('system-diagnostics/clear-cache', [\App\Http\Controllers\SystemDiagnosticsController::class, 'clearCache'])->name('system-diagnostics.clear-cache');
 });
 
 /*

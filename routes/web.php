@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+
+// Include health check routes
+require_once __DIR__.'/health.php';
 use App\Http\Controllers\AgenceController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\MarqueController;
@@ -25,7 +28,7 @@ Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name(
 
 
 // Public landing page routes
-Route::get('/landing', [App\Http\Controllers\LandingController::class, 'index'])->name('landing');
+Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('landing');
 Route::get('/cars', [App\Http\Controllers\LandingController::class, 'cars'])->name('landing.cars');
 Route::get('/cars/{vehicule}', [App\Http\Controllers\LandingController::class, 'showCar'])->name('landing.car.show');
 Route::post('/reservations/public', [App\Http\Controllers\LandingController::class, 'storeReservation'])->name('landing.reservation.store');
@@ -44,6 +47,169 @@ Route::post('/logout', function () {
     request()->session()->regenerateToken();
     return redirect('/');
 })->name('logout');
+
+// Development routes (migrations and seeders)
+Route::get('/dev/migrate', function () {
+    // Check if we're in development environment
+    if (!app()->environment('local', 'development')) {
+        abort(404, 'This route is only available in development environment');
+    }
+    
+    // Increase execution time limit for long-running operations
+    set_time_limit(300); // 5 minutes
+    ini_set('memory_limit', '512M');
+    
+    try {
+        \Artisan::call('migrate', ['--force' => true]);
+        $output = \Artisan::output();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Migrations executed successfully',
+            'output' => $output,
+            'timestamp' => now()->format('Y-m-d H:i:s')
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error executing migrations',
+            'error' => $e->getMessage(),
+            'timestamp' => now()->format('Y-m-d H:i:s')
+        ], 500);
+    }
+})->name('dev.migrate');
+
+Route::get('/dev/migrate-fresh', function () {
+    // Check if we're in development environment
+    if (!app()->environment('local', 'development')) {
+        abort(404, 'This route is only available in development environment');
+    }
+    
+    try {
+        // Use the dedicated Artisan command with extended timeout
+        $exitCode = \Artisan::call('dev:migrate-fresh', ['--timeout' => 600]);
+        $output = \Artisan::output();
+        
+        if ($exitCode === 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Fresh migrations executed successfully',
+                'output' => $output,
+                'timestamp' => now()->format('Y-m-d H:i:s')
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error executing fresh migrations',
+                'output' => $output,
+                'exit_code' => $exitCode,
+                'timestamp' => now()->format('Y-m-d H:i:s')
+            ], 500);
+        }
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error executing fresh migrations',
+            'error' => $e->getMessage(),
+            'timestamp' => now()->format('Y-m-d H:i:s')
+        ], 500);
+    }
+})->name('dev.migrate-fresh');
+
+Route::get('/dev/seed', function () {
+    // Check if we're in development environment
+    if (!app()->environment('local', 'development')) {
+        abort(404, 'This route is only available in development environment');
+    }
+    
+    try {
+        \Artisan::call('db:seed', ['--force' => true]);
+        $output = \Artisan::output();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Seeders executed successfully',
+            'output' => $output,
+            'timestamp' => now()->format('Y-m-d H:i:s')
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error executing seeders',
+            'error' => $e->getMessage(),
+            'timestamp' => now()->format('Y-m-d H:i:s')
+        ], 500);
+    }
+})->name('dev.seed');
+
+Route::get('/dev/migrate-fresh-seed', function () {
+    // Check if we're in development environment
+    if (!app()->environment('local', 'development')) {
+        abort(404, 'This route is only available in development environment');
+    }
+    
+    try {
+        // Use the dedicated Artisan command with extended timeout
+        $exitCode = \Artisan::call('dev:migrate-fresh-seed', ['--timeout' => 600]);
+        $output = \Artisan::output();
+        
+        if ($exitCode === 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Fresh migrations and seeders executed successfully',
+                'output' => $output,
+                'timestamp' => now()->format('Y-m-d H:i:s')
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error executing fresh migrations and seeders',
+                'output' => $output,
+                'exit_code' => $exitCode,
+                'timestamp' => now()->format('Y-m-d H:i:s')
+            ], 500);
+        }
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error executing fresh migrations and seeders',
+            'error' => $e->getMessage(),
+            'timestamp' => now()->format('Y-m-d H:i:s')
+        ], 500);
+    }
+})->name('dev.migrate-fresh-seed');
+
+Route::get('/dev/clear-cache', function () {
+    // Check if we're in development environment
+    if (!app()->environment('local', 'development')) {
+        abort(404, 'This route is only available in development environment');
+    }
+    
+    try {
+        \Artisan::call('config:clear');
+        \Artisan::call('route:clear');
+        \Artisan::call('view:clear');
+        \Artisan::call('cache:clear');
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'All caches cleared successfully',
+            'timestamp' => now()->format('Y-m-d H:i:s')
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error clearing caches',
+            'error' => $e->getMessage(),
+            'timestamp' => now()->format('Y-m-d H:i:s')
+        ], 500);
+    }
+})->name('dev.clear-cache');
 
 // Authentication routes - handled by LandingController
 
@@ -144,37 +310,37 @@ Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\Use
         })->name('overview');
         
         // Tenant Management
-        Route::resource('tenants', \App\Http\Controllers\SaaS\TenantManagementController::class);
-        Route::post('tenants/{tenant}/toggle-status', [\App\Http\Controllers\SaaS\TenantManagementController::class, 'toggleStatus'])->name('tenants.toggle-status');
-        Route::get('tenants/{tenant}/billing', [\App\Http\Controllers\SaaS\TenantManagementController::class, 'billing'])->name('tenants.billing');
-        Route::post('tenants/{tenant}/billing', [\App\Http\Controllers\SaaS\TenantManagementController::class, 'updateBilling'])->name('tenants.billing.update');
+        Route::resource('tenants', \App\Http\Controllers\TenantManagementController::class);
+        Route::post('tenants/{tenant}/toggle-status', [\App\Http\Controllers\TenantManagementController::class, 'toggleStatus'])->name('tenants.toggle-status');
+        Route::get('tenants/{tenant}/billing', [\App\Http\Controllers\TenantManagementController::class, 'billing'])->name('tenants.billing');
+        Route::post('tenants/{tenant}/billing', [\App\Http\Controllers\TenantManagementController::class, 'updateBilling'])->name('tenants.billing.update');
         
         // Global User Management - Routes moved to saas.php
         
         // Global Role Management
-        Route::resource('global-roles', \App\Http\Controllers\SaaS\GlobalRoleManagementController::class);
-        Route::get('global-roles/{role}/permissions', [\App\Http\Controllers\SaaS\GlobalRoleManagementController::class, 'permissions'])->name('global-roles.permissions');
-        Route::post('global-roles/{role}/permissions', [\App\Http\Controllers\SaaS\GlobalRoleManagementController::class, 'updatePermissions'])->name('global-roles.permissions.update');
+        Route::resource('global-roles', \App\Http\Controllers\GlobalRoleManagementController::class);
+        Route::get('global-roles/{role}/permissions', [\App\Http\Controllers\GlobalRoleManagementController::class, 'permissions'])->name('global-roles.permissions');
+        Route::post('global-roles/{role}/permissions', [\App\Http\Controllers\GlobalRoleManagementController::class, 'updatePermissions'])->name('global-roles.permissions.update');
         
         // Global Permission Management
-        Route::resource('global-permissions', \App\Http\Controllers\SaaS\GlobalPermissionManagementController::class);
+        Route::resource('global-permissions', \App\Http\Controllers\GlobalPermissionManagementController::class);
         
         // Billing & Subscriptions
-        Route::get('billing', [\App\Http\Controllers\SaaS\BillingController::class, 'index'])->name('billing.index');
-        Route::get('billing/overview', [\App\Http\Controllers\SaaS\BillingController::class, 'overview'])->name('billing.overview');
-        Route::get('billing/invoices', [\App\Http\Controllers\SaaS\BillingController::class, 'invoices'])->name('billing.invoices');
+        Route::get('billing', [\App\Http\Controllers\BillingController::class, 'index'])->name('billing.index');
+        Route::get('billing/overview', [\App\Http\Controllers\BillingController::class, 'overview'])->name('billing.overview');
+        Route::get('billing/invoices', [\App\Http\Controllers\BillingController::class, 'invoices'])->name('billing.invoices');
         
         // System-wide Analytics
-        Route::get('analytics', [\App\Http\Controllers\SaaS\AnalyticsController::class, 'index'])->name('analytics.index');
-        Route::get('analytics/tenants', [\App\Http\Controllers\SaaS\AnalyticsController::class, 'tenants'])->name('analytics.tenants');
-        Route::get('analytics/revenue', [\App\Http\Controllers\SaaS\AnalyticsController::class, 'revenue'])->name('analytics.revenue');
+        Route::get('analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
+        Route::get('analytics/tenants', [\App\Http\Controllers\AnalyticsController::class, 'tenants'])->name('analytics.tenants');
+        Route::get('analytics/revenue', [\App\Http\Controllers\AnalyticsController::class, 'revenue'])->name('analytics.revenue');
         
         // System Maintenance
-        Route::get('maintenance', [\App\Http\Controllers\SaaS\MaintenanceController::class, 'index'])->name('maintenance.index');
-        Route::get('maintenance/logs', [\App\Http\Controllers\SaaS\MaintenanceController::class, 'logs'])->name('maintenance.logs');
-        Route::post('maintenance/backup', [\App\Http\Controllers\SaaS\MaintenanceController::class, 'createBackup'])->name('maintenance.backup');
-        Route::post('maintenance/clear-cache', [\App\Http\Controllers\SaaS\MaintenanceController::class, 'clearCache'])->name('maintenance.clear-cache');
-        Route::post('maintenance/optimize', [\App\Http\Controllers\SaaS\MaintenanceController::class, 'optimize'])->name('maintenance.optimize');
+        Route::get('maintenance', [\App\Http\Controllers\MaintenanceController::class, 'index'])->name('maintenance.index');
+        Route::get('maintenance/logs', [\App\Http\Controllers\MaintenanceController::class, 'logs'])->name('maintenance.logs');
+        Route::post('maintenance/backup', [\App\Http\Controllers\MaintenanceController::class, 'createBackup'])->name('maintenance.backup');
+        Route::post('maintenance/clear-cache', [\App\Http\Controllers\MaintenanceController::class, 'clearCache'])->name('maintenance.clear-cache');
+        Route::post('maintenance/optimize', [\App\Http\Controllers\MaintenanceController::class, 'optimize'])->name('maintenance.optimize');
     });
     
     Route::group([], function () { // Temporarily removed 'tenant' middleware

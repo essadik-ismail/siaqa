@@ -114,7 +114,7 @@ class ReservationController extends Controller
         $clients = Client::where('is_blacklisted', false)
             ->where('tenant_id', auth()->user()->tenant_id)
             ->orderBy('nom')->get();
-        $vehicules = Vehicule::where('statut', 'disponible')
+        $vehicules = Vehicule::where('statut', '!=', 'hors_service')
             ->where('tenant_id', auth()->user()->tenant_id)
             ->with(['marque', 'agence'])
             ->get();

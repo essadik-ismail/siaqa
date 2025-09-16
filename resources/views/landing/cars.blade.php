@@ -194,8 +194,8 @@
             </div>
             
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required class="form-control" value="{{ old('email') }}">
+                <label for="cars-reservation-email">Email</label>
+                <input type="email" id="cars-reservation-email" name="email" required class="form-control" value="{{ old('email') }}">
                 <div class="error-message" id="email-error" style="display: none;"></div>
             </div>
             
@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', function() {
 @endsection
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('app/Rent-Car2/assets/css/style.css') }}">
+<link rel="stylesheet" href="{{ asset('appp/Rent-Car2/assets/css/style.css') }}">
 <style>
 /* Additional styles for cars page */
 .search-filters {
@@ -951,7 +951,7 @@ document.addEventListener('DOMContentLoaded', function() {
 @push('scripts')
 <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-<script src="{{ asset('app/Rent-Car2/assets/js/script.js') }}"></script>
+<script src="{{ asset('appp/Rent-Car2/assets/js/script.js') }}"></script>
 <script>
 // Reservation Modal Functions
 function showReservationModal(vehiculeId) {

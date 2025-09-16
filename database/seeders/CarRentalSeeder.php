@@ -24,6 +24,13 @@ class CarRentalSeeder extends Seeder
      */
     public function run(): void
     {
+        // Get the default tenant
+        $tenant = \App\Models\Tenant::first();
+        if (!$tenant) {
+            $this->command->error('No tenant found. Please run TenantSeeder first.');
+            return;
+        }
+
         // Create sample agences
         $agences = [
             [
@@ -53,6 +60,7 @@ class CarRentalSeeder extends Seeder
         ];
 
         foreach ($agences as $agenceData) {
+            $agenceData['tenant_id'] = $tenant->id;
             Agence::create($agenceData);
         }
 
@@ -69,6 +77,7 @@ class CarRentalSeeder extends Seeder
         ];
 
         foreach ($marques as $marqueData) {
+            $marqueData['tenant_id'] = $tenant->id;
             Marque::create($marqueData);
         }
 
@@ -137,6 +146,7 @@ class CarRentalSeeder extends Seeder
         ];
 
         foreach ($clients as $clientData) {
+            $clientData['tenant_id'] = $tenant->id;
             Client::create($clientData);
         }
 
@@ -185,6 +195,7 @@ class CarRentalSeeder extends Seeder
         ];
 
         foreach ($vehicules as $vehiculeData) {
+            $vehiculeData['tenant_id'] = $tenant->id;
             Vehicule::updateOrCreate(
                 ['immatriculation' => $vehiculeData['immatriculation']],
                 $vehiculeData
@@ -230,6 +241,7 @@ class CarRentalSeeder extends Seeder
         ];
 
         foreach ($reservations as $reservationData) {
+            $reservationData['tenant_id'] = $tenant->id;
             Reservation::updateOrCreate(
                 ['numero_reservation' => $reservationData['numero_reservation']],
                 $reservationData
@@ -283,6 +295,7 @@ class CarRentalSeeder extends Seeder
         ];
 
         foreach ($charges as $chargeData) {
+            $chargeData['tenant_id'] = $tenant->id;
             Charge::create($chargeData);
         }
 
@@ -303,6 +316,7 @@ class CarRentalSeeder extends Seeder
         ];
 
         foreach ($notifications as $notificationData) {
+            $notificationData['tenant_id'] = $tenant->id;
             Notification::create($notificationData);
         }
     }
