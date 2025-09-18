@@ -6,6 +6,7 @@ use App\Http\Requests\VehiculeRequest;
 use App\Models\Vehicule;
 use App\Models\Marque;
 use App\Models\Agence;
+use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -109,14 +110,14 @@ class VehiculeController extends Controller
 
         // Handle single image upload
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('vehicules/images', 'public');
+            $data['image'] = ImageHelper::storePrivateImage($request->file('image'), 'vehicules');
         }
 
         // Handle multiple images upload
         if ($request->hasFile('images')) {
             $images = [];
             foreach ($request->file('images') as $image) {
-                $images[] = $image->store('vehicules/images', 'public');
+                $images[] = ImageHelper::storePrivateImage($image, 'vehicules');
             }
             $data['images'] = $images;
         }

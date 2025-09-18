@@ -50,7 +50,7 @@ class ReservationRequest extends FormRequest
                     }
                     // For editing, allow the current vehicle even if not available
                     $currentReservation = $this->route('reservation');
-                    if ($vehicule && $vehicule->statut !== 'disponible' && (!$currentReservation || $currentReservation->vehicule_id != $value)) {
+                    if ($vehicule && $vehicule->statut === 'hors_service' && (!$currentReservation || $currentReservation->vehicule_id != $value)) {
                         $fail('Le véhicule sélectionné n\'est pas disponible.');
                     }
                 }

@@ -46,12 +46,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo [INFO] Clearing and optimizing caches...
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan cache:clear
-
+echo [INFO] Optimizing caches (keeping existing caches)...
 echo [INFO] Running database migrations...
 php artisan migrate --force
 if %errorlevel% neq 0 (
@@ -78,20 +73,15 @@ if not exist "storage\framework\views" mkdir "storage\framework\views"
 if not exist "storage\logs" mkdir "storage\logs"
 if not exist "storage\app\public" mkdir "storage\app\public"
 
-echo [INFO] Linking storage...
-php artisan storage:link
-if %errorlevel% neq 0 (
-    echo [WARNING] Storage link failed, continuing...
-)
+echo [INFO] Skipping storage link (using private storage)...
 
-echo [INFO] Clearing and warming up caches...
-php artisan cache:clear
+echo [INFO] Warming up caches...
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
 echo [INFO] Running health checks...
-php artisan about
+php artisan about >nul 2>&1
 
 echo [INFO] ✅ Deployment completed successfully!
 echo [INFO] 🌐 Your application should now be accessible at your domain

@@ -102,6 +102,11 @@ class RetourContratController extends Controller
      */
     public function show(RetourContrat $retourContrat): View
     {
+        // Ensure the retour contrat belongs to the current tenant
+        if ($retourContrat->tenant_id !== auth()->user()->tenant_id) {
+            abort(404, 'Retour de contrat non trouvé');
+        }
+
         $retourContrat->load(['contrat.vehicule', 'contrat.clientOne', 'contrat.clientTwo']);
         return view('retour-contrats.show', compact('retourContrat'));
     }
@@ -111,7 +116,14 @@ class RetourContratController extends Controller
      */
     public function edit(RetourContrat $retourContrat): View
     {
-        $contrats = Contrat::with(['vehicule', 'clientOne'])->get();
+        // Ensure the retour contrat belongs to the current tenant
+        if ($retourContrat->tenant_id !== auth()->user()->tenant_id) {
+            abort(404, 'Retour de contrat non trouvé');
+        }
+
+        $contrats = Contrat::where('tenant_id', auth()->user()->tenant_id)
+            ->with(['vehicule', 'clientOne'])
+            ->get();
         return view('retour-contrats.edit', compact('retourContrat', 'contrats'));
     }
 
@@ -120,6 +132,11 @@ class RetourContratController extends Controller
      */
     public function update(Request $request, RetourContrat $retourContrat): RedirectResponse
     {
+        // Ensure the retour contrat belongs to the current tenant
+        if ($retourContrat->tenant_id !== auth()->user()->tenant_id) {
+            abort(404, 'Retour de contrat non trouvé');
+        }
+
         $validated = $request->validate([
             'contrat_id' => 'required|exists:contrats,id',
             'date_retour' => 'required|date',
@@ -127,7 +144,7 @@ class RetourContratController extends Controller
             'niveau_carburant' => 'required|in:vide,1/4,1/2,3/4,plein',
             'etat_vehicule' => 'required|in:excellent,bon,moyen,mauvais',
             'observations' => 'nullable|string',
-            'frais_supplementaires' => 'nullable|numeric|min=0',
+            'frais_supplementaires' => 'nullable|numeric|min:0',
         ]);
 
         $retourContrat->update($validated);

@@ -52,12 +52,7 @@ npm run build
 print_status "Generating application key..."
 php artisan key:generate --force
 
-print_status "Clearing and optimizing caches..."
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan cache:clear
-
+print_status "Optimizing caches (keeping existing caches)..."
 print_status "Running database migrations..."
 php artisan migrate --force
 
@@ -82,17 +77,15 @@ mkdir -p storage/framework/views
 mkdir -p storage/logs
 mkdir -p storage/app/public
 
-print_status "Linking storage..."
-php artisan storage:link
+print_status "Skipping storage link (using private storage)..."
 
-print_status "Clearing and warming up caches..."
-php artisan cache:clear
+print_status "Warming up caches..."
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
 print_status "Running health checks..."
-php artisan about
+php artisan about >/dev/null 2>&1
 
 print_status "✅ Deployment completed successfully!"
 print_status "🌐 Your application should now be accessible at your domain"

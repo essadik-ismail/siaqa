@@ -19,16 +19,16 @@ use App\Http\Controllers\InterventionController;
 use App\Http\Controllers\RetourContratController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingsController;
 
-Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('home');
-
-
+// Private media routes (signed URLs)
+Route::get('/media/{type}/{id}', [App\Http\Controllers\MediaController::class, 'show'])
+    ->name('media.show')
+    ->middleware('signed');
 
 // Public landing page routes
-Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('landing');
+Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('home');
 Route::get('/cars', [App\Http\Controllers\LandingController::class, 'cars'])->name('landing.cars');
 Route::get('/cars/{vehicule}', [App\Http\Controllers\LandingController::class, 'showCar'])->name('landing.car.show');
 Route::post('/reservations/public', [App\Http\Controllers\LandingController::class, 'storeReservation'])->name('landing.reservation.store');

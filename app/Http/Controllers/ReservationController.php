@@ -89,9 +89,18 @@ class ReservationController extends Controller
         $reservations = $query->paginate($request->get('per_page', 15));
 
         // Get data for filters
-        $clients = Client::where('is_blacklisted', false)->orderBy('nom')->get();
-        $vehicules = Vehicule::where('is_active', true)->orderBy('name')->get();
-        $agences = \App\Models\Agence::where('is_active', true)->orderBy('nom_agence')->get();
+        $clients = Client::where('tenant_id', auth()->user()->tenant_id)
+            ->where('is_blacklisted', false)
+            ->orderBy('nom')
+            ->get();
+        $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+        $agences = \App\Models\Agence::where('tenant_id', auth()->user()->tenant_id)
+            ->where('is_active', true)
+            ->orderBy('nom_agence')
+            ->get();
 
         // Calculate statistics
         $allReservations = Reservation::where('tenant_id', auth()->user()->tenant_id)->get();
@@ -139,7 +148,7 @@ class ReservationController extends Controller
 
         // Check if vehicle is available for the selected dates
         $vehicule = Vehicule::find($data['vehicule_id']);
-        if (!$vehicule || $vehicule->statut !== 'disponible') {
+        if (!$vehicule || $vehicule->statut === 'disponible') {
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Le véhicule sélectionné n\'est pas disponible');
@@ -207,8 +216,12 @@ class ReservationController extends Controller
             abort(404, 'Réservation non trouvée');
         }
 
-        $clients = Client::where('is_blacklisted', false)->orderBy('nom')->get();
-        $vehicules = Vehicule::where('is_active', true)
+        $clients = Client::where('tenant_id', auth()->user()->tenant_id)
+            ->where('is_blacklisted', false)
+            ->orderBy('nom')
+            ->get();
+        $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)
+            ->where('is_active', true)
             ->with(['marque', 'agence'])
             ->get();
 

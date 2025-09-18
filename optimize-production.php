@@ -72,12 +72,9 @@ if (!commandExists('node') || !commandExists('npm')) {
 
 echo "\n🔧 Starting optimization process...\n";
 
-// 1. Clear all caches
-echo "\n1. Clearing caches...\n";
-runArtisan('config:clear');
-runArtisan('route:clear');
-runArtisan('view:clear');
-runArtisan('cache:clear');
+// 1. Skip cache clearing for file copy deployment
+echo "\n1. Skipping cache clearing (file copy deployment)...\n";
+echo "   ✅ Keeping existing caches for file copy deployment\n";
 
 // 2. Generate application key if not exists
 echo "\n2. Checking application key...\n";
@@ -162,9 +159,9 @@ if (file_exists($envFile)) {
     echo "⚠️  .env file not found. Skipping database operations.\n";
 }
 
-// 7. Create storage link
-echo "\n7. Creating storage link...\n";
-runArtisan('storage:link');
+// 7. Skip storage link (using private storage)
+echo "\n7. Skipping storage link (using private storage)...\n";
+echo "   ✅ Using private storage for file copy deployment\n";
 
 // 8. Optimize for production
 echo "\n8. Optimizing for production...\n";
@@ -174,11 +171,15 @@ runArtisan('view:cache');
 
 // 9. Run health check
 echo "\n9. Running health check...\n";
-runArtisan('about');
+$output = shell_exec("php artisan about 2>&1");
+if ($output) {
+    // Filter out any path information from the output
+    $filteredOutput = preg_replace('/\/[^\s]+/', '[PATH]', $output);
+    echo $filteredOutput . "\n";
+}
 
-// 10. Final cache warm-up
+// 10. Final cache warm-up (without clearing)
 echo "\n10. Warming up caches...\n";
-runArtisan('cache:clear');
 runArtisan('config:cache');
 runArtisan('route:cache');
 runArtisan('view:cache');

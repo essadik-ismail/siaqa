@@ -1,242 +1,292 @@
-# ✅ Deployment Checklist - Odys Rental Management
+# 🚀 Odys Rental Management - Deployment Checklist
 
-Use this checklist to ensure a successful deployment of the Odys Rental Management system.
+## Pre-Deployment Checklist
 
-## 📋 Pre-Deployment
+### ✅ Environment Setup
+- [ ] Copy `env.production.example` to `.env`
+- [ ] Update database credentials in `.env`
+- [ ] Set `APP_ENV=production`
+- [ ] Set `APP_DEBUG=false`
+- [ ] Generate application key: `php artisan key:generate`
+- [ ] Configure mail settings
+- [ ] Set up SSL certificate
+- [ ] Configure domain name
 
-### Server Requirements
+### ✅ Server Requirements
 - [ ] PHP 8.2+ installed
-- [ ] MySQL 5.7+ or MariaDB 10.3+ installed
-- [ ] Apache 2.4+ or Nginx 1.18+ installed
 - [ ] Composer installed
-- [ ] Node.js 16+ and NPM installed
-- [ ] SSL certificate obtained (Let's Encrypt recommended)
-
-### PHP Extensions
-- [ ] php-mbstring
-- [ ] php-xml
-- [ ] php-curl
-- [ ] php-zip
-- [ ] php-gd
-- [ ] php-mysql
-- [ ] php-pdo
-- [ ] php-tokenizer
-- [ ] php-fileinfo
-- [ ] php-bcmath
-- [ ] php-json
-
-### Database Setup
-- [ ] MySQL/MariaDB service running
-- [ ] Database `odys_rental` created
-- [ ] Database user `odys_user` created with proper permissions
-- [ ] Database connection tested
-
-## 🚀 Deployment Process
-
-### 1. Code Deployment
-- [ ] Repository cloned to server
-- [ ] `.env.example` copied to `.env`
-- [ ] Environment variables configured in `.env`
+- [ ] MySQL 8.0+ installed
+- [ ] Apache/Nginx configured
+- [ ] SSL certificate installed
 - [ ] File permissions set correctly
-- [ ] Web server document root points to `public/` directory
 
-### 2. Dependencies
-- [ ] Composer dependencies installed (`composer install --no-dev --optimize-autoloader`)
-- [ ] NPM dependencies installed (`npm ci --production`)
-- [ ] Assets built (`npm run build`)
+### ✅ Database Setup
+- [ ] Create production database
+- [ ] Create database user with proper permissions
+- [ ] Test database connection
+- [ ] Run migrations: `php artisan migrate --force`
+- [ ] Seed initial data if needed
 
-### 3. Laravel Configuration
-- [ ] Application key generated (`php artisan key:generate`)
-- [ ] Storage directories created and writable
-- [ ] Storage link created (`php artisan storage:link`)
-- [ ] Database migrations run (`php artisan migrate --force`)
-- [ ] Database seeded (`php artisan db:seed --force`)
+### ✅ File Permissions
+- [ ] `storage/` directory writable (755)
+- [ ] `bootstrap/cache/` directory writable (755)
+- [ ] `storage/framework/sessions/` directory exists and writable
+- [ ] `storage/app/images/` directory exists and writable
+- [ ] Web server can read all files
 
-### 4. Optimization
-- [ ] Configuration cached (`php artisan config:cache`)
-- [ ] Routes cached (`php artisan route:cache`)
-- [ ] Views cached (`php artisan view:cache`)
-- [ ] OPcache enabled (if available)
-
-### 5. Security
+### ✅ Security Configuration
 - [ ] `.env` file not accessible via web
-- [ ] Sensitive directories protected (vendor, storage, etc.)
-- [ ] SSL certificate installed and working
+- [ ] Sensitive files blocked in `.htaccess`
+- [ ] HTTPS enforced
 - [ ] Security headers configured
-- [ ] Firewall rules set up
+- [ ] CSP (Content Security Policy) configured
+- [ ] Rate limiting enabled
 
-## 🔧 Configuration Verification
-
-### Environment Variables
-- [ ] `APP_ENV=production`
-- [ ] `APP_DEBUG=false`
-- [ ] `APP_URL=https://odys.ma`
-- [ ] Database credentials correct
-- [ ] Mail configuration set up
-- [ ] Session and cache drivers configured
-
-### File Permissions
-- [ ] `storage/` directory writable (775)
-- [ ] `bootstrap/cache/` directory writable (775)
-- [ ] Other directories readable (755)
-- [ ] Files readable (644)
-
-### Web Server Configuration
-- [ ] Virtual host configured correctly
-- [ ] Document root points to `public/` directory
-- [ ] URL rewriting enabled
-- [ ] SSL redirect configured
-- [ ] Security headers enabled
-
-## 🧪 Testing
-
-### Basic Functionality
-- [ ] Homepage loads without errors
-- [ ] Login/authentication works
-- [ ] Dashboard accessible
-- [ ] All main navigation links work
-- [ ] Forms submit successfully
-- [ ] File uploads work
-
-### Database Operations
-- [ ] Data can be created
-- [ ] Data can be read
-- [ ] Data can be updated
-- [ ] Data can be deleted
-- [ ] Relationships work correctly
-
-### Performance
-- [ ] Page load times acceptable (< 3 seconds)
-- [ ] No JavaScript errors in console
-- [ ] Images load correctly
-- [ ] CSS styles applied correctly
-
-### Security
-- [ ] HTTPS redirects working
-- [ ] Sensitive files not accessible
-- [ ] SQL injection protection working
-- [ ] XSS protection working
-- [ ] CSRF protection working
-
-## 📊 Monitoring Setup
-
-### Health Checks
-- [ ] `/health` endpoint accessible
-- [ ] Health check returns 200 status
-- [ ] Database connectivity confirmed
-- [ ] Cache system working
-- [ ] Storage system working
-
-### Logging
-- [ ] Log files being created in `storage/logs/`
-- [ ] Error logging working
-- [ ] Log rotation configured
-- [ ] Log monitoring set up
-
-### Backups
-- [ ] Database backup script created
-- [ ] File backup script created
-- [ ] Backup automation configured
-- [ ] Backup restoration tested
-
-## 🔄 Post-Deployment
-
-### Performance Optimization
-- [ ] OPcache enabled and configured
-- [ ] Redis installed (if using)
-- [ ] CDN configured (if using)
-- [ ] Image optimization enabled
+### ✅ Performance Optimization
+- [ ] OPcache enabled
 - [ ] Gzip compression enabled
+- [ ] Browser caching configured
+- [ ] Static assets optimized
+- [ ] Database queries optimized
+- [ ] Cache system configured
 
-### Monitoring
-- [ ] Server monitoring set up
-- [ ] Application monitoring configured
-- [ ] Uptime monitoring enabled
-- [ ] Error tracking configured
+## Deployment Steps
 
-### Maintenance
-- [ ] Update procedures documented
-- [ ] Backup procedures tested
-- [ ] Rollback plan prepared
-- [ ] Contact information updated
-
-## 🚨 Emergency Procedures
-
-### Rollback Plan
-- [ ] Previous version backed up
-- [ ] Database rollback procedure documented
-- [ ] Quick rollback script prepared
-- [ ] Rollback tested
-
-### Support Contacts
-- [ ] System administrator contact
-- [ ] Database administrator contact
-- [ ] Web server administrator contact
-- [ ] Emergency contact procedures
-
-## 📝 Documentation
-
-### Technical Documentation
-- [ ] Deployment guide updated
-- [ ] Configuration documented
-- [ ] Troubleshooting guide created
-- [ ] Maintenance procedures documented
-
-### User Documentation
-- [ ] User manual updated
-- [ ] Admin guide created
-- [ ] FAQ section updated
-- [ ] Support contact information updated
-
-## ✅ Final Verification
-
-### Go-Live Checklist
-- [ ] All tests passed
-- [ ] Performance acceptable
-- [ ] Security verified
-- [ ] Monitoring active
-- [ ] Backups working
-- [ ] Documentation complete
-- [ ] Team notified
-- [ ] Go-live approved
-
-### Post-Go-Live
-- [ ] Monitor for 24 hours
-- [ ] Check error logs
-- [ ] Verify all functionality
-- [ ] User feedback collected
-- [ ] Performance metrics reviewed
-
----
-
-## 📞 Support Information
-
-**Emergency Contacts:**
-- System Admin: [Contact Info]
-- Database Admin: [Contact Info]
-- Web Server Admin: [Contact Info]
-
-**Useful Commands:**
+### 1. Upload Files
 ```bash
-# Check application status
-php artisan about
-
-# Clear all caches
-php artisan cache:clear && php artisan config:clear && php artisan route:clear && php artisan view:clear
-
-# Run health check
-curl https://odys.ma/health
-
-# Check logs
-tail -f storage/logs/laravel.log
+# Upload all files to production server
+# Exclude: node_modules, .git, storage/logs, .env
 ```
 
-**Important Files:**
-- Environment: `.env`
-- Logs: `storage/logs/laravel.log`
-- Configuration: `config/`
-- Routes: `routes/web.php`
+### 2. Run Deployment Script
+```bash
+# Linux/Mac
+chmod +x deploy-production.sh
+./deploy-production.sh
+
+# Windows
+deploy-production.bat
+```
+
+### 3. Manual Steps (if needed)
+```bash
+# Create storage directories
+php fix-storage-directories.php
+
+# Install dependencies
+composer install --no-dev --optimize-autoloader
+
+# Clear caches
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
+
+# Optimize for production
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Run migrations
+php artisan migrate --force
+
+# Generate key if needed
+php artisan key:generate --force
+```
+
+### 4. Configure Web Server
+
+#### Apache (.htaccess)
+```bash
+# Copy production .htaccess
+cp public/.htaccess.production public/.htaccess
+```
+
+#### Nginx Configuration
+```nginx
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name odys.ma www.odys.ma;
+    
+    root /path/to/rental/public;
+    index index.php;
+    
+    # SSL configuration
+    ssl_certificate /path/to/certificate.crt;
+    ssl_certificate_key /path/to/private.key;
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+    
+    # Cache static assets
+    location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+    
+    # Handle Laravel routes
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+    
+    # Handle PHP files
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+    
+    # Block sensitive files
+    location ~ /\.(env|git|htaccess) {
+        deny all;
+    }
+    
+    location ~ /(storage|bootstrap/cache|vendor) {
+        deny all;
+    }
+}
+```
+
+### 5. Post-Deployment Verification
+
+#### Health Checks
+- [ ] Visit `/health` - should return 200 status
+- [ ] Visit `/health/simple` - should return 200 status
+- [ ] Check all health check components
+
+#### Functionality Tests
+- [ ] Homepage loads correctly
+- [ ] User registration works
+- [ ] User login works
+- [ ] Dashboard loads
+- [ ] Vehicle management works
+- [ ] Reservation system works
+- [ ] Image upload works (private storage)
+- [ ] All forms submit correctly
+
+#### Security Tests
+- [ ] Sensitive files not accessible
+- [ ] HTTPS redirects work
+- [ ] Security headers present
+- [ ] CSP blocks unauthorized resources
+- [ ] Rate limiting works
+
+#### Performance Tests
+- [ ] Page load times < 3 seconds
+- [ ] Images load via signed URLs
+- [ ] Caching works correctly
+- [ ] Database queries optimized
+
+## Monitoring Setup
+
+### 1. Log Monitoring
+```bash
+# Monitor Laravel logs
+tail -f storage/logs/laravel.log
+
+# Monitor web server logs
+tail -f /var/log/apache2/access.log
+tail -f /var/log/apache2/error.log
+```
+
+### 2. Health Monitoring
+- Set up monitoring for `/health` endpoint
+- Monitor database connectivity
+- Monitor disk space usage
+- Monitor memory usage
+- Set up alerts for failures
+
+### 3. Backup Strategy
+```bash
+# Database backup
+mysqldump -u username -p database_name > backup_$(date +%Y%m%d).sql
+
+# File backup
+tar -czf files_backup_$(date +%Y%m%d).tar.gz storage/ public/
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Session Storage Error
+```bash
+# Create sessions directory
+mkdir -p storage/framework/sessions
+chmod 755 storage/framework/sessions
+```
+
+#### Permission Errors
+```bash
+# Fix ownership
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 755 storage bootstrap/cache
+```
+
+#### Database Connection Error
+- Check database credentials in `.env`
+- Verify database server is running
+- Check firewall settings
+- Test connection manually
+
+#### Image Upload Issues
+- Check `storage/app/images` directory exists
+- Verify permissions on image directory
+- Check file upload limits in PHP
+- Verify private image serving works
+
+### Emergency Procedures
+
+#### Rollback
+```bash
+# Restore from backup
+cp backups/latest/.env .env
+php artisan migrate:rollback
+# Restore files from backup
+```
+
+#### Maintenance Mode
+```bash
+# Enable maintenance mode
+php artisan down
+
+# Disable maintenance mode
+php artisan up
+```
+
+## Success Criteria
+
+- [ ] Application loads without errors
+- [ ] All functionality works as expected
+- [ ] Health checks pass
+- [ ] Security measures in place
+- [ ] Performance meets requirements
+- [ ] Monitoring configured
+- [ ] Backup strategy implemented
+
+## Support
+
+For deployment issues:
+1. Check logs: `storage/logs/laravel.log`
+2. Verify health: `/health`
+3. Check file permissions
+4. Verify database connection
+5. Review web server configuration
 
 ---
 
-*This checklist should be completed before going live with the Odys Rental Management system.*
+**Deployment Date:** _______________
+**Deployed By:** _______________
+**Version:** 1.0.0
+**Environment:** Production

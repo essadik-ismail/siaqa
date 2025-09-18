@@ -373,7 +373,7 @@ QUEUE_CONNECTION=redis
 5. **Asset Issues**
    ```bash
    npm run build
-   php artisan storage:link
+   # Note: Storage link not needed for private storage deployment
    ```
 
 ## 📈 Performance Tips
