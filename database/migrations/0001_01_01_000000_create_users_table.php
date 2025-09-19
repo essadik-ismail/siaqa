@@ -17,9 +17,10 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('role', ['super_admin', 'tenant', 'employee']);
+            $table->boolean('is_active')->default(true);
             $table->foreignId('tenant_id')->nullable()->constrained();
             $table->foreignId("role_id")->nullable()->constrained();
-            $table->foreignId("agence_id")->nullable()->constrained();
             $table->rememberToken();
             $table->timestamps();
         });

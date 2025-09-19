@@ -16,7 +16,7 @@ class AuthenticateUsers
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check()) {
-            return redirect()->route('landing')->with('error', 'Please login to access this page.');
+            return redirect()->route('home')->with('error', 'Please login to access this page.');
         }
 
         return $next($request);

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
-use App\Models\Reservation;
+use App\Models\Student;
+use App\Models\Instructor;
+use App\Models\Lesson;
+use App\Models\Exam;
+use App\Models\Payment;
 use App\Models\Vehicule;
-use App\Models\Contrat;
 use App\Models\User;
-use App\Models\Agence;
-use App\Models\Agency;
 use App\Models\Role;
 use App\Models\Permission;
 use App\Models\Tenant;
@@ -36,39 +36,39 @@ class DashboardController extends Controller
 
         // Calculate real statistics
         $stats = [
-            'total_clients' => Client::where($tenantQuery)->count(),
-            'total_reservations' => Reservation::where($tenantQuery)->count(),
+            'total_students' => Student::where($tenantQuery)->count(),
+            'total_instructors' => Instructor::where($tenantQuery)->count(),
+            'total_lessons' => Lesson::where($tenantQuery)->count(),
+            'total_exams' => Exam::where($tenantQuery)->count(),
             'total_vehicles' => Vehicule::where($tenantQuery)->count(),
-            'total_revenue' => Reservation::where($tenantQuery)->sum('prix_total') ?? 0,
+            'total_revenue' => Payment::where($tenantQuery)->sum('amount') ?? 0,
             'estimated_revenue' => $this->calculateEstimatedRevenue($tenantId),
-            'actual_revenue' => Reservation::where($tenantQuery)->where('statut', 'confirmee')->sum('prix_total') ?? 0,
-            'current_month_revenue' => Reservation::where($tenantQuery)
+            'actual_revenue' => Payment::where($tenantQuery)->where('status', 'paid')->sum('amount') ?? 0,
+            'current_month_revenue' => Payment::where($tenantQuery)
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
-                ->sum('prix_total') ?? 0,
-            'current_clients_revenue' => Reservation::where($tenantQuery)
+                ->sum('amount') ?? 0,
+            'current_students_revenue' => Payment::where($tenantQuery)
                 ->whereDate('created_at', today())
-                ->sum('prix_total') ?? 0,
+                ->sum('amount') ?? 0,
         ];
 
         // Calculate utilization percentages
         $totalVehicles = $stats['total_vehicles'];
-        $activeReservations = Reservation::where($tenantQuery)
-            ->whereIn('statut', ['en_attente', 'confirmee'])
+        $activeLessons = Lesson::where($tenantQuery)
+            ->whereIn('status', ['scheduled', 'in_progress'])
             ->count();
         
         $stats['estimated_utilization'] = $totalVehicles > 0 ? min(100, round(($stats['estimated_revenue'] / max($stats['actual_revenue'], 1)) * 100)) : 0;
-        $stats['actual_utilization'] = $totalVehicles > 0 ? min(100, round(($activeReservations / $totalVehicles) * 100)) : 0;
+        $stats['actual_utilization'] = $totalVehicles > 0 ? min(100, round(($activeLessons / $totalVehicles) * 100)) : 0;
 
         // Add admin statistics if user is super admin
         if ($user->isSuperAdmin()) {
             $stats = array_merge($stats, [
                 'total_users' => User::count(),
-                'total_agencies' => Agence::count(),
                 'total_roles' => Role::count(),
                 'total_permissions' => Permission::count(),
                 'active_users' => User::where('is_active', true)->count(),
-                'active_agencies' => Agence::where('is_active', true)->count(),
                 'total_tenants' => Tenant::count(),
             ]);
         }
@@ -85,17 +85,17 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
             
-        $recentReservations = Reservation::where($tenantQuery)
-            ->with(['client', 'vehicule.marque'])
+        $recentLessons = Lesson::where($tenantQuery)
+            ->with(['student', 'instructor', 'vehicule.marque'])
             ->orderBy('created_at', 'desc')
             ->paginate(5);
             
-        $recentContracts = Contrat::where($tenantQuery)
-            ->with(['client', 'vehicule.marque'])
+        $recentExams = Exam::where($tenantQuery)
+            ->with(['student', 'instructor'])
             ->orderBy('created_at', 'desc')
             ->paginate(5);
 
-        return view('dashboard', compact('stats', 'chartData', 'revenueBreakdown', 'recentVehicles', 'recentReservations', 'recentContracts'));
+        return view('dashboard', compact('stats', 'chartData', 'revenueBreakdown', 'recentVehicles', 'recentLessons', 'recentExams'));
     }
 
     /**
@@ -114,16 +114,16 @@ class DashboardController extends Controller
         };
 
         switch ($tab) {
-            case 'reservations':
-                $data = Reservation::where($tenantQuery)
-                    ->with(['client', 'vehicule.marque'])
+            case 'lessons':
+                $data = Lesson::where($tenantQuery)
+                    ->with(['student', 'instructor', 'vehicule.marque'])
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
                 break;
                     
-            case 'contracts':
-                $data = Contrat::where($tenantQuery)
-                    ->with(['client', 'vehicule.marque'])
+            case 'exams':
+                $data = Exam::where($tenantQuery)
+                    ->with(['student', 'instructor'])
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
                 break;
@@ -155,11 +155,11 @@ class DashboardController extends Controller
             }
         };
 
-        $totalVehicles = Vehicule::where($tenantQuery)->count();
-        $avgDailyRate = Vehicule::where($tenantQuery)->avg('prix_location_jour') ?? 0;
+        $totalStudents = Student::where($tenantQuery)->count();
+        $avgLessonRate = Lesson::where($tenantQuery)->avg('price') ?? 0;
         
-        // Estimate based on 30 days and 70% utilization
-        return $totalVehicles * $avgDailyRate * 30 * 0.7;
+        // Estimate based on 4 lessons per student per month at average rate
+        return $totalStudents * $avgLessonRate * 4;
     }
 
     /**
@@ -176,30 +176,30 @@ class DashboardController extends Controller
         // Get last 6 months of data
         $months = [];
         $revenueData = [];
-        $reservationData = [];
+        $lessonData = [];
         
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $months[] = $date->format('M');
             
-            $revenue = Reservation::where($tenantQuery)
+            $revenue = Payment::where($tenantQuery)
                 ->whereMonth('created_at', $date->month)
                 ->whereYear('created_at', $date->year)
-                ->where('statut', 'confirmee')
-                ->sum('prix_total') ?? 0;
+                ->where('status', 'paid')
+                ->sum('amount') ?? 0;
             $revenueData[] = $revenue;
             
-            $reservations = Reservation::where($tenantQuery)
+            $lessons = Lesson::where($tenantQuery)
                 ->whereMonth('created_at', $date->month)
                 ->whereYear('created_at', $date->year)
                 ->count();
-            $reservationData[] = $reservations;
+            $lessonData[] = $lessons;
         }
 
         return [
             'months' => $months,
             'revenue' => $revenueData,
-            'reservations' => $reservationData
+            'lessons' => $lessonData
         ];
     }
 
@@ -214,42 +214,42 @@ class DashboardController extends Controller
             }
         };
 
-        // Get total revenue from confirmed reservations
-        $totalRevenue = Reservation::where($tenantQuery)
-            ->where('statut', 'confirmee')
-            ->sum('prix_total') ?? 0;
+        // Get total revenue from paid payments
+        $totalRevenue = Payment::where($tenantQuery)
+            ->where('status', 'paid')
+            ->sum('amount') ?? 0;
 
         if ($totalRevenue == 0) {
             return [
-                'vehicle_rentals' => 0,
-                'insurance' => 0,
-                'maintenance' => 0,
+                'lesson_fees' => 0,
+                'exam_fees' => 0,
+                'package_fees' => 0,
                 'other_services' => 0,
                 'percentages' => [
-                    'vehicle_rentals' => 0,
-                    'insurance' => 0,
-                    'maintenance' => 0,
+                    'lesson_fees' => 0,
+                    'exam_fees' => 0,
+                    'package_fees' => 0,
                     'other_services' => 0
                 ]
             ];
         }
 
-        // For now, we'll estimate based on typical rental business breakdown
+        // For now, we'll estimate based on typical driving school business breakdown
         // In a real system, you'd have separate tables for different revenue types
-        $vehicleRentals = $totalRevenue * 0.7; // 70% from vehicle rentals
-        $insurance = $totalRevenue * 0.15; // 15% from insurance
-        $maintenance = $totalRevenue * 0.10; // 10% from maintenance fees
+        $lessonFees = $totalRevenue * 0.6; // 60% from lesson fees
+        $examFees = $totalRevenue * 0.25; // 25% from exam fees
+        $packageFees = $totalRevenue * 0.10; // 10% from package fees
         $otherServices = $totalRevenue * 0.05; // 5% from other services
 
         return [
-            'vehicle_rentals' => $vehicleRentals,
-            'insurance' => $insurance,
-            'maintenance' => $maintenance,
+            'lesson_fees' => $lessonFees,
+            'exam_fees' => $examFees,
+            'package_fees' => $packageFees,
             'other_services' => $otherServices,
             'percentages' => [
-                'vehicle_rentals' => 70,
-                'insurance' => 15,
-                'maintenance' => 10,
+                'lesson_fees' => 60,
+                'exam_fees' => 25,
+                'package_fees' => 10,
                 'other_services' => 5
             ]
         ];

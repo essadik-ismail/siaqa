@@ -136,7 +136,7 @@
                     </div>
                 </a>
 
-                <a href="{{ route('reservations.index') }}?agency_id={{ $agency->id }}" class="flex items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
+                <!-- Reservations functionality removed -->
                     <div class="flex-shrink-0">
                         <i class="fas fa-calendar-check text-orange-600 text-xl"></i>
                     </div>

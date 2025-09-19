@@ -126,7 +126,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Prix de location/jour</label>
-                            <p class="text-lg font-medium text-gray-900">{{ number_format($vehicule->prix_location ?? 0, 2) }} €</p>
+                            <p class="text-lg font-medium text-gray-900">{{ number_format($vehicule->prix_location ?? 0, 2) }} DH</p>
                         </div>
                     </div>
                 </div>
@@ -260,7 +260,7 @@
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ ucfirst($vidange->statut) }}</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vidange->cout_estime ? number_format($vidange->cout_estime, 2) . ' €' : 'N/A' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vidange->cout_estime ? number_format($vidange->cout_estime, 2) . ' DH' : 'N/A' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-2">
                                             <a href="{{ route('vidanges.show', $vidange) }}" class="text-blue-600 hover:text-blue-900">
@@ -377,84 +377,7 @@
         </div>
     </div>
 
-    <!-- Interventions Tab -->
-    <div id="tab-content-interventions" class="tab-content hidden">
-        <div class="content-card p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Interventions du Véhicule</h3>
-                <a href="{{ route('interventions.create', ['vehicule_id' => $vehicule->id]) }}" class="btn-primary flex items-center space-x-3 px-4 py-2">
-                    <i class="fas fa-plus"></i>
-                    <span>Nouvelle Intervention</span>
-                </a>
-            </div>
-
-            @if($vehicule->interventions && $vehicule->interventions->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Technicien</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coût</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($vehicule->interventions as $intervention)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ ucfirst(str_replace('_', ' ', $intervention->type_intervention)) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        Du {{ \Carbon\Carbon::parse($intervention->date_debut)->format('d/m/Y') }}<br>
-                                        @if($intervention->date_fin)
-                                            Au {{ \Carbon\Carbon::parse($intervention->date_fin)->format('d/m/Y') }}
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($intervention->statut == 'planifiée')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Planifiée</span>
-                                        @elseif($intervention->statut == 'en_cours')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">En cours</span>
-                                        @elseif($intervention->statut == 'terminée')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Terminée</span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ ucfirst($intervention->statut) }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $intervention->technicien ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $intervention->cout ? number_format($intervention->cout, 2) . ' €' : 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div class="flex space-x-2">
-                                            <a href="{{ route('interventions.show', $intervention) }}" class="text-blue-600 hover:text-blue-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('interventions.edit', $intervention) }}" class="text-indigo-600 hover:text-indigo-900">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('interventions.destroy', $intervention) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette intervention ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="text-center py-12">
-                    <i class="fas fa-tools text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-lg font-medium text-gray-400">Aucune intervention trouvée</p>
-                    <p class="text-sm text-gray-400 mt-1">Planifiez la première intervention pour ce véhicule</p>
-                </div>
-            @endif
-        </div>
-    </div>
+    <!-- Interventions functionality removed -->
 </div>
 
 <script>

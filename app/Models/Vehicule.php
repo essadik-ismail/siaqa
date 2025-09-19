@@ -16,25 +16,29 @@ class Vehicule extends Model
 
     protected $fillable = [
         'tenant_id',
-        'agence_id',
         'marque_id',
         'name',
-        'immatriculation',
-        'statut',
         'is_active',
+        'is_training_vehicle',
+        'training_type',
+        'required_licenses',
+        'has_dual_controls',
+        'has_automatic_transmission',
+        'has_manual_transmission',
+        'max_students',
+        'hourly_rate',
+        'safety_features',
+        'last_inspection',
+        'next_inspection',
+        'requires_maintenance',
+        'maintenance_notes',
         'landing_display',
         'landing_order',
-        'type_carburant',
-        'nombre_cylindre',
-        'nbr_place',
         'reference',
         'serie',
         'fournisseur',
         'numero_facture',
-        'prix_achat',
-        'prix_location_jour',
         'duree_vie',
-        'kilometrage_actuel',
         'categorie_vehicule',
         'couleur',
         'image',
@@ -46,23 +50,21 @@ class Vehicule extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_training_vehicle' => 'boolean',
+        'has_dual_controls' => 'boolean',
+        'has_automatic_transmission' => 'boolean',
+        'has_manual_transmission' => 'boolean',
+        'requires_maintenance' => 'boolean',
         'landing_display' => 'boolean',
         'landing_order' => 'integer',
-        'nombre_cylindre' => 'integer',
-        'nbr_place' => 'integer',
-        'prix_achat' => 'decimal:2',
-        'prix_location_jour' => 'decimal:2',
-        'kilometrage_actuel' => 'integer',
+        'max_students' => 'integer',
+        'hourly_rate' => 'decimal:2',
+        'last_inspection' => 'date',
+        'next_inspection' => 'date',
+        'required_licenses' => 'array',
+        'safety_features' => 'array',
         'images' => 'array',
     ];
-
-    /**
-     * Get the daily rental price.
-     */
-    public function getPrixJourAttribute()
-    {
-        return $this->prix_location_jour;
-    }
 
     /**
      * Get the vehicle model name.
@@ -73,36 +75,12 @@ class Vehicule extends Model
     }
 
     /**
-     * Get the vehicle capacity.
-     */
-    public function getCapaciteAttribute()
-    {
-        return $this->nbr_place;
-    }
-
-    /**
-     * Get the vehicle mileage.
-     */
-    public function getKilometrageAttribute()
-    {
-        return $this->kilometrage_actuel;
-    }
-
-    /**
      * Get the vehicle year.
      */
     public function getAnneeAttribute()
     {
         // Return current year as default since annee column doesn't exist
         return date('Y');
-    }
-
-    /**
-     * Get the vehicle fuel type.
-     */
-    public function getCarburantAttribute()
-    {
-        return $this->type_carburant;
     }
 
     /**
@@ -204,11 +182,19 @@ class Vehicule extends Model
     }
 
     /**
-     * Scope a query to only include available vehicles.
+     * Get the lessons for the vehicle.
      */
-    public function scopeAvailable($query)
+    public function lessons(): HasMany
     {
-        return $query->where('statut', 'disponible');
+        return $this->hasMany(Lesson::class, 'vehicle_id');
+    }
+
+    /**
+     * Get the vehicle assignments.
+     */
+    public function vehicleAssignments(): HasMany
+    {
+        return $this->hasMany(VehicleAssignment::class, 'vehicle_id');
     }
 
     /**
@@ -216,7 +202,7 @@ class Vehicule extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('statut', '!=', 'hors_service');
+        return $query->where('is_active', true);
     }
 
     /**
@@ -226,7 +212,6 @@ class Vehicule extends Model
     {
         return $query->where('landing_display', true)
                     ->where('is_active', true)
-                    ->where('statut', 'disponible')
                     ->orderBy('landing_order', 'asc');
     }
 
@@ -235,15 +220,7 @@ class Vehicule extends Model
      */
     public function isAvailable(): bool
     {
-        return $this->statut === 'disponible';
-    }
-
-    /**
-     * Check if vehicle is rented.
-     */
-    public function isRented(): bool
-    {
-        return $this->statut === 'loué';
+        return $this->is_active && !$this->requires_maintenance;
     }
 
     /**
@@ -251,26 +228,7 @@ class Vehicule extends Model
      */
     public function isInMaintenance(): bool
     {
-        return $this->statut === 'maintenance';
-    }
-
-    /**
-     * Update vehicle status.
-     */
-    public function updateStatus(string $status): void
-    {
-        $this->update(['statut' => $status]);
-    }
-
-    /**
-     * Toggle vehicle status.
-     */
-    public function toggleStatus(): void
-    {
-        $statuses = ['disponible', 'loué', 'maintenance', 'hors_service'];
-        $currentIndex = array_search($this->statut, $statuses);
-        $nextIndex = ($currentIndex + 1) % count($statuses);
-        $this->update(['statut' => $statuses[$nextIndex]]);
+        return $this->requires_maintenance;
     }
 
     /**

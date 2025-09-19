@@ -6,17 +6,12 @@ use Illuminate\Support\Facades\Hash;
 
 // Include health check routes
 require_once __DIR__.'/health.php';
-use App\Http\Controllers\AgenceController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\MarqueController;
 use App\Http\Controllers\VehiculeController;
-use App\Http\Controllers\ReservationController;
-use App\Http\Controllers\ContratController;
 use App\Http\Controllers\AssuranceController;
 use App\Http\Controllers\VidangeController;
 use App\Http\Controllers\VisiteController;
-use App\Http\Controllers\InterventionController;
-use App\Http\Controllers\RetourContratController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DashboardController;
@@ -29,24 +24,35 @@ Route::get('/media/{type}/{id}', [App\Http\Controllers\MediaController::class, '
 
 // Public landing page routes
 Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('home');
-Route::get('/cars', [App\Http\Controllers\LandingController::class, 'cars'])->name('landing.cars');
-Route::get('/cars/{vehicule}', [App\Http\Controllers\LandingController::class, 'showCar'])->name('landing.car.show');
-Route::post('/reservations/public', [App\Http\Controllers\LandingController::class, 'storeReservation'])->name('landing.reservation.store');
-Route::post('/login', [App\Http\Controllers\LandingController::class, 'login'])->name('landing.login');
-Route::post('/landing/logout', [App\Http\Controllers\LandingController::class, 'logout'])->name('landing.logout');
-Route::get('/register', [App\Http\Controllers\LandingController::class, 'showRegister'])->name('landing.register');
-Route::post('/register', [App\Http\Controllers\LandingController::class, 'register'])->name('landing.register.post');
+
+// Authentication routes
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+Route::post('/login', [App\Http\Controllers\LandingController::class, 'login'])->name('login.post');
+
+
+Route::post('/logout', [App\Http\Controllers\LandingController::class, 'logout'])->name('logout');
+
+// Development route - Auto login for testing
+Route::get('/dev-login', function () {
+    if (app()->environment('local', 'development')) {
+        $user = \App\Models\User::where('email', 'admin@auto-École-excellence.fr')->first();
+        
+        if ($user) {
+            \Illuminate\Support\Facades\Auth::login($user);
+            return redirect()->route('dashboard')->with('success', 'Auto-logged in as admin for testing!');
+        } else {
+            return redirect()->route('home')->with('error', 'Admin user not found. Please run seeders first.');
+        }
+    }
+    
+    return redirect()->route('home')->with('error', 'Auto-login only available in development environment.');
+})->name('dev.login');
 
 // Language switching route
 // Language switching disabled - French only
-
-// Generic logout route for dashboard
-Route::post('/logout', function () {
-    Auth::logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-    return redirect('/');
-})->name('logout');
 
 // Development routes (migrations and seeders)
 Route::get('/dev/migrate', function () {
@@ -215,7 +221,6 @@ Route::get('/dev/clear-cache', function () {
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/tab-data', [DashboardController::class, 'getTabData'])->name('dashboard.tab-data');
     
     // Users route (redirects to admin users)
@@ -344,17 +349,12 @@ Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\Use
     });
     
     Route::group([], function () { // Temporarily removed 'tenant' middleware
-        // Agencies
-        Route::resource('agences', AgenceController::class);
-        Route::get('agences/{agence}/toggle-status', [AgenceController::class, 'toggleStatus'])->name('agences.toggle-status');
-        Route::get('agences/active', [AgenceController::class, 'active'])->name('agences.active');
-
         // Brands
         Route::resource('marques', MarqueController::class);
         Route::get('marques/{marque}/toggle-status', [MarqueController::class, 'toggleStatus'])->name('marques.toggle-status');
         Route::get('marques/active', [MarqueController::class, 'active'])->name('marques.active');
 
-        // Clients
+        // Clients (Students)
         Route::resource('clients', ClientController::class);
         Route::post('clients/{client}/toggle-blacklist', [ClientController::class, 'toggleBlacklist'])->name('clients.toggle-blacklist');
         Route::get('clients/statistics', [ClientController::class, 'statistics'])->name('clients.statistics');
@@ -366,31 +366,6 @@ Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\Use
         Route::post('vehicules/{vehicule}/toggle-landing', [VehiculeController::class, 'toggleLandingDisplay'])->name('vehicules.toggle-landing');
         Route::post('vehicules/{vehicule}/remove-image', [VehiculeController::class, 'removeImage'])->name('vehicules.remove-image');
         Route::get('vehicules/available', [VehiculeController::class, 'available'])->name('vehicules.available');
-
-        // Reports
-        Route::get('reports/customers', [App\Http\Controllers\ReportsController::class, 'customers'])->name('reports.customers');
-        Route::get('reports/maintenance', [App\Http\Controllers\ReportsController::class, 'maintenance'])->name('reports.maintenance');
-        Route::get('reports/seasonal', [App\Http\Controllers\ReportsController::class, 'seasonal'])->name('reports.seasonal');
-        Route::get('reports/export/financial', [App\Http\Controllers\ReportsController::class, 'exportFinancial'])->name('reports.export.financial');
-        Route::get('reports/export/operational', [App\Http\Controllers\ReportsController::class, 'exportOperational'])->name('reports.export.operational');
-        Route::get('reports/export/customers', [App\Http\Controllers\ReportsController::class, 'exportCustomers'])->name('reports.export.customers');
-        Route::get('reports/export/maintenance', [App\Http\Controllers\ReportsController::class, 'exportMaintenance'])->name('reports.export.maintenance');
-
-        // Reservations
-        Route::resource('reservations', ReservationController::class);
-        Route::get('reservations/{reservation}/confirm', function($reservation) {
-            return redirect()->route('reservations.index')->with('error', 'La confirmation de réservation doit être effectuée via le formulaire.');
-        });
-        Route::post('reservations/{reservation}/confirm', [ReservationController::class, 'confirm'])->name('reservations.confirm');
-        Route::get('reservations/{reservation}/cancel', function($reservation) {
-            return redirect()->route('reservations.index')->with('error', 'L\'annulation de réservation doit être effectuée via le formulaire.');
-        });
-        Route::post('reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
-        Route::get('reservations/statistics', [ReservationController::class, 'statistics'])->name('reservations.statistics');
-
-        // Contracts
-        Route::resource('contrats', ContratController::class);
-        Route::get('contrats/{contrat}/print', [ContratController::class, 'print'])->name('contrats.print');
 
         // Insurance
         Route::resource('assurances', AssuranceController::class);
@@ -405,16 +380,6 @@ Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\Use
         Route::resource('visites', VisiteController::class);
         Route::get('visites/due', [VisiteController::class, 'due'])->name('visites.due');
         Route::post('visites/{visite}/complete', [VisiteController::class, 'complete'])->name('visites.complete');
-
-        Route::resource('interventions', InterventionController::class);
-        Route::post('interventions/{intervention}/start', [InterventionController::class, 'start'])->name('interventions.start');
-        Route::post('interventions/{intervention}/complete', [InterventionController::class, 'complete'])->name('interventions.complete');
-        Route::get('interventions/statistics', [InterventionController::class, 'statistics'])->name('interventions.statistics');
-
-        // Contract Returns
-        Route::resource('retour-contrats', RetourContratController::class);
-        Route::post('retour-contrats/{retourContrat}/process', [RetourContratController::class, 'process'])->name('retour-contrats.process');
-        Route::get('retour-contrats/contract/{contrat}/details', [RetourContratController::class, 'getContractDetails'])->name('retour-contrats.contract-details');
 
         // Charges
         Route::resource('charges', ChargeController::class);
@@ -436,3 +401,76 @@ Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\Use
 
 // Include SaaS routes
 require __DIR__.'/saas.php';
+
+// Include driving school routes
+require __DIR__.'/driving-school.php';
+
+// Driving School Web Routes
+Route::middleware(['auth', 'tenant'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    
+    // Students
+    Route::get('/students', [App\Http\Controllers\StudentController::class, 'index'])->name('students.index');
+    Route::get('/students/create', [App\Http\Controllers\StudentController::class, 'create'])->name('students.create');
+    Route::post('/students', [App\Http\Controllers\StudentController::class, 'store'])->name('students.store');
+    Route::get('/students/{student}', [App\Http\Controllers\StudentController::class, 'show'])->name('students.show');
+    Route::get('/students/{student}/edit', [App\Http\Controllers\StudentController::class, 'edit'])->name('students.edit');
+    Route::put('/students/{student}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
+    Route::delete('/students/{student}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
+    
+    // Instructors
+    Route::get('/instructors', [App\Http\Controllers\InstructorController::class, 'index'])->name('instructors.index');
+    Route::get('/instructors/create', [App\Http\Controllers\InstructorController::class, 'create'])->name('instructors.create');
+    Route::post('/instructors', [App\Http\Controllers\InstructorController::class, 'store'])->name('instructors.store');
+    Route::get('/instructors/{instructor}', [App\Http\Controllers\InstructorController::class, 'show'])->name('instructors.show');
+    Route::get('/instructors/{instructor}/edit', [App\Http\Controllers\InstructorController::class, 'edit'])->name('instructors.edit');
+    Route::put('/instructors/{instructor}', [App\Http\Controllers\InstructorController::class, 'update'])->name('instructors.update');
+    Route::delete('/instructors/{instructor}', [App\Http\Controllers\InstructorController::class, 'destroy'])->name('instructors.destroy');
+    
+    // Lessons
+    Route::get('/lessons', [App\Http\Controllers\LessonController::class, 'index'])->name('lessons.index');
+    Route::get('/lessons/create', [App\Http\Controllers\LessonController::class, 'create'])->name('lessons.create');
+    Route::post('/lessons', [App\Http\Controllers\LessonController::class, 'store'])->name('lessons.store');
+    Route::get('/lessons/{lesson}', [App\Http\Controllers\LessonController::class, 'show'])->name('lessons.show');
+    Route::get('/lessons/{lesson}/edit', [App\Http\Controllers\LessonController::class, 'edit'])->name('lessons.edit');
+    Route::put('/lessons/{lesson}', [App\Http\Controllers\LessonController::class, 'update'])->name('lessons.update');
+    Route::delete('/lessons/{lesson}', [App\Http\Controllers\LessonController::class, 'destroy'])->name('lessons.destroy');
+    Route::patch('/lessons/{lesson}/start', [App\Http\Controllers\LessonController::class, 'start'])->name('lessons.start');
+    Route::patch('/lessons/{lesson}/complete', [App\Http\Controllers\LessonController::class, 'complete'])->name('lessons.complete');
+    Route::patch('/lessons/{lesson}/cancel', [App\Http\Controllers\LessonController::class, 'cancel'])->name('lessons.cancel');
+    
+    // Exams
+    Route::get('/exams', [App\Http\Controllers\ExamController::class, 'index'])->name('exams.index');
+    Route::get('/exams/create', [App\Http\Controllers\ExamController::class, 'create'])->name('exams.create');
+    Route::post('/exams', [App\Http\Controllers\ExamController::class, 'store'])->name('exams.store');
+    Route::get('/exams/{exam}', [App\Http\Controllers\ExamController::class, 'show'])->name('exams.show');
+    Route::get('/exams/{exam}/edit', [App\Http\Controllers\ExamController::class, 'edit'])->name('exams.edit');
+    Route::put('/exams/{exam}', [App\Http\Controllers\ExamController::class, 'update'])->name('exams.update');
+    Route::delete('/exams/{exam}', [App\Http\Controllers\ExamController::class, 'destroy'])->name('exams.destroy');
+    Route::patch('/exams/{exam}/start', [App\Http\Controllers\ExamController::class, 'start'])->name('exams.start');
+    Route::patch('/exams/{exam}/complete', [App\Http\Controllers\ExamController::class, 'complete'])->name('exams.complete');
+    Route::patch('/exams/{exam}/cancel', [App\Http\Controllers\ExamController::class, 'cancel'])->name('exams.cancel');
+    
+    // Payments
+    Route::get('/payments', [App\Http\Controllers\PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/create', [App\Http\Controllers\PaymentController::class, 'create'])->name('payments.create');
+    Route::post('/payments', [App\Http\Controllers\PaymentController::class, 'store'])->name('payments.store');
+    Route::get('/payments/{payment}', [App\Http\Controllers\PaymentController::class, 'show'])->name('payments.show');
+    Route::get('/payments/{payment}/edit', [App\Http\Controllers\PaymentController::class, 'edit'])->name('payments.edit');
+    Route::put('/payments/{payment}', [App\Http\Controllers\PaymentController::class, 'update'])->name('payments.update');
+    Route::delete('/payments/{payment}', [App\Http\Controllers\PaymentController::class, 'destroy'])->name('payments.destroy');
+    Route::patch('/payments/{payment}/mark-paid', [App\Http\Controllers\PaymentController::class, 'markAsPaid'])->name('payments.mark-paid');
+    
+    // Schedule
+    Route::get('/schedule', [App\Http\Controllers\LessonController::class, 'schedule'])->name('schedule.index');
+    
+    // Reports
+    Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/create', [App\Http\Controllers\ReportController::class, 'create'])->name('reports.create');
+    Route::post('/reports', [App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
+    Route::get('/reports/{report}', [App\Http\Controllers\ReportController::class, 'show'])->name('reports.show');
+    Route::get('/reports/{report}/edit', [App\Http\Controllers\ReportController::class, 'edit'])->name('reports.edit');
+    Route::put('/reports/{report}', [App\Http\Controllers\ReportController::class, 'update'])->name('reports.update');
+    Route::delete('/reports/{report}', [App\Http\Controllers\ReportController::class, 'destroy'])->name('reports.destroy');
+});

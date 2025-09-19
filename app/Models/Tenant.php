@@ -11,22 +11,24 @@ class Tenant extends Model
 
     protected $fillable = [
         'name',
-        'company_name',
-        'domain',
-        'database',
-        'contact_email',
-        'contact_phone',
+        'companyName',
         'address',
-        'notes',
+        'tel',
+        'gsm',
+        'email',
+        'website',
+        'subscription_plan',
         'trial_ends_at',
-        'max_users',
-        'max_vehicles',
+        'subscription_ends_at',
         'is_active',
+        'settings',
     ];
 
     protected $casts = [
         'trial_ends_at' => 'datetime',
+        'subscription_ends_at' => 'datetime',
         'is_active' => 'boolean',
+        'settings' => 'array',
     ];
 
     public function subscription()

@@ -5,19 +5,30 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Tenant;
 use App\Models\User;
-use App\Models\Agence;
 use App\Models\Client;
 use App\Models\Vehicule;
-use App\Models\Reservation;
-use App\Models\Contrat;
 use App\Models\Assurance;
 use App\Models\Vidange;
 use App\Models\Visite;
-use App\Models\Intervention;
-use App\Models\RetourContrat;
+
 use App\Models\Charge;
 use App\Models\Notification;
 use App\Models\ActivityLog;
+// Driving School Models
+use App\Models\Instructor;
+use App\Models\Student;
+use App\Models\Lesson;
+use App\Models\Exam;
+use App\Models\Payment;
+use App\Models\StudentProgress;
+use App\Models\Package;
+use App\Models\StudentPackage;
+use App\Models\TheoryClass;
+use App\Models\StudentTheoryEnrollment;
+use App\Models\InstructorAvailability;
+use App\Models\VehicleAssignment;
+use App\Models\Report;
+use App\Models\Analytics;
 
 class TenantServiceProvider extends ServiceProvider
 {
@@ -44,19 +55,29 @@ class TenantServiceProvider extends ServiceProvider
     {
         $tenantAwareModels = [
             User::class,
-            Agence::class,
             Client::class,
             Vehicule::class,
-            Reservation::class,
-            Contrat::class,
             Assurance::class,
             Vidange::class,
             Visite::class,
-            Intervention::class,
-            RetourContrat::class,
             Charge::class,
             Notification::class,
             ActivityLog::class,
+            // Driving School Models
+            Instructor::class,
+            Student::class,
+            Lesson::class,
+            Exam::class,
+            Payment::class,
+            StudentProgress::class,
+            Package::class,
+            StudentPackage::class,
+            TheoryClass::class,
+            StudentTheoryEnrollment::class,
+            InstructorAvailability::class,
+            VehicleAssignment::class,
+            Report::class,
+            Analytics::class,
         ];
 
         foreach ($tenantAwareModels as $model) {

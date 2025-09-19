@@ -163,7 +163,7 @@
                                     Au {{ \Carbon\Carbon::parse($assurance->date_expiration)->format('d/m/Y') }}
                                 </div>
                                 @if($assurance->cout_annuel)
-                                    <div class="text-sm text-gray-500">{{ number_format($assurance->cout_annuel, 2) }} €/an</div>
+                                    <div class="text-sm text-gray-500">{{ number_format($assurance->cout_annuel, 2) }} DH/an</div>
                                 @endif
                             </td>
                             <td class="px-8 py-6 whitespace-nowrap">

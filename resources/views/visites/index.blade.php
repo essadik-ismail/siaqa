@@ -131,7 +131,7 @@
                                 {{ $visite->centre_inspection ?? 'N/A' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $visite->cout ? number_format($visite->cout, 2) . ' €' : 'N/A' }}
+                                {{ $visite->cout ? number_format($visite->cout, 2) . ' DH' : 'N/A' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center space-x-2">

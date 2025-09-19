@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::create('tenants', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('domain')->unique();
-            $table->string('database')->unique();
+            $table->string('companyName');
+            $table->string('address');
+            $table->string('tel');
+            $table->string('gsm')->nullable();
+            $table->string('email')->nullable();
+            $table->string('website')->nullable();
             $table->string('subscription_plan')->default('starter');
-            $table->string('stripe_customer_id')->nullable();
-            $table->string('stripe_subscription_id')->nullable();
             $table->timestamp('trial_ends_at')->nullable();
             $table->timestamp('subscription_ends_at')->nullable();
             $table->boolean('is_active')->default(true);

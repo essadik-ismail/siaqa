@@ -1145,7 +1145,7 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo and Brand -->
                 <div class="flex items-center">
-                    <a href="{{ route('landing') }}" class="flex items-center space-x-3 hover:opacity-90 transition-opacity duration-200">
+                    <a href="{{ route('home') }}" class="flex items-center space-x-3 hover:opacity-90 transition-opacity duration-200">
                         <img src="{{ asset('assets/images/odys-logo-modern.svg') }}" alt="Odys Rental Management" class="h-10 w-auto">
                     </a>
                 </div>
@@ -1284,7 +1284,7 @@
                 <div>
                     <h5 class="text-lg font-semibold text-white mb-4">{{ __('app.quick_links') }}</h5>
                     <ul class="space-y-2">
-                        <li><a href="{{ route('landing') }}" class="text-surface-300 hover:text-primary-400 transition-colors">{{ __('app.home') }}</a></li>
+                        <li><a href="{{ route('home') }}" class="text-surface-300 hover:text-primary-400 transition-colors">{{ __('app.home') }}</a></li>
                         <li><a href="{{ route('landing.cars') }}" class="text-surface-300 hover:text-primary-400 transition-colors">{{ __('app.car_rental') }}</a></li>
                         <li><a href="#" class="text-surface-300 hover:text-primary-400 transition-colors">{{ __('app.contact') }}</a></li>
                     </ul>

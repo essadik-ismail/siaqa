@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
-use App\Models\Agence;
 use App\Models\Reservation;
 use App\Models\Client;
 use App\Models\Vehicule;
@@ -103,7 +102,6 @@ class SystemDiagnosticsController extends Controller
     {
         return [
             'total_users' => User::count(),
-            'total_agencies' => Agence::count(),
             'total_reservations' => Reservation::count(),
             'total_clients' => Client::count(),
             'total_vehicles' => Vehicule::count(),

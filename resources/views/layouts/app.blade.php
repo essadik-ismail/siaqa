@@ -1,879 +1,770 @@
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Odys SaaS') }} - @yield('title', 'Dashboard')</title>
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-    <link rel="alternate icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}">
+    <title>{{ config('app.name', 'Laravel') }} - @yield('title', 'Driving School Management')</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
-    <!-- Tailwind CSS -->
+    <!-- CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- RTL Support for Arabic -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': {
+                            50: '#e3f2fd',
+                            100: '#bbdefb',
+                            200: '#90caf9',
+                            300: '#64b5f6',
+                            400: '#42a5f5',
+                            500: '#2196f3',
+                            600: '#1e88e5',
+                            700: '#1976d2',
+                            800: '#1565c0',
+                            900: '#0d47a1',
+                        },
+                        'secondary': {
+                            50: '#fce4ec',
+                            100: '#f8bbd9',
+                            200: '#f48fb1',
+                            300: '#f06292',
+                            400: '#ec407a',
+                            500: '#e91e63',
+                            600: '#d81b60',
+                            700: '#c2185b',
+                            800: '#ad1457',
+                            900: '#880e4f',
+                        },
+                        'surface': {
+                            0: '#ffffff',
+                            50: '#fafafa',
+                            100: '#f5f5f5',
+                            200: '#eeeeee',
+                            300: '#e0e0e0',
+                            400: '#bdbdbd',
+                            500: '#9e9e9e',
+                            600: '#757575',
+                            700: '#616161',
+                            800: '#424242',
+                            900: '#212121',
+                        }
+                    },
+                    fontFamily: {
+                        'roboto': ['Roboto', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'material-2': '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
+                        'material-3': '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
+                        'material-4': '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
+                        'material-5': '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)',
+                    }
+                }
+            }
+        }
+    </script>
     
-    <!-- Chart.js for charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    
-    <!-- Dynamic Validation CSS -->
-    <link rel="stylesheet" href="{{ asset('css/dynamic-validation.css') }}">
-    
-    <!-- Custom Styles -->
     <style>
-        /* Material Design inspired styles */
-        :root {
-            --md-primary: #1976d2;
-            --md-primary-dark: #1565c0;
-            --md-primary-light: #42a5f5;
-            --md-secondary: #ff4081;
-            --md-surface: #ffffff;
-            --md-surface-variant: #f5f5f5;
-            --md-on-surface: #212121;
-            --md-on-surface-variant: #757575;
-            --md-elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-            --md-elevation-2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-            --md-elevation-3: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-            --md-elevation-4: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
         
-        /* Additional custom styles if needed */
-        .chart-container {
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .material-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .material-card:hover {
+            box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+            transform: translateY(-4px) scale(1.02);
+        }
+        
+        .material-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 28px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             position: relative;
-            height: 300px;
+            overflow: hidden;
         }
         
-        /* Enhanced sidebar styles with Modern Design */
-        .sidebar-fixed {
+        .material-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .material-button:hover::before {
+            left: 100%;
+        }
+        
+        .material-button:hover {
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        .material-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .sidebar-gradient {
+            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%);
+            backdrop-filter: blur(20px);
+        }
+        
+        .nav-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            margin: 4px 0;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-item:hover::before {
+            left: 100%;
+        }
+        
+        .floating-elements {
             position: fixed;
             top: 0;
             left: 0;
-            height: 100vh;
-            width: 18rem; /* Increased to 288px for better comfort */
-            overflow-y: auto;
-            z-index: 40;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
-            border-right: 1px solid rgba(0,0,0,0.08);
-            box-shadow: 8px 0 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.05);
-            backdrop-filter: blur(24px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        /* Sidebar inner shadow for depth */
-        .sidebar-fixed::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 1px;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, transparent, rgba(0,0,0,0.03), transparent);
-        }
-        
-        /* Enhanced sidebar content container */
-        .sidebar-content {
-            position: relative;
-            z-index: 1;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        /* Enhanced sidebar header area */
-        .sidebar-header {
-            position: relative;
-            z-index: 2;
-        }
-        
-        /* Enhanced sidebar navigation area */
-        .sidebar-navigation {
-            flex: 1;
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Navigation subsections for SaaS management */
-        .nav-subsection {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(0,0,0,0.06);
-        }
-        
-        .nav-subheader {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.75rem;
-            padding-left: 1rem;
-        }
-        
-        /* Button styles for SaaS overview */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border-radius: 0.375rem;
-            text-decoration: none;
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
-            border: none;
-        }
-        
-        .btn-sm {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.75rem;
-        }
-        
-        .btn-primary {
-            background-color: #3b82f6;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: #2563eb;
-        }
-        
-        .btn-warning {
-            background-color: #f59e0b;
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background-color: #d97706;
-        }
-        
-        .btn-success {
-            background-color: #10b981;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background-color: #059669;
-        }
-        
-        .btn-danger {
-            background-color: #ef4444;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-        
-        /* Enhanced sidebar footer area */
-        .sidebar-footer {
-            position: relative;
-            z-index: 2;
-        }
-        
-        .content-with-fixed-sidebar {
-            margin-left: 18rem; /* Always 288px */
-        }
-        
-        /* Ensure content area is flexible and scrollable */
-        .main-content {
-            min-height: 100vh;
-            overflow-x: hidden;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 2rem;
-        }
-        
-        /* Enhanced scrollbar for sidebar */
-        .sidebar-fixed::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .sidebar-fixed::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .sidebar-fixed::-webkit-scrollbar-thumb {
-            background: rgba(0,0,0,0.1);
-            border-radius: 2px;
-        }
-        
-        .sidebar-fixed::-webkit-scrollbar-thumb:hover {
-            background: rgba(0,0,0,0.2);
-        }
-        
-        /* Enhanced navigation item styles */
-        .sidebar-nav-item {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-            border-radius: 12px;
-            margin: 0.25rem 1rem;
-            position: relative;
-            overflow: hidden;
-            font-weight: 500;
-            letter-spacing: 0.025em;
-            cursor: pointer;
-            padding: 0.875rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .sidebar-nav-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: currentColor;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            border-radius: 16px;
-        }
-        
-        .sidebar-nav-item:hover::before {
-            opacity: 0.06;
-        }
-        
-        .sidebar-nav-item:hover {
-            transform: translateX(4px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(147, 51, 234, 0.05));
-            color: #1e40af;
-            border-left: 3px solid #3b82f6;
-        }
-        
-        .sidebar-nav-item:hover i {
-            transform: scale(1.15) rotate(5deg);
-            color: var(--md-primary);
-        }
-        
-        .sidebar-nav-item i {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: center;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Ripple effect for navigation items */
-        .sidebar-nav-item::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
             pointer-events: none;
+            z-index: -1;
         }
         
-        .sidebar-nav-item:active::after {
-            width: 300px;
-            height: 300px;
-        }
-        
-        /* Active navigation item with Modern Design */
-        .sidebar-nav-item.active {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(147, 51, 234, 0.08));
-            color: #1e40af;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
-            transform: translateX(4px);
-            position: relative;
-            overflow: hidden;
-            font-weight: 600;
-            border-left: 4px solid #3b82f6;
-        }
-        
-        .sidebar-nav-item.active::before {
-            content: '';
+        .floating-circle {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: #1e3a8a;
-            border-radius: 0;
+            border-radius: 50%;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            animation: float 6s ease-in-out infinite;
         }
         
-        .sidebar-nav-item.active:hover {
-            transform: none;
-            box-shadow: none;
-            background: rgba(30, 58, 138, 0.05);
+        .floating-circle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
         }
         
-        .sidebar-nav-item.active i {
-            transform: none;
-            filter: none;
-            color: var(--md-primary);
+        .floating-circle:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
         }
         
-        /* Shimmer animation for active items */
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
+        .floating-circle:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
         }
         
-        /* Pulse animation for active indicator */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
-            50% { opacity: 0.8; transform: translateY(-50%) scale(1.1); }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
         
-        /* Enhanced logo section */
-        .logo-section {
-            color: --md-secondary;
-            text-transform: uppercase;
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
-            text-align: center;
-            padding: 2rem 1.5rem;
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.03));
-            border: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
         }
         
-        /* .logo-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            animation: logo-shine 6s infinite;
-        } */
-        
-        @keyframes logo-shine {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        .stats-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
         
-        /* Enhanced user profile section */
-        .user-profile {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.9));
-            border: 1px solid rgba(59, 130, 246, 0.1);
+        .icon-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 16px;
-            backdrop-filter: blur(24px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
         
-        .user-profile:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(59, 130, 246, 0.1);
-        }
-        
-        /* Enhanced navigation group headers */
-        .nav-group-header {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: #64748b;
-            margin: 2rem 1rem 0.75rem;
-            padding: 0.5rem 1rem;
-            position: relative;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.03));
-            border-radius: 8px;
-            border: 1px solid rgba(59, 130, 246, 0.08);
-        }
-        
-        .nav-group-header::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
-            height: 12px;
-            background: linear-gradient(135deg, var(--md-primary), var(--md-secondary));
-            border-radius: 2px;
-        }
-        
-        /* Enhanced spacing between navigation sections */
-        .nav-section {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-        
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-            .sidebar-fixed {
-                width: 16rem;
-                transform: translateX(-100%);
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            
-            .sidebar-fixed.mobile-open {
-                transform: translateX(0);
-            }
-            
-            .content-with-fixed-sidebar {
-                margin-left: 0 !important;
-            }
-        }
-        
-        /* Enhanced scrollbar for sidebar */
-        .sidebar-fixed::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .sidebar-fixed::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
-            border-radius: 3px;
-        }
-        
-        .sidebar-fixed::-webkit-scrollbar-thumb {
-            background: rgba(0,0,0,0.2);
-            border-radius: 3px;
-        }
-        
-        .sidebar-fixed::-webkit-scrollbar-thumb:hover {
-            background: rgba(0,0,0,0.3);
-        }
-        
-        .nav-section:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            bottom: -0.75rem;
-            left: 0.75rem;
-            right: 0.75rem;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent);
-        }
-        
-        /* Enhanced mobile responsive styles */
-        @media (max-width: 768px) {
-            .sidebar-fixed {
-                transform: translateX(-100%);
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            
-            .sidebar-fixed.mobile-open {
-                transform: translateX(0);
-            }
-            
-            .content-with-fixed-sidebar {
-                margin-left: 0;
-            }
-            
-            .mobile-overlay {
-                display: none;
+        /* Fixed Sidebar Styles */
+        @media (min-width: 768px) {
+            .fixed-sidebar {
                 position: fixed;
                 top: 0;
                 left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.6);
-                z-index: 30;
-                backdrop-filter: blur(8px);
-                transition: opacity 0.3s ease;
+                height: 100vh;
+                z-index: 40;
             }
             
-            .mobile-overlay.active {
-                display: block;
-                opacity: 1;
+            .main-content-with-sidebar {
+                margin-left: 16rem; /* 256px = w-64 */
             }
-        }
-        
-        /* Mobile menu button */
-        .mobile-menu-btn {
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            .mobile-menu-btn {
-                display: block;
+            
+            .sidebar-scroll {
+                height: 100vh;
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
             }
-        }
-        
-        /* Enhanced content cards */
-        .content-card {
-            background: var(--md-surface);
-            border-radius: 16px;
-            box-shadow: var(--md-elevation-1);
-            border: 1px solid rgba(0,0,0,0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .content-card:hover {
-            box-shadow: var(--md-elevation-2);
-            transform: translateY(-2px);
-        }
-        
-        /* Enhanced buttons */
-        .btn-primary {
-            background: linear-gradient(135deg, var(--md-primary) 0%, var(--md-primary-dark) 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--md-elevation-1);
-        }
-        
-        .btn-primary:hover {
-            box-shadow: var(--md-elevation-3);
-            transform: translateY(-2px);
-        }
-        
-        /* Enhanced form inputs */
-        .form-input {
-            border: 2px solid rgba(0,0,0,0.08);
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(10px);
-        }
-        
-        .form-input:focus {
-            border-color: var(--md-primary);
-            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
-            background: white;
+            
+            .sidebar-scroll::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .sidebar-scroll::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .sidebar-scroll::-webkit-scrollbar-thumb {
+                background-color: rgba(156, 163, 175, 0.5);
+                border-radius: 3px;
+            }
+            
+            .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+                background-color: rgba(156, 163, 175, 0.7);
+            }
         }
     </style>
+    
+    @stack('styles')
 </head>
 <body class="font-sans antialiased">
+    <!-- Floating Background Elements -->
+    <div class="floating-elements">
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+    </div>
+    
     <div class="min-h-screen flex">
-        <!-- Enhanced Fixed Sidebar - Always Expanded -->
-        <div class="sidebar-fixed">
-            <div class="sidebar-content">
-                <!-- Sidebar Header -->
-                <div class="sidebar-header p-6">
-                    <!-- Mobile Close Button -->
-                    <button class="mobile-menu-btn absolute top-4 right-4 p-2.5 bg-white/80 rounded-xl hover:bg-white transition-all duration-200 md:hidden backdrop-blur-sm" onclick="closeMobileMenu()">
-                        <i class="fas fa-times text-gray-600"></i>
-                    </button>
-                    
-                    <!-- Enhanced Logo Section -->
-                    <div class="logo-section mb-6">
-                        <div class="flex items-center justify-center relative z-10">
-                            <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 hover:opacity-90 transition-opacity duration-200">
-                                <img src="{{ asset('assets/images/odys-logo-modern.svg') }}" alt="Odys Rental Management" class="h-12 w-auto">
-                            </a>
-                        </div>
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:z-50">
+            <div class="flex flex-col flex-grow pt-5 sidebar-gradient overflow-y-auto border-r border-gray-200 h-full sidebar-scroll">
+                <!-- Logo -->
+                <div class="flex items-center flex-shrink-0 px-4 mb-8">
+                    <div class="icon-container w-12 h-12">
+                        <i class="fas fa-car text-white text-xl"></i>
                     </div>
+                    <span class="ml-3 text-xl font-bold gradient-text">SIAQA</span>
                 </div>
 
-                <!-- Sidebar Navigation -->
-                <div class="sidebar-navigation px-6">
-                    <!-- Enhanced Navigation -->
-                    <nav class="space-y-1">
-                        <!-- Main Navigation -->
-                        <div class="nav-section">
-                            <a href="{{ route('dashboard') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                                <i class="fas fa-tachometer-alt"></i>
-                                <span class="font-medium">Tableau de bord</span>
-                            </a>
-                        </div>
-
-                        <!-- Business Management -->
-                        <div class="nav-section">
-                            <div class="nav-group-header">Entreprise</div>
-                            
-                            <a href="{{ route('clients.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('clients.*') ? 'active' : '' }}">
-                                <i class="fas fa-users"></i>
-                                <span class="font-medium">Clients</span>
-                            </a>
-
-                            <a href="{{ route('vehicules.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('vehicules.*') ? 'active' : '' }}">
-                                <i class="fas fa-car"></i>
-                                <span class="font-medium">Véhicules</span>
-                            </a>
-
-                            <a href="{{ route('charges.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('charges.*') ? 'active' : '' }}">
-                                <i class="fas fa-money-bill-wave"></i>
-                                <span class="font-medium">Charges</span>
-                            </a>
-                        </div>
-
-                        <!-- Operations -->
-                        <div class="nav-section">
-                            <div class="nav-group-header">Opérations</div>
-                            
-                            <a href="{{ route('reservations.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('reservations.*') ? 'active' : '' }}">
-                                <i class="fas fa-calendar-check"></i>
-                                <span class="font-medium">Réservations</span>
-                            </a>
-
-                            <a href="{{ route('contrats.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('contrats.*') ? 'active' : '' }}">
-                                <i class="fas fa-file-contract"></i>
-                                <span class="font-medium">Contrats</span>
-                            </a>
-
-
-                        </div>
-
-                        <!-- System -->
-                        <div class="nav-section">
-                            <div class="nav-group-header">Système</div>
-                            
-                            <a href="{{ route('settings.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-                                <i class="fas fa-cog"></i>
-                                <span class="font-medium">Paramètres</span>
-                            </a>
-                            
-                            <!-- SaaS Management - Super Admin Only -->
-                            @if(auth()->user()->isSuperAdmin())
-                            <div class="nav-subsection">
-                                <div class="nav-subheader">Gestion SaaS</div>
-                                
-                                <a href="{{ route('saas.overview') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.overview') ? 'active' : '' }}">
-                                    <i class="fas fa-server"></i>
-                                    <span class="font-medium">Vue d'ensemble SaaS</span>
-                                </a>
-                                
-                                <a href="{{ route('saas.tenants.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.tenants.*') ? 'active' : '' }}">
-                                    <i class="fas fa-building"></i>
-                                    <span class="font-medium">Gestion des Locataires</span>
-                                </a>
-                                
-                                <a href="{{ route('saas.global-users.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.global-users.*') ? 'active' : '' }}">
-                                    <i class="fas fa-users"></i>
-                                    <span class="font-medium">Utilisateurs Globaux</span>
-                                </a>
-                                
-                                <a href="{{ route('saas.analytics.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.analytics.*') ? 'active' : '' }}">
-                                    <i class="fas fa-chart-line"></i>
-                                    <span class="font-medium">Analyses Système</span>
-                                </a>
-                                
-                                <a href="{{ route('saas.maintenance.index') }}" class="sidebar-nav-item text-gray-700 {{ request()->routeIs('saas.maintenance.*') ? 'active' : '' }}">
-                                    <i class="fas fa-tools"></i>
-                                    <span class="font-medium">Maintenance du Système</span>
-                                </a>
-                            </div>
-                            @endif
-                            
-                            <form method="POST" action="{{ route('logout') }}" class="w-full">
-                                @csrf
-                                <button type="submit" class="sidebar-nav-item text-gray-700 w-full text-left hover:text-red-600">
-                                    <i class="fas fa-sign-out-alt"></i>
-                                    <span class="font-medium">Déconnexion</span>
-                                </button>
-                            </form>
-                        </div>
-                    </nav>
-                </div>
-
-                <!-- Sidebar Footer -->
-                <div class="sidebar-footer p-6">
-                    <!-- Language Switcher -->
-                    <div class="mb-4">
+                <!-- Navigation -->
+                <nav class="flex-1 px-2 pb-4 space-y-1">
+                    <!-- TABLEAU DE BORD Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">TABLEAU DE BORD</p>
+                        <a href="{{ route('dashboard') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('dashboard') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-th-large mr-3 text-lg"></i>
+                            Aperçu
+                        </a>
                     </div>
-                    
-                </div>
+
+                    <!-- ÉTUDIANTS & APPRENTISSAGE Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">ÉTUDIANTS & APPRENTISSAGE</p>
+                        <a href="{{ route('students.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('students.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-user-graduate mr-3 text-lg"></i>
+                            Étudiants
+                            <span class="ml-auto bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">{{ $stats['total_students'] ?? 0 }}+</span>
+                        </a>
+                        <a href="{{ route('lessons.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('lessons.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-calendar-alt mr-3 text-lg"></i>
+                            Leçons
+                        </a>
+                        <a href="{{ route('exams.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('exams.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-clipboard-check mr-3 text-lg"></i>
+                            Examens
+                        </a>
+                        <a href="{{ route('schedule.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('schedule.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-calendar-week mr-3 text-lg"></i>
+                            Planning
+                        </a>
+                    </div>
+
+                    <!-- PERSONNEL & VÉHICULES Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">PERSONNEL & VÉHICULES</p>
+                        <a href="{{ route('instructors.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('instructors.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-chalkboard-teacher mr-3 text-lg"></i>
+                            Instructeurs
+                        </a>
+                        <a href="{{ route('vehicules.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('vehicules.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-car mr-3 text-lg"></i>
+                            Véhicules
+                        </a>
+                        <a href="{{ route('marques.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('marques.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-tags mr-3 text-lg"></i>
+                            Marques de Véhicules
+                        </a>
+                    </div>
+
+                    <!-- FINANCIER Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">FINANCIER</p>
+                        <a href="{{ route('payments.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('payments.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-credit-card mr-3 text-lg"></i>
+                            Paiements
+                        </a>
+                        <a href="{{ route('charges.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('charges.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-receipt mr-3 text-lg"></i>
+                            Frais
+                        </a>
+                    </div>
+
+                    <!-- MAINTENANCE Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">MAINTENANCE</p>
+                        <a href="{{ route('assurances.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('assurances.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-shield-alt mr-3 text-lg"></i>
+                            Assurance
+                        </a>
+                        <a href="{{ route('vidanges.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('vidanges.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-oil-can mr-3 text-lg"></i>
+                            Vidanges
+                        </a>
+                        <a href="{{ route('visites.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('visites.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-search mr-3 text-lg"></i>
+                            Visites
+                        </a>
+                    </div>
+
+                    <!-- RAPPORTS & ANALYSES Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">RAPPORTS & ANALYSES</p>
+                        <a href="{{ route('reports.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('reports.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-chart-bar mr-3 text-lg"></i>
+                            Rapports
+                        </a>
+                        <a href="{{ route('clients.statistics') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('clients.statistics') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-chart-line mr-3 text-lg"></i>
+                            Statistiques
+                        </a>
+                    </div>
+
+
+                </nav>
+
             </div>
         </div>
 
-        <!-- Main Content Area -->
-        @hasSection('sidebar')
-        <div class="content-with-fixed-sidebar flex-1">
-            <div class="flex">
-                <div class="flex-1 main-content">
-                    <!-- Mobile Menu Button -->
-                    <button class="mobile-menu-btn fixed top-4 left-4 z-50 p-3 bg-white/90 rounded-xl shadow-lg md:hidden backdrop-blur-sm" onclick="toggleMobileMenu()">
-                        <i class="fas fa-bars text-gray-700"></i>
-                    </button>
-                    
-                    <!-- Enhanced Header -->
-                    <div class="mb-8">
-                        @if(session('success'))
-                            <div class="mt-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-                        @if(session('error'))
-                            <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">
-                                {{ session('error') }}
-                            </div>
-                        @endif
-                        
-                        <!-- Impersonation Notice -->
-                        @if(session('impersonated_by'))
-                        <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-xl">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <i class="fas fa-user-secret mr-2"></i>
-                                    <span class="font-medium">You are impersonating: {{ auth()->user()->name }}</span>
-                                </div>
-                                <form action="{{ route('admin.return-from-impersonation') }}" method="POST" class="inline">
-                                    @csrf
-                                    <button type="submit" class="text-yellow-800 hover:text-yellow-900 underline font-medium">
-                                        <i class="fas fa-arrow-left mr-1"></i>
-                                        Return to Admin
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        @endif
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden md:ml-64">
+            <!-- Top Header -->
+            <header class="glass-effect shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
+                    <!-- Mobile menu button -->
+                    <div class="md:hidden">
+                        <button type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:text-gray-600" id="mobile-menu-button">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
                     </div>
 
-                    <!-- Page Content -->
+                    <!-- Search Bar -->
+                    <div class="flex-1 max-w-lg mx-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" placeholder="Rechercher des tâches" 
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <kbd class="inline-flex items-center px-2 py-1 border border-gray-200 rounded text-xs font-mono text-gray-500">⌘F</kbd>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right side -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Notifications -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:text-gray-600 relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">3</span>
+                            </button>
+                            
+                            <!-- Notifications Dropdown -->
+                            <div x-show="open" @click.away="open = false" 
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 scale-95"
+                                 x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 scale-100"
+                                 x-transition:leave-end="opacity-0 scale-95"
+                                 class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
+                                <div class="p-4 border-b border-gray-100">
+                                    <h3 class="text-lg font-semibold text-gray-900">Notifications</h3>
+                                    <p class="text-sm text-gray-500">Vous avez 3 notifications non lues</p>
+                                </div>
+                                <div class="max-h-64 overflow-y-auto">
+                                    <!-- Notification Items -->
+                                    <div class="p-4 hover:bg-gray-50 border-b border-gray-100">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium text-gray-900">Nouvel étudiant inscrit</p>
+                                                <p class="text-xs text-gray-500">John Doe vient de terminer l'inscription</p>
+                                                <p class="text-xs text-gray-400 mt-1">il y a 2 minutes</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 hover:bg-gray-50 border-b border-gray-100">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium text-gray-900">Leçon terminée</p>
+                                                <p class="text-xs text-gray-500">Sarah a terminé sa leçon de conduite</p>
+                                                <p class="text-xs text-gray-400 mt-1">il y a 1 heure</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 hover:bg-gray-50">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium text-gray-900">Examen programmé</p>
+                                                <p class="text-xs text-gray-500">L'examen théorique de Mike est demain</p>
+                                                <p class="text-xs text-gray-400 mt-1">il y a 3 heures</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-3 border-t border-gray-100">
+                                    <button class="w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium">Voir toutes les notifications</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Profile Dropdown -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-semibold text-sm">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                </div>
+                                <div class="hidden sm:block text-left">
+                                    <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                            </button>
+                            
+                            <!-- Profile Dropdown -->
+                            <div x-show="open" @click.away="open = false" 
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 scale-95"
+                                 x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 scale-100"
+                                 x-transition:leave-end="opacity-0 scale-95"
+                                 class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
+                                
+                                <!-- User Info Header -->
+                                <div class="p-4 border-b border-gray-100">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                            <span class="text-white font-semibold text-lg">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-900">{{ Auth::user()->name }}</p>
+                                            <p class="text-sm text-gray-500">{{ Auth::user()->email }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Notifications Section -->
+                                <div class="p-2">
+                                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">NOTIFICATIONS</div>
+                                    <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                                        <i class="fas fa-bell mr-3 text-gray-400"></i>
+                                        <span>Notifications</span>
+                                        <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
+                                    </a>
+                                </div>
+                                
+                                <!-- General Section -->
+                                <div class="p-2 border-t border-gray-100">
+                                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">GÉNÉRAL</div>
+                                    <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                                        <i class="fas fa-cog mr-3 text-gray-400"></i>
+                                        <span>Paramètres</span>
+                                    </a>
+                                    <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                                        <i class="fas fa-question-circle mr-3 text-gray-400"></i>
+                                        <span>Aide</span>
+                                    </a>
+                                    <a href="{{ route('logout') }}" 
+                                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                                       class="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                        <i class="fas fa-sign-out-alt mr-3"></i>
+                                        <span>Déconnexion</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto">
+                <div class="py-6">
+                    @if (session('success'))
+                        <div class="mb-4 mx-4 sm:mx-6 lg:mx-8">
+                            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative" role="alert">
+                                <span class="block sm:inline">{{ session('success') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="mb-4 mx-4 sm:mx-6 lg:mx-8">
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+                                <span class="block sm:inline">{{ session('error') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (session('warning'))
+                        <div class="mb-4 mx-4 sm:mx-6 lg:mx-8">
+                            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg relative" role="alert">
+                                <span class="block sm:inline">{{ session('warning') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (session('info'))
+                        <div class="mb-4 mx-4 sm:mx-6 lg:mx-8">
+                            <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative" role="alert">
+                                <span class="block sm:inline">{{ session('info') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
                     @yield('content')
                 </div>
-
-            </div>
+            </main>
         </div>
-        @else
-        <div class="content-with-fixed-sidebar flex-1">
-            <div class="main-content">
-                <!-- Mobile Menu Button -->
-                <button class="mobile-menu-btn fixed top-4 left-4 z-50 p-3 bg-white/90 rounded-xl shadow-lg md:hidden backdrop-blur-sm" onclick="toggleMobileMenu()">
-                    <i class="fas fa-bars text-gray-700"></i>
-                </button>
-                
-                <!-- Enhanced Header -->
-                <div class="mb-8">
-                    @if(session('success'))
-                        <div class="mt-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-                    @if(session('error'))
-                        <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">
-                            {{ session('error') }}
-                        </div>
-                    @endif
-                    
-                    <!-- Impersonation Notice -->
-                    @if(session('impersonated_by'))
-                    <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-xl">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <i class="fas fa-user-secret mr-2"></i>
-                                <span class="font-medium">You are impersonating: {{ auth()->user()->name }}</span>
-                            </div>
-                            <form action="{{ route('admin.return-from-impersonation') }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="text-yellow-800 hover:text-yellow-900 underline font-medium">
-                                    <i class="fas fa-arrow-left mr-1"></i>
-                                    Return to Admin
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-
-                <!-- Page Content -->
-                @yield('content')
-            </div>
-        </div>
-        @endif
-        
-        <!-- Mobile Overlay -->
-        <div class="mobile-overlay" onclick="closeMobileMenu()"></div>
     </div>
 
-    <!-- Dynamic Validation JavaScript -->
-    <script src="{{ asset('js/dynamic-validation.js') }}"></script>
-    
-    <!-- Enhanced JavaScript -->
+    <!-- Mobile Sidebar Overlay -->
+    <div class="fixed inset-0 z-40 md:hidden hidden" id="mobile-sidebar">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75" id="mobile-sidebar-overlay"></div>
+        <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
+            <div class="absolute top-0 right-0 -mr-12 pt-2">
+                <button type="button" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" id="mobile-sidebar-close">
+                    <i class="fas fa-times text-white text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile sidebar content (same as desktop) -->
+            <div class="flex flex-col flex-grow pt-5 bg-white overflow-y-auto">
+                <!-- Logo -->
+                <div class="flex items-center flex-shrink-0 px-4 mb-8">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-car text-white text-xl"></i>
+                    </div>
+                    <span class="ml-3 text-xl font-bold text-gray-900">Siaqa</span>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex-1 px-2 pb-4 space-y-1">
+                    <!-- TABLEAU DE BORD Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">TABLEAU DE BORD</p>
+                        <a href="{{ route('dashboard') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('dashboard') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-th-large mr-3 text-lg"></i>
+                            Aperçu
+                        </a>
+                    </div>
+
+                    <!-- ÉTUDIANTS & APPRENTISSAGE Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">ÉTUDIANTS & APPRENTISSAGE</p>
+                        <a href="{{ route('students.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('students.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-user-graduate mr-3 text-lg"></i>
+                            Étudiants
+                            <span class="ml-auto bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">{{ $stats['total_students'] ?? 0 }}+</span>
+                        </a>
+                        <a href="{{ route('lessons.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('lessons.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-calendar-alt mr-3 text-lg"></i>
+                            Leçons
+                        </a>
+                        <a href="{{ route('exams.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('exams.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-clipboard-check mr-3 text-lg"></i>
+                            Examens
+                        </a>
+                        <a href="{{ route('schedule.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('schedule.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-calendar-week mr-3 text-lg"></i>
+                            Planning
+                        </a>
+                    </div>
+
+                    <!-- PERSONNEL & VÉHICULES Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">PERSONNEL & VÉHICULES</p>
+                        <a href="{{ route('instructors.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('instructors.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-chalkboard-teacher mr-3 text-lg"></i>
+                            Instructeurs
+                        </a>
+                        <a href="{{ route('vehicules.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('vehicules.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-car mr-3 text-lg"></i>
+                            Véhicules
+                        </a>
+                        <a href="{{ route('marques.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('marques.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-tags mr-3 text-lg"></i>
+                            Marques de Véhicules
+                        </a>
+                    </div>
+
+                    <!-- FINANCIER Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">FINANCIER</p>
+                        <a href="{{ route('payments.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('payments.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-credit-card mr-3 text-lg"></i>
+                            Paiements
+                        </a>
+                        <a href="{{ route('charges.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('charges.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-receipt mr-3 text-lg"></i>
+                            Frais
+                        </a>
+                    </div>
+
+                    <!-- MAINTENANCE Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">MAINTENANCE</p>
+                        <a href="{{ route('assurances.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('assurances.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-shield-alt mr-3 text-lg"></i>
+                            Assurance
+                        </a>
+                        <a href="{{ route('vidanges.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('vidanges.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-oil-can mr-3 text-lg"></i>
+                            Vidanges
+                        </a>
+                        <a href="{{ route('visites.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('visites.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-search mr-3 text-lg"></i>
+                            Visites
+                        </a>
+                    </div>
+
+                    <!-- RAPPORTS & ANALYSES Section -->
+                    <div class="mb-6">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">RAPPORTS & ANALYSES</p>
+                        <a href="{{ route('reports.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('reports.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-chart-bar mr-3 text-lg"></i>
+                            Rapports
+                        </a>
+                        <a href="{{ route('clients.statistics') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('clients.statistics') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <i class="fas fa-chart-line mr-3 text-lg"></i>
+                            Statistiques
+                        </a>
+                    </div>
+
+
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script>
-        function toggleMobileMenu() {
-            const sidebar = document.querySelector('.sidebar-fixed');
-            const overlay = document.querySelector('.mobile-overlay');
-            
-            sidebar.classList.toggle('mobile-open');
-            overlay.classList.toggle('active');
-        }
-        
-        function closeMobileMenu() {
-            const sidebar = document.querySelector('.sidebar-fixed');
-            const overlay = document.querySelector('.mobile-overlay');
-            
-            sidebar.classList.remove('mobile-open');
-            overlay.classList.remove('active');
-        }
-        
-        // Close mobile menu on window resize if switching to desktop
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                closeMobileMenu();
-            }
-        });
-        
-        // Enhanced form submission with validation
+        // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
-            const forms = document.querySelectorAll('form');
-            forms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    // Validate form before submission
-                    if (window.dynamicValidator && !window.dynamicValidator.validateForm(form)) {
-                        e.preventDefault();
-                        
-                        // Show validation summary
-                        showValidationSummary(form);
-                        
-                        // Scroll to first error
-                        const firstError = form.querySelector('.error');
-                        if (firstError) {
-                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            firstError.focus();
-                        }
-                    }
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileSidebar = document.getElementById('mobile-sidebar');
+            const mobileSidebarClose = document.getElementById('mobile-sidebar-close');
+            const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
+            
+            if (mobileMenuButton && mobileSidebar) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileSidebar.classList.remove('hidden');
                 });
-            });
-        });
-        
-        // Show validation summary
-        function showValidationSummary(form) {
-            // Remove existing summary
-            const existingSummary = form.querySelector('.validation-summary');
-            if (existingSummary) {
-                existingSummary.remove();
             }
             
-            // Get all errors
-            const errors = form.querySelectorAll('.error');
-            if (errors.length === 0) return;
+            if (mobileSidebarClose && mobileSidebar) {
+                mobileSidebarClose.addEventListener('click', function() {
+                    mobileSidebar.classList.add('hidden');
+                });
+            }
             
-            // Create summary
-            const summary = document.createElement('div');
-            summary.className = 'validation-summary error';
-            summary.innerHTML = `
-                <h4>Please correct the following errors:</h4>
-                <ul>
-                    ${Array.from(errors).map(input => {
-                        const errorMsg = document.getElementById(input.name + '-error');
-                        return errorMsg ? `<li>${errorMsg.textContent}</li>` : '';
-                    }).filter(Boolean).join('')}
-                </ul>
-            `;
-            
-            // Insert at the top of the form
-            form.insertBefore(summary, form.firstChild);
-            
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                if (summary.parentNode) {
-                    summary.remove();
-                }
-            }, 5000);
-        }
+            if (mobileSidebarOverlay && mobileSidebar) {
+                mobileSidebarOverlay.addEventListener('click', function() {
+                    mobileSidebar.classList.add('hidden');
+                });
+            }
+        });
     </script>
+
     @stack('scripts')
+    
+    <!-- Déconnexion Form -->
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+        @csrf
+    </form>
 </body>
-</html> 
+</html>

@@ -15,61 +15,49 @@ class Client extends Model
     protected $table = 'clients';
 
     protected $fillable = [
-        'type',
-        'nom',
-        'prenom',
-        'ice_societe',
-        'nom_societe',
-        'date_naissance',
-        'lieu_de_naissance',
-        'adresse',
-        'telephone',
-        'ville',
-        'postal_code',
-        'code_postal',
-        'pays',
-        'email',
-        'nationalite',
-        'numero_cin',
-        'date_cin_expiration',
-        'numero_permis',
-        'date_permis',
-        'date_obtention_permis',
-        'passport',
-        'date_passport',
-        'numero_piece_identite',
-        'type_piece_identite',
-        'date_expiration_piece',
-        'profession',
-        'employeur',
-        'revenu_mensuel',
-        'description',
-        'notes',
-        'bloquer',
-        'is_blacklisted',
-        'is_blacklist',
-        'motif_blacklist',
-        'document',
-        'image',
-        'images',
         'tenant_id',
+        'user_id',
+        'student_number',
+        'name',
+        'name_ar',
+        'email',
+        'phone',
+        'cin',
+        'birth_date',
+        'birth_place',
+        'address',
+        'reference',
+        'cinimage',
+        'image',
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'license_category',
+        'status',
+        'registration_date',
+        'theory_hours_completed',
+        'practical_hours_completed',
+        'required_theory_hours',
+        'required_practical_hours',
+        'total_paid',
+        'total_due',
+        'progress_skills',
+        'notes',
     ];
 
     protected $casts = [
-        'date_naissance' => 'date',
-        'date_cin_expiration' => 'date',
-        'date_permis' => 'date',
-        'date_passport' => 'date',
-        'date_obtention_permis' => 'date',
-        'date_expiration_piece' => 'date',
-        'bloquer' => 'boolean',
-        'is_blacklisted' => 'boolean',
-        'is_blacklist' => 'boolean',
-        'images' => 'array',
+        'birth_date' => 'date',
+        'registration_date' => 'date',
+        'theory_hours_completed' => 'integer',
+        'practical_hours_completed' => 'integer',
+        'required_theory_hours' => 'integer',
+        'required_practical_hours' => 'integer',
+        'total_paid' => 'decimal:2',
+        'total_due' => 'decimal:2',
+        'progress_skills' => 'array',
     ];
 
     /**
-     * Get the tenant that owns the client.
+     * Get the tenant that owns the student.
      */
     public function tenant(): BelongsTo
     {
@@ -77,78 +65,142 @@ class Client extends Model
     }
 
     /**
-     * Get the reservations for the client.
+     * Get the user account for the student.
      */
-    public function reservations(): HasMany
+    public function user(): BelongsTo
     {
-        return $this->hasMany(Reservation::class);
+        return $this->belongsTo(User::class);
     }
 
     /**
-     * Get the contracts for the client.
+     * Get the lessons for the student.
      */
-    public function contrats(): HasMany
+    public function lessons(): HasMany
     {
-        return $this->hasMany(Contrat::class);
+        return $this->hasMany(Lesson::class, 'student_id');
     }
 
     /**
-     * Check if the client is blacklisted
+     * Get the exams for the student.
      */
-    public function isBlacklisted(): bool
+    public function exams(): HasMany
     {
-        return $this->is_blacklisted || $this->is_blacklist;
+        return $this->hasMany(Exam::class, 'student_id');
     }
 
     /**
-     * Get the secondary contracts for the client.
+     * Get the payments for the student.
      */
-    public function secondaryContrats(): HasMany
+    public function payments(): HasMany
     {
-        return $this->hasMany(Contrat::class, 'client_two_id');
+        return $this->hasMany(Payment::class, 'student_id');
     }
 
     /**
-     * Get the full name of the client.
+     * Get the progress records for the student.
+     */
+    public function progress(): HasMany
+    {
+        return $this->hasMany(StudentProgress::class, 'student_id');
+    }
+
+    /**
+     * Get the student packages.
+     */
+    public function studentPackages(): HasMany
+    {
+        return $this->hasMany(StudentPackage::class, 'student_id');
+    }
+
+    /**
+     * Get the full name of the student.
      */
     public function getFullNameAttribute(): string
     {
-        if ($this->type === 'societe') {
-            return $this->nom_societe ?? $this->nom;
-        }
-        return trim($this->prenom . ' ' . $this->nom);
+        return trim($this->name);
     }
 
     /**
-     * Scope a query to only include active clients.
+     * Get the full name in Arabic.
+     */
+    public function getFullNameArAttribute(): string
+    {
+        return trim($this->name_ar);
+    }
+
+    /**
+     * Scope a query to only include active students.
      */
     public function scopeActive($query)
     {
-        return $query->where('bloquer', false);
+        return $query->where('status', 'active');
     }
 
     /**
-     * Scope a query to only include non-blocked clients.
+     * Scope a query to only include registered students.
      */
-    public function scopeNotBlocked($query)
+    public function scopeRegistered($query)
     {
-        return $query->where('bloquer', false);
+        return $query->where('status', 'registered');
     }
 
     /**
-     * Check if client is blocked.
+     * Scope a query to only include graduated students.
      */
-    public function isBlocked(): bool
+    public function scopeGraduated($query)
     {
-        return $this->bloquer;
+        return $query->where('status', 'graduated');
     }
 
     /**
-     * Toggle block status.
+     * Check if student is active.
      */
-    public function toggleBlock(): void
+    public function isActive(): bool
     {
-        $this->update(['bloquer' => !$this->bloquer]);
+        return $this->status === 'active';
+    }
+
+    /**
+     * Check if student is graduated.
+     */
+    public function isGraduated(): bool
+    {
+        return $this->status === 'graduated';
+    }
+
+    /**
+     * Check if student is suspended.
+     */
+    public function isSuspended(): bool
+    {
+        return $this->status === 'suspended';
+    }
+
+    /**
+     * Get completion percentage for theory hours.
+     */
+    public function getTheoryCompletionPercentageAttribute(): float
+    {
+        if ($this->required_theory_hours == 0) return 0;
+        return ($this->theory_hours_completed / $this->required_theory_hours) * 100;
+    }
+
+    /**
+     * Get completion percentage for practical hours.
+     */
+    public function getPracticalCompletionPercentageAttribute(): float
+    {
+        if ($this->required_practical_hours == 0) return 0;
+        return ($this->practical_hours_completed / $this->required_practical_hours) * 100;
+    }
+
+    /**
+     * Check if student has completed required hours.
+     */
+    public function hasCompletedRequiredHours(): bool
+    {
+        return $this->theory_hours_completed >= $this->required_theory_hours &&
+               $this->practical_hours_completed >= $this->required_practical_hours;
     }
 
     /**

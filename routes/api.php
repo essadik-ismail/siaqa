@@ -2,17 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AgenceController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\VehiculeController;
 use App\Http\Controllers\MarqueController;
-use App\Http\Controllers\ReservationController;
-use App\Http\Controllers\ContratController;
 use App\Http\Controllers\AssuranceController;
 use App\Http\Controllers\VidangeController;
 use App\Http\Controllers\VisiteController;
-use App\Http\Controllers\InterventionController;
-use App\Http\Controllers\RetourContratController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\NotificationController;
 
@@ -34,17 +29,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Tenant-aware routes - all routes below this are tenant-specific
 Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
     
-    // Agences routes
-    Route::prefix('agences')->group(function () {
-        Route::get('/', [AgenceController::class, 'index']);
-        Route::post('/', [AgenceController::class, 'store']);
-        Route::get('/active', [AgenceController::class, 'active']);
-        Route::get('/{agence}', [AgenceController::class, 'show']);
-        Route::put('/{agence}', [AgenceController::class, 'update']);
-        Route::delete('/{agence}', [AgenceController::class, 'destroy']);
-        Route::patch('/{agence}/toggle-status', [AgenceController::class, 'toggleStatus']);
-    });
-
     // Clients routes
     Route::prefix('clients')->group(function () {
         Route::get('/', [ClientController::class, 'index']);
@@ -80,31 +64,6 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
         Route::patch('/{vehicule}/status', [VehiculeController::class, 'updateStatus']);
     });
 
-    // Reservations routes
-    Route::prefix('reservations')->group(function () {
-        Route::get('/', [ReservationController::class, 'index']);
-        Route::post('/', [ReservationController::class, 'store']);
-        Route::get('/statistics', [ReservationController::class, 'statistics']);
-        Route::get('/{reservation}', [ReservationController::class, 'show']);
-        Route::put('/{reservation}', [ReservationController::class, 'update']);
-        Route::delete('/{reservation}', [ReservationController::class, 'destroy']);
-        Route::patch('/{reservation}/status', [ReservationController::class, 'updateStatus']);
-        Route::post('/{reservation}/confirm', [ReservationController::class, 'confirm']);
-        Route::post('/{reservation}/cancel', [ReservationController::class, 'cancel']);
-    });
-
-    // Contrats routes
-    Route::prefix('contrats')->group(function () {
-        Route::get('/', [ContratController::class, 'index']);
-        Route::post('/', [ContratController::class, 'store']);
-        Route::get('/statistics', [ContratController::class, 'statistics']);
-        Route::get('/{contrat}', [ContratController::class, 'show']);
-        Route::put('/{contrat}', [ContratController::class, 'update']);
-        Route::delete('/{contrat}', [ContratController::class, 'destroy']);
-        Route::patch('/{contrat}/status', [ContratController::class, 'updateStatus']);
-        Route::post('/{contrat}/terminate', [ContratController::class, 'terminate']);
-    });
-
     // Assurances routes
     Route::prefix('assurances')->group(function () {
         Route::get('/', [AssuranceController::class, 'index']);
@@ -133,26 +92,6 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
         Route::get('/{visite}', [VisiteController::class, 'show']);
         Route::put('/{visite}', [VisiteController::class, 'update']);
         Route::delete('/{visite}', [VisiteController::class, 'destroy']);
-    });
-
-    // Interventions routes
-    Route::prefix('interventions')->group(function () {
-        Route::get('/', [InterventionController::class, 'index']);
-        Route::post('/', [InterventionController::class, 'store']);
-        Route::get('/statistics', [InterventionController::class, 'statistics']);
-        Route::get('/{intervention}', [InterventionController::class, 'show']);
-        Route::put('/{intervention}', [InterventionController::class, 'update']);
-        Route::delete('/{intervention}', [InterventionController::class, 'destroy']);
-        Route::patch('/{intervention}/status', [InterventionController::class, 'updateStatus']);
-    });
-
-    // RetourContrats routes
-    Route::prefix('retour-contrats')->group(function () {
-        Route::get('/', [RetourContratController::class, 'index']);
-        Route::post('/', [RetourContratController::class, 'store']);
-        Route::get('/{retourContrat}', [RetourContratController::class, 'show']);
-        Route::put('/{retourContrat}', [RetourContratController::class, 'update']);
-        Route::delete('/{retourContrat}', [RetourContratController::class, 'destroy']);
     });
 
     // Charges routes
@@ -184,11 +123,7 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
             'data' => [
                 'total_clients' => \App\Models\Client::count(),
                 'total_vehicules' => \App\Models\Vehicule::count(),
-                'total_reservations' => \App\Models\Reservation::count(),
-                'total_contrats' => \App\Models\Contrat::count(),
                 'vehicules_disponibles' => \App\Models\Vehicule::where('statut', 'disponible')->count(),
-                'reservations_en_attente' => \App\Models\Reservation::where('statut', 'en_attente')->count(),
-                'contrats_en_cours' => \App\Models\Contrat::where('statut', 'en_cours')->count(),
                 'assurances_expirant_soon' => \App\Models\Assurance::where('date_expiration', '<=', now()->addDays(30))->count(),
             ],
             'message' => 'Statistiques du tableau de bord récupérées avec succès'

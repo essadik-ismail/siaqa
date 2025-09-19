@@ -33,14 +33,14 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <a href="{{ route('landing') }}" class="flex items-center space-x-2 hover:opacity-90 transition-opacity duration-200">
+                        <a href="{{ route('home') }}" class="flex items-center space-x-2 hover:opacity-90 transition-opacity duration-200">
                             <img src="{{ asset('assets/images/odys-logo-compact.svg') }}" alt="Odys Rental Management" class="h-8 w-auto">
                         </a>
                     </div>
                 </div>
                 
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('landing') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    <a href="{{ route('home') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                         Home
                     </a>
                     <a href="{{ route('landing.cars') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
@@ -69,7 +69,7 @@
             <nav class="flex" aria-label="Breadcrumb">
                 <ol class="flex items-center space-x-4">
                     <li>
-                        <a href="{{ route('landing') }}" class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <a href="{{ route('home') }}" class="text-gray-500 hover:text-gray-700 transition-colors">
                             <i class="fas fa-home"></i>
                         </a>
                     </li>
@@ -326,7 +326,7 @@
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
                     <ul class="space-y-2">
-                        <li><a href="{{ route('landing') }}" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="{{ route('home') }}" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
                         <li><a href="{{ route('landing.cars') }}" class="text-gray-400 hover:text-white transition-colors">View Cars</a></li>
                         <li><a href="{{ route('landing.register') }}" class="text-gray-400 hover:text-white transition-colors">Register</a></li>
                     </ul>

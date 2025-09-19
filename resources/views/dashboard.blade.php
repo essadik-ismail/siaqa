@@ -1,550 +1,290 @@
 @extends('layouts.app')
 
-@section('title', 'Tableau de bord')
+@section('title', 'Dashboard')
 
 @section('content')
-    <!-- Enhanced Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Clients Card -->
-        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-green-100 text-sm font-medium">Clients</p>
-                    <p class="text-3xl font-bold">{{ number_format($stats['total_clients']) }}</p>
-                    <p class="text-green-100 text-xs mt-1">+12% par rapport au mois dernier</p>
-                </div>
-                <div class="w-12 h-12 bg-green-400 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-users text-xl"></i>
-                </div>
-            </div>
+<div class="min-h-screen">
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold gradient-text">Tableau de Bord</h1>
+            <p class="mt-2 text-gray-600 text-lg">Planifiez, priorisez et gérez votre auto-école avec facilité.</p>
         </div>
 
-        <!-- Reservations Card -->
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-blue-100 text-sm font-medium">Réservations</p>
-                    <p class="text-3xl font-bold">{{ number_format($stats['total_reservations']) }}</p>
-                    <p class="text-blue-100 text-xs mt-1">+8% par rapport au mois dernier</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-400 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-calendar-check text-xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Revenue Card -->
-        <div class="bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-red-100 text-sm font-medium">Revenus Totaux</p>
-                    <p class="text-3xl font-bold">{{ number_format($stats['total_revenue']) }} DH</p>
-                    <p class="text-red-100 text-xs mt-1">+15% par rapport au mois dernier</p>
-                </div>
-                <div class="w-12 h-12 bg-red-400 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-dollar-sign text-xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Vehicles Card -->
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-purple-100 text-sm font-medium">Véhicules</p>
-                    <p class="text-3xl font-bold">{{ number_format($stats['total_vehicles'] ?? 0) }}</p>
-                    <p class="text-purple-100 text-xs mt-1">{{ $stats['available_vehicles'] ?? 0 }} disponibles</p>
-                </div>
-                <div class="w-12 h-12 bg-purple-400 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-car text-xl"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Performance Metrics Row -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <!-- Utilization Rate -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">Taux d'Utilisation</h3>
-                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-chart-pie text-blue-600"></i>
-                </div>
-            </div>
-            <div class="text-3xl font-bold text-gray-900 mb-2">{{ $stats['utilization_rate'] ?? 75 }}%</div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $stats['utilization_rate'] ?? 75 }}%"></div>
-            </div>
-            <p class="text-sm text-gray-600 mt-2">Utilisation des véhicules</p>
-        </div>
-
-        <!-- Average Rental Duration -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">Durée Moyenne de Location</h3>
-                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-clock text-green-600"></i>
-                </div>
-            </div>
-            <div class="text-3xl font-bold text-gray-900 mb-2">{{ $stats['avg_rental_duration'] ?? 5 }} jours</div>
-            <p class="text-sm text-gray-600">par location</p>
-        </div>
-
-        <!-- Customer Satisfaction -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">Satisfaction Client</h3>
-                <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-star text-yellow-600"></i>
-                </div>
-            </div>
-            <div class="text-3xl font-bold text-gray-900 mb-2">{{ $stats['satisfaction_rate'] ?? 4.8 }}/5</div>
-            <div class="flex items-center">
-                @for($i = 1; $i <= 5; $i++)
-                    <i class="fas fa-star text-yellow-400 {{ $i <= ($stats['satisfaction_rate'] ?? 4.8) ? '' : 'opacity-30' }}"></i>
-                @endfor
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Management Section -->
-    @if(auth()->user()->isSuperAdmin())
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">Administration</h2>
-            <div class="text-sm text-gray-600">Système</div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- User Management -->
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer" onclick="window.location.href='{{ route('admin.users.index') }}'">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-blue-400 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-users text-xl"></i>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold">{{ $stats['total_users'] ?? 0 }}</div>
-                        <div class="text-blue-100 text-sm">Utilisateurs</div>
-                    </div>
-                </div>
-                <h3 class="text-lg font-semibold mb-2">Gestion des Utilisateurs</h3>
-                <p class="text-blue-100 text-sm">Gérer les utilisateurs, rôles et permissions</p>
-                <div class="mt-4 flex items-center text-blue-100 text-sm">
-                    <span>Gérer les Utilisateurs</span>
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </div>
-            </div>
-
-            <!-- Agency Management -->
-            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer" onclick="window.location.href='{{ route('admin.agencies.index') }}'">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-green-400 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-building text-xl"></i>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold">{{ $stats['total_agencies'] ?? 0 }}</div>
-                        <div class="text-green-100 text-sm">Agences</div>
-                    </div>
-                </div>
-                <h3 class="text-lg font-semibold mb-2">Gestion des Agences</h3>
-                <p class="text-green-100 text-sm">Gérer les agences de location</p>
-                <div class="mt-4 flex items-center text-green-100 text-sm">
-                    <span>Gérer les Agences</span>
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </div>
-            </div>
-
-            <!-- Role Management -->
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer" onclick="window.location.href='{{ route('admin.roles.index') }}'">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-purple-400 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-user-shield text-xl"></i>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold">{{ $stats['total_roles'] ?? 0 }}</div>
-                        <div class="text-purple-100 text-sm">Rôles</div>
-                    </div>
-                </div>
-                <h3 class="text-lg font-semibold mb-2">Gestion des Rôles</h3>
-                <p class="text-purple-100 text-sm">Définir et gérer les rôles utilisateur</p>
-                <div class="mt-4 flex items-center text-purple-100 text-sm">
-                    <span>Gérer les Rôles</span>
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </div>
-            </div>
-
-            <!-- Permission Management -->
-            <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer" onclick="window.location.href='{{ route('admin.permissions.index') }}'">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-orange-400 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-key text-xl"></i>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold">{{ $stats['total_permissions'] ?? 0 }}</div>
-                        <div class="text-orange-100 text-sm">Permissions</div>
-                    </div>
-                </div>
-                <h3 class="text-lg font-semibold mb-2">Gestion des Permissions</h3>
-                <p class="text-orange-100 text-sm">Configurer les permissions système</p>
-                <div class="mt-4 flex items-center text-orange-100 text-sm">
-                    <span>Gérer les Permissions</span>
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="mt-8 pt-6 border-t border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Actions Rapides</h3>
-            <div class="flex flex-wrap gap-4">
-                <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                    <i class="fas fa-user-plus mr-2"></i>
-                    Ajouter un Nouvel Utilisateur
-                </a>
-                <a href="{{ route('admin.agencies.create') }}" class="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                    <i class="fas fa-building mr-2"></i>
-                    Ajouter une Nouvelle Agence
-                </a>
-                <a href="{{ route('admin.roles.create') }}" class="inline-flex items-center px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
-                    <i class="fas fa-user-shield mr-2"></i>
-                    Créer un Nouveau Rôle
-                </a>
-                <a href="{{ route('admin.bulk-create') }}" class="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                    <i class="fas fa-key mr-2"></i>
-                    Créer des Permissions en Masse
-                </a>
-                <a href="{{ route('admin.car-selection.index') }}" class="inline-flex items-center px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">
-                    <i class="fas fa-car mr-2"></i>
-                    Gérer les Voitures de Débarquement
-                </a>
-                <a href="{{ route('saas.system-diagnostics') }}" class="inline-flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                    <i class="fas fa-heartbeat mr-2"></i>
-                    Diagnostics Système
-                </a>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    <!-- Recent Activity & Notifications -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <!-- Recent Activity -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Activité Récente</h3>
-                <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Voir Tout</a>
-            </div>
-            <div class="space-y-4">
-                <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-plus text-green-600"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900">Nouvelle Réservation</p>
-                        <p class="text-xs text-gray-500">Client a loué un véhicule</p>
-                    </div>
-                    <span class="text-xs text-gray-400">2m il y a</span>
-                </div>
-                <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-blue-600"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900">Nouveau Client</p>
-                        <p class="text-xs text-gray-500">Client enregistré</p>
-                    </div>
-                    <span class="text-xs text-gray-400">15m il y a</span>
-                </div>
-                <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-car text-purple-600"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900">Véhicule Rendu</p>
-                        <p class="text-xs text-gray-500">Véhicule disponible</p>
-                    </div>
-                    <span class="text-xs text-gray-400">1h il y a</span>
-                </div>
-                <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-yellow-600"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900">Maintenance Due</p>
-                        <p class="text-xs text-gray-500">Véhicule nécessite un service</p>
-                    </div>
-                    <span class="text-xs text-gray-400">3h il y a</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Stats -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Statistiques Rapides</h3>
-                <i class="fas fa-chart-bar text-gray-400"></i>
-            </div>
-            <div class="space-y-6">
-                <!-- Today's Revenue -->
+        <!-- Stats Cards Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Students -->
+            <div class="stats-card p-6">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-dollar-sign text-green-600"></i>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Total Étudiants</p>
+                        <p class="text-4xl font-bold text-gray-900 mb-2" id="total-students">{{ $stats['total_students'] ?? 0 }}</p>
+                        <div class="flex items-center">
+                            <i class="fas fa-arrow-up text-blue-500 text-xs mr-1 pulse-animation"></i>
+                            <span class="text-xs text-blue-600 font-medium">Augmenté depuis le mois dernier</span>
                         </div>
-                        <span class="text-sm font-medium text-gray-700">Revenus d'Aujourd'hui</span>
                     </div>
-                    <span class="text-lg font-bold text-gray-900">{{ number_format($stats['todays_revenue'] ?? 1250) }} DH</span>
+                    <div class="icon-container w-14 h-14">
+                        <i class="fas fa-user-graduate text-white text-xl"></i>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Active Reservations -->
+            <!-- Active Lessons -->
+            <div class="stats-card p-6">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-calendar-check text-blue-600"></i>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Leçons Actives</p>
+                        <p class="text-4xl font-bold text-gray-900 mb-2" id="total-lessons">{{ $stats['total_lessons'] ?? 0 }}</p>
+                        <div class="flex items-center">
+                            <i class="fas fa-arrow-up text-purple-500 text-xs mr-1 pulse-animation"></i>
+                            <span class="text-xs text-purple-600 font-medium">Augmenté depuis le mois dernier</span>
                         </div>
-                        <span class="text-sm font-medium text-gray-700">Réservations Actives</span>
                     </div>
-                    <span class="text-lg font-bold text-gray-900">{{ $stats['active_reservations'] ?? 12 }}</span>
+                    <div class="icon-container w-14 h-14" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);">
+                        <i class="fas fa-book text-white text-xl"></i>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Available Vehicles -->
+            <!-- Instructors -->
+            <div class="stats-card p-6">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-car text-purple-600"></i>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Instructeurs</p>
+                        <p class="text-4xl font-bold text-gray-900 mb-2" id="total-instructors">{{ $stats['total_instructors'] ?? 0 }}</p>
+                        <div class="flex items-center">
+                            <i class="fas fa-arrow-up text-indigo-500 text-xs mr-1 pulse-animation"></i>
+                            <span class="text-xs text-indigo-600 font-medium">Augmenté depuis le mois dernier</span>
                         </div>
-                        <span class="text-sm font-medium text-gray-700">Véhicules Disponibles</span>
                     </div>
-                    <span class="text-lg font-bold text-gray-900">{{ $stats['available_vehicles'] ?? 8 }}</span>
+                    <div class="icon-container w-14 h-14" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+                        <i class="fas fa-chalkboard-teacher text-white text-xl"></i>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Pending Approvals -->
+            <!-- Pending Exams -->
+            <div class="stats-card p-6">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-clock text-orange-600"></i>
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Examens en Attente</p>
+                        <p class="text-4xl font-bold text-gray-900 mb-2" id="total-exams">{{ $stats['total_exams'] ?? 0 }}</p>
+                        <div class="flex items-center">
+                            <span class="text-xs text-pink-600 font-medium">À l'Heure</span>
                         </div>
-                        <span class="text-sm font-medium text-gray-700">Approbations en Attente</span>
                     </div>
-                    <span class="text-lg font-bold text-gray-900">{{ $stats['pending_approvals'] ?? 3 }}</span>
-                </div>
-
-                <!-- Maintenance Alerts -->
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-wrench text-red-600"></i>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700">Alertes de Maintenance</span>
+                    <div class="icon-container w-14 h-14" style="background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);">
+                        <i class="fas fa-clipboard-check text-white text-xl"></i>
                     </div>
-                    <span class="text-lg font-bold text-gray-900">{{ $stats['maintenance_alerts'] ?? 2 }}</span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Tabs -->
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-        <div class="flex space-x-1 mb-6">
-            <button id="vehicles-tab" class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium tab-button active" data-tab="vehicles">Véhicules</button>
-            <button id="reservations-tab" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg tab-button" data-tab="reservations">Réservations</button>
-            <button id="contracts-tab" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg tab-button" data-tab="contracts">Contrats</button>
-        </div>
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Lesson Analytics -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 material-card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Analyses des Leçons</h3>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">Cette Semaine</button>
+                        </div>
+                    </div>
+                    <div class="h-64 flex items-end space-x-2">
+                        @php
+                            $chartData = $chartData ?? ['lessons' => [12, 19, 8, 15, 22, 18, 25]];
+                            $maxValue = max($chartData['lessons']);
+                            // Prevent division by zero
+                            if ($maxValue == 0) {
+                                $maxValue = 1;
+                            }
+                        @endphp
+                        @foreach($chartData['lessons'] as $index => $value)
+                            <div class="flex-1 flex flex-col items-center group">
+                                <div class="w-full bg-gradient-to-t from-blue-500 to-purple-400 rounded-t-lg mb-2 transition-all duration-300 group-hover:from-blue-600 group-hover:to-purple-500" 
+                                     style="height: {{ ($value / $maxValue) * 200 }}px;">
+                                </div>
+                                <span class="text-xs text-gray-500 font-medium">{{ ['S', 'M', 'T', 'W', 'T', 'F', 'S'][$index] }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
 
-        <!-- Tab Content -->
-        <div id="tab-content">
-            <!-- Vehicles Tab Content -->
-            <div id="vehicles-content" class="tab-panel">
-                <!-- Vehicle Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold">Revenus Estimés Totaux</h3>
-                            <div class="w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center">
-                                <span class="text-2xl font-bold">{{ $stats['estimated_utilization'] ?? 0 }}%</span>
+                <!-- Recent Lessons -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 material-card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Leçons Récentes</h3>
+                        <button class="text-blue-600 text-sm font-medium">+ Nouveau</button>
+                    </div>
+                    <div class="space-y-4">
+                        @forelse($recentLessons ?? [] as $lesson)
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-book text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ $lesson->title ?? 'Leçon Sans Titre' }}</p>
+                                        <p class="text-sm text-gray-500">{{ $lesson->student->name ?? 'Aucun Étudiant' }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-500">Échéance: {{ $lesson->scheduled_at ? $lesson->scheduled_at->format('d M, Y') : 'Non programmé' }}</p>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $lesson->status == 'completed' ? 'bg-green-100 text-green-800' : ($lesson->status == 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
+                                        {{ ucfirst(str_replace('_', ' ', $lesson->status ?? 'pending')) }}
+                                    </span>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-8">
+                                <i class="fas fa-book text-4xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-500">Aucune leçon récente</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-8">
+                <!-- Upcoming Exams -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Examens à Venir</h3>
+                        <button class="text-blue-600 text-sm font-medium">+ Nouveau</button>
+                    </div>
+                    <div class="space-y-4">
+                        @forelse($recentExams ?? [] as $exam)
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-clipboard-check text-orange-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ $exam->title ?? 'Examen Sans Titre' }}</p>
+                                        <p class="text-sm text-gray-500">{{ $exam->student->name ?? 'Aucun Étudiant' }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-500">Échéance: {{ $exam->scheduled_at ? $exam->scheduled_at->format('d M, Y') : 'Non programmé' }}</p>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $exam->status == 'completed' ? 'bg-green-100 text-green-800' : ($exam->status == 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
+                                        {{ ucfirst(str_replace('_', ' ', $exam->status ?? 'pending')) }}
+                                    </span>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-8">
+                                <i class="fas fa-clipboard-check text-4xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-500">No upcoming exams</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <!-- Instructor Performance -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Instructor Performance</h3>
+                        <button class="text-blue-600 text-sm font-medium">+ Add Member</button>
+                    </div>
+                    <div class="space-y-4">
+                        @forelse($instructors ?? [] as $instructor)
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white font-semibold text-sm">{{ substr($instructor->name ?? 'U', 0, 1) }}</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ $instructor->name ?? 'Unknown Instructor' }}</p>
+                                        <p class="text-sm text-gray-500">{{ $instructor->lessons_count ?? 0 }} lessons completed</p>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ ($instructor->is_available ?? false) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    {{ ($instructor->is_available ?? false) ? 'Available' : 'Busy' }}
+                                </span>
+                            </div>
+                        @empty
+                            <div class="text-center py-8">
+                                <i class="fas fa-chalkboard-teacher text-4xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-500">No instructors</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <!-- Progress Overview -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Progress Overview</h3>
+                    <div class="text-center">
+                        <div class="relative w-32 h-32 mx-auto mb-4">
+                            <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="50" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                <circle cx="60" cy="60" r="50" stroke="#10b981" stroke-width="8" fill="none" 
+                                        stroke-dasharray="314" stroke-dashoffset="185" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-2xl font-bold text-gray-900">41%</span>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold">{{ number_format($stats['estimated_revenue']) }} DH</p>
-                        <div class="mt-4">
-                            <div class="w-full bg-blue-400 rounded-full h-2">
-                                <div class="bg-white h-2 rounded-full" style="width: {{ $stats['estimated_utilization'] ?? 0 }}%"></div>
+                        <p class="text-sm text-gray-600 mb-4">Students Completed</p>
+                        <div class="flex justify-center space-x-4 text-xs">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                                <span class="text-gray-600">Completed</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold">Revenus Réels Totaux</h3>
-                            <div class="w-16 h-16 bg-green-400 rounded-full flex items-center justify-center">
-                                <span class="text-2xl font-bold">{{ $stats['actual_utilization'] ?? 0 }}%</span>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                                <span class="text-gray-600">In Progress</span>
                             </div>
-                        </div>
-                        <p class="text-3xl font-bold">{{ number_format($stats['actual_revenue']) }} DH</p>
-                        <div class="mt-4">
-                            <div class="w-full bg-green-400 rounded-full h-2">
-                                <div class="bg-white h-2 rounded-full" style="width: {{ $stats['actual_utilization'] ?? 0 }}%"></div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-gray-300 rounded-full mr-2"></div>
+                                <span class="text-gray-600">Pending</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Recent Vehicles -->
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Véhicules Récents</h3>
-                    @include('dashboard.partials.vehicles', ['data' => $recentVehicles])
-                </div>
-            </div>
-
-            <!-- Reservations Tab Content -->
-            <div id="reservations-content" class="tab-panel hidden">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Réservations Récentes</h3>
-                    @include('dashboard.partials.reservations', ['data' => $recentReservations])
-                </div>
-            </div>
-
-            <!-- Contracts Tab Content -->
-            <div id="contracts-content" class="tab-panel hidden">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Contrats Récents</h3>
-                    @include('dashboard.partials.contracts', ['data' => $recentContracts])
+                <!-- Quick Actions -->
+                <div class="material-card p-6 text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3 class="text-xl font-bold mb-6">Actions Rapides</h3>
+                    <div class="space-y-4">
+                        <button class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 rounded-xl p-4 text-left transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+                            <i class="fas fa-plus mr-3 text-lg"></i>
+                            <span class="font-medium">Ajouter un Nouvel Étudiant</span>
+                        </button>
+                        <button class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 rounded-xl p-4 text-left transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+                            <i class="fas fa-calendar mr-3 text-lg"></i>
+                            <span class="font-medium">Programmer une Leçon</span>
+                        </button>
+                        <button class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 rounded-xl p-4 text-left transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+                            <i class="fas fa-chart-bar mr-3 text-lg"></i>
+                            <span class="font-medium">Voir les Rapports</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Chart Section -->
-    <div class="bg-white rounded-xl shadow-lg p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-semibold text-gray-800">Rapport de Revenus Mensuels</h3>
-            <div class="flex space-x-4 text-sm">
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <span>Revenus</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                    <span>Réservations</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span>Croissance</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="relative chart-container">
-            <canvas id="revenueChart"></canvas>
-            <div class="absolute top-0 right-0 bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-medium">
-                {{ number_format($stats['current_month_revenue']) }} DH
-            </div>
-        </div>
-    </div>
-@endsection
-
-@section('sidebar')
-    <!-- Sidebar content can be added here if needed -->
-@endsection
-
-@push('scripts')
 <script>
-// Tab functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabPanels = document.querySelectorAll('.tab-panel');
-    
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const targetTab = this.getAttribute('data-tab');
-            
-            // Remove active class from all buttons
-            tabButtons.forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white');
-                btn.classList.add('text-gray-600', 'hover:bg-gray-100');
-            });
-            
-            // Add active class to clicked button
-            this.classList.add('bg-blue-500', 'text-white');
-            this.classList.remove('text-gray-600', 'hover:bg-gray-100');
-            
-            // Hide all panels
-            tabPanels.forEach(panel => {
-                panel.classList.add('hidden');
-            });
-            
-            // Show target panel
-            const targetPanel = document.getElementById(targetTab + '-content');
-            if (targetPanel) {
-                targetPanel.classList.remove('hidden');
+// Auto-refresh stats every 30 seconds
+setInterval(function() {
+    fetch('{{ route("dashboard.tab-data") }}?tab=stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('total-students').textContent = data.data.total_students || 0;
+                document.getElementById('total-lessons').textContent = data.data.total_lessons || 0;
+                document.getElementById('total-instructors').textContent = data.data.total_instructors || 0;
+                document.getElementById('total-exams').textContent = data.data.total_exams || 0;
             }
-            
-            // Load data for the tab if it's not vehicles (which loads by default)
-            if (targetTab !== 'vehicles') {
-                loadTabData(targetTab);
-            }
-        });
-    });
-});
-
-// Load tab data via AJAX
-function loadTabData(tab) {
-    const contentDiv = document.getElementById(tab + '-content');
-    if (contentDiv && !contentDiv.dataset.loaded) {
-        fetch(`{{ route('dashboard.tab-data') }}?tab=${tab}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    contentDiv.innerHTML = data.html;
-                    contentDiv.dataset.loaded = 'true';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading tab data:', error);
-            });
-    }
-}
-
-// Revenue Chart with real data
-const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-const revenueChart = new Chart(revenueCtx, {
-    type: 'bar',
-    data: {
-        labels: @json($chartData['months']),
-        datasets: [{
-            label: 'Revenue',
-            data: @json($chartData['revenue']),
-            backgroundColor: 'rgba(239, 68, 68, 0.8)',
-            borderColor: 'rgba(239, 68, 68, 1)',
-            borderWidth: 1
-        }, {
-            label: 'Reservations',
-            data: @json($chartData['reservations']),
-            backgroundColor: 'rgba(59, 130, 246, 0.8)',
-            borderColor: 'rgba(59, 130, 246, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return value.toLocaleString() + ' DH';
-                    }
-                }
-            }
-        },
-        plugins: {
-            legend: {
-                display: false
-            }
-        }
-    }
-});
-
+        })
+        .catch(error => console.error('Error fetching stats:', error));
+}, 30000);
 </script>
-@endpush 
+@endsection
