@@ -472,6 +472,10 @@ Route::group([], function () {
     Route::get('/students/{student}/edit', [App\Http\Controllers\StudentController::class, 'edit'])->name('students.edit');
     Route::put('/students/{student}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{student}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
+    Route::get('/students/{student}/progress', [App\Http\Controllers\StudentController::class, 'progress'])->name('students.progress');
+    Route::get('/students/{student}/schedule', [App\Http\Controllers\StudentController::class, 'schedule'])->name('students.schedule');
+    Route::post('/students/{student}/status', [App\Http\Controllers\StudentController::class, 'updateStatus'])->name('students.updateStatus');
+    Route::get('/students/{student}/payments', [App\Http\Controllers\StudentController::class, 'payments'])->name('students.payments');
     
     // Instructors
     Route::get('/instructors', [App\Http\Controllers\InstructorController::class, 'index'])->name('instructors.index');
