@@ -15,56 +15,58 @@ class MarqueSeeder extends Seeder
     {
         $tenants = Tenant::all();
 
-        if ($tenants->isEmpty()) {
-            $this->command->warn('No tenants found. Please run TenantSeeder first.');
-            return;
-        }
-
-        $marques = [
-            'Renault',
-            'Peugeot',
-            'Citroën',
-            'Volkswagen',
-            'Ford',
-            'Opel',
-            'Fiat',
-            'Toyota',
-            'Nissan',
-            'Honda',
-            'Hyundai',
-            'Kia',
-            'BMW',
-            'Mercedes-Benz',
-            'Audi',
-            'Skoda',
-            'Seat',
-            'Dacia',
-        ];
-
-        $this->command->info('Seeding marques for ' . $tenants->count() . ' tenant(s)...');
-
         foreach ($tenants as $tenant) {
-            $this->command->info("Creating marques for tenant: {$tenant->name}");
-            
-            foreach ($marques as $marqueName) {
-                // Check if marque already exists for this tenant
-                $existingMarque = Marque::where('tenant_id', $tenant->id)
-                    ->where('marque', $marqueName)
-                    ->first();
+            $marques = [
+                [
+                    'marque' => 'Renault',
+                    'image' => 'renault_logo.png',
+                    'is_active' => true,
+                ],
+                [
+                    'marque' => 'Peugeot',
+                    'image' => 'peugeot_logo.png',
+                    'is_active' => true,
+                ],
+                [
+                    'marque' => 'Citroën',
+                    'image' => 'citroen_logo.png',
+                    'is_active' => true,
+                ],
+                [
+                    'marque' => 'Volkswagen',
+                    'image' => 'volkswagen_logo.png',
+                    'is_active' => true,
+                ],
+                [
+                    'marque' => 'Ford',
+                    'image' => 'ford_logo.png',
+                    'is_active' => true,
+                ],
+                [
+                    'marque' => 'Opel',
+                    'image' => 'opel_logo.png',
+                    'is_active' => true,
+                ],
+                [
+                    'marque' => 'BMW',
+                    'image' => 'bmw_logo.png',
+                    'is_active' => true,
+                ],
+                [
+                    'marque' => 'Mercedes-Benz',
+                    'image' => 'mercedes_logo.png',
+                    'is_active' => true,
+                ],
+            ];
 
-                if (!$existingMarque) {
-                    Marque::create([
-                        'tenant_id' => $tenant->id,
-                        'marque' => $marqueName,
-                        'is_active' => true,
-                    ]);
-                    $this->command->line("  ✓ Created: {$marqueName}");
-                } else {
-                    $this->command->line("  - Skipped: {$marqueName} (already exists)");
-                }
+            foreach ($marques as $marqueData) {
+                Marque::create([
+                    'tenant_id' => $tenant->id,
+                    'marque' => $marqueData['marque'],
+                    'image' => $marqueData['image'],
+                    'is_active' => $marqueData['is_active'],
+                ]);
             }
         }
-
-        $this->command->info('Marque seeding completed!');
     }
 }

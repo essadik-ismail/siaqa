@@ -106,7 +106,7 @@ class StoreExamRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'tenant_id' => $this->user()->tenant_id,
+            'tenant_id' => $this->user()->tenant_id ?? 1,
             'status' => $this->status ?? 'scheduled',
             'duration_minutes' => $this->duration_minutes ?? 60,
             'exam_fee' => $this->exam_fee ?? 0,

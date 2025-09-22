@@ -18,8 +18,9 @@ class PaymentController extends Controller
      */
     public function index(Request $request): \Illuminate\View\View
     {
+        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
         $query = Payment::with(['student', 'lesson', 'exam', 'tenant'])
-            ->where('tenant_id', auth()->user()->tenant_id);
+            ->where('tenant_id', $tenantId);
 
         // Apply filters
         if ($request->has('status')) {
@@ -80,17 +81,18 @@ class PaymentController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
-        $students = Student::where('tenant_id', auth()->user()->tenant_id)
+        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
+        $students = Student::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $lessons = Lesson::where('tenant_id', auth()->user()->tenant_id)
+        $lessons = Lesson::where('tenant_id', $tenantId)
             ->where('status', 'scheduled')
             ->with('student:id,name')
             ->get(['id', 'student_id', 'scheduled_at']);
 
-        $exams = Exam::where('tenant_id', auth()->user()->tenant_id)
+        $exams = Exam::where('tenant_id', $tenantId)
             ->where('status', 'scheduled')
             ->with('student:id,name')
             ->get(['id', 'student_id', 'scheduled_at']);

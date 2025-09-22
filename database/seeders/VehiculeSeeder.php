@@ -88,16 +88,28 @@ class VehiculeSeeder extends Seeder
                 
                 Vehicule::create([
                     'tenant_id' => $tenant->id,
-                    'marque_id' => $marque->id,
+                    'marque' => $marque->marque,
                     'name' => $vehicleData['name'],
                     'immatriculation' => $vehicleData['immatriculation'],
                     'is_active' => true,
+                    'is_training_vehicle' => true,
+                    'training_type' => 'practical',
+                    'required_licenses' => ['B'],
+                    'has_dual_controls' => true,
+                    'has_manual_transmission' => true,
+                    'has_automatic_transmission' => false,
+                    'max_students' => 1,
+                    'hourly_rate' => rand(30, 50),
+                    'safety_features' => ['ABS', 'Airbags', 'Seatbelts'],
+                    'last_inspection' => now()->subDays(rand(1, 30)),
+                    'next_inspection' => now()->addDays(rand(30, 90)),
+                    'requires_maintenance' => false,
+                    'maintenance_notes' => null,
                     'landing_display' => $index < 4, // First 4 vehicles displayed on landing
                     'landing_order' => $index + 1,
                     'categorie_vehicule' => $vehicleData['categorie_vehicule'],
                     'couleur' => $vehicleData['couleur'],
                     'description' => $vehicleData['description'],
-                    'requires_maintenance' => $vehicleData['requires_maintenance'] ?? false,
                 ]);
             }
         }

@@ -18,8 +18,9 @@ class InstructorController extends Controller
      */
     public function index(Request $request): View
     {
+        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
         $query = Instructor::with(['user', 'tenant'])
-            ->where('tenant_id', auth()->user()->tenant_id);
+            ->where('tenant_id', $tenantId);
 
         // Apply filters
         if ($request->has('status')) {
@@ -59,7 +60,8 @@ class InstructorController extends Controller
      */
     public function create(): View
     {
-        return view('instructors.create');
+        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
+        return view('instructors.create', compact('tenantId'));
     }
 
     /**

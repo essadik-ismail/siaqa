@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
             User::create([
                 'tenant_id' => $tenant->id,
                 'name' => 'Admin ' . $tenant->name,
-                'email' => 'admin@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
+                'email' => 'admin' . $tenant->id . '@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
                 'password' => Hash::make('password'),
                 'role' => 'tenant',
                 'is_active' => true,
@@ -32,15 +32,15 @@ class UserSeeder extends Seeder
             $instructors = [
                 [
                     'name' => 'Jean Dupont',
-                    'email' => 'jean.dupont@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
+                    'email' => 'jean.dupont' . $tenant->id . '@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
                 ],
                 [
                     'name' => 'Marie Martin',
-                    'email' => 'marie.martin@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
+                    'email' => 'marie.martin' . $tenant->id . '@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
                 ],
                 [
                     'name' => 'Pierre Durand',
-                    'email' => 'pierre.durand@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
+                    'email' => 'pierre.durand' . $tenant->id . '@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
                 ],
             ];
 
@@ -60,23 +60,23 @@ class UserSeeder extends Seeder
             $students = [
                 [
                     'name' => 'Sophie Bernard',
-                    'email' => 'sophie.bernard@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
+                    'email' => 'sophie.bernard' . $tenant->id . '@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
                 ],
                 [
                     'name' => 'Thomas Petit',
-                    'email' => 'thomas.petit@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
+                    'email' => 'thomas.petit' . $tenant->id . '@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
                 ],
                 [
                     'name' => 'Emma Rousseau',
-                    'email' => 'emma.rousseau@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
+                    'email' => 'emma.rousseau' . $tenant->id . '@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
                 ],
                 [
                     'name' => 'Lucas Moreau',
-                    'email' => 'lucas.moreau@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
+                    'email' => 'lucas.moreau' . $tenant->id . '@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
                 ],
                 [
                     'name' => 'Chloé Simon',
-                    'email' => 'chloe.simon@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
+                    'email' => 'chloe.simon' . $tenant->id . '@' . strtolower(str_replace(' ', '-', $tenant->name)) . '.fr',
                 ],
             ];
 

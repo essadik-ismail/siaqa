@@ -75,18 +75,18 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             min-height: 100vh;
         }
         
         .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .material-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             backdrop-filter: blur(20px);
@@ -500,14 +500,15 @@
                         </div>
 
                         <!-- User Profile Dropdown -->
+                        @auth
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                                 <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                    <span class="text-white font-semibold text-sm">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                    <span class="text-white font-semibold text-sm">{{ substr(Auth::user()->name ?? 'U', 0, 1) }}</span>
                                 </div>
                                 <div class="hidden sm:block text-left">
-                                    <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name ?? 'User' }}</p>
+                                    <p class="text-xs text-gray-500">{{ Auth::user()->email ?? 'user@example.com' }}</p>
                                 </div>
                                 <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
                             </button>
@@ -526,11 +527,11 @@
                                 <div class="p-4 border-b border-gray-100">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                            <span class="text-white font-semibold text-lg">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                            <span class="text-white font-semibold text-lg">{{ substr(Auth::user()->name ?? 'U', 0, 1) }}</span>
                                         </div>
                                         <div>
-                                            <p class="font-medium text-gray-900">{{ Auth::user()->name }}</p>
-                                            <p class="text-sm text-gray-500">{{ Auth::user()->email }}</p>
+                                            <p class="font-medium text-gray-900">{{ Auth::user()->name ?? 'User' }}</p>
+                                            <p class="text-sm text-gray-500">{{ Auth::user()->email ?? 'user@example.com' }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -565,13 +566,20 @@
                                 </div>
                             </div>
                         </div>
+                        @else
+                        <div class="flex items-center space-x-4">
+                            <a href="{{ route('login') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                Se connecter
+                            </a>
+                        </div>
+                        @endauth
 
                     </div>
                 </div>
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto">
+            <main class="flex-1 overflow-y-auto bg-gray-50 bg-opacity-50">
                 <div class="py-6">
                     @if (session('success'))
                         <div class="mb-4 mx-4 sm:mx-6 lg:mx-8">

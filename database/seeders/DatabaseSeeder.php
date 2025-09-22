@@ -21,7 +21,13 @@ class DatabaseSeeder extends Seeder
             VehiculeSeeder::class,
             InstructorSeeder::class,
             StudentSeeder::class,
+            PackageSeeder::class,
+            StudentPackageSeeder::class,
             LessonSeeder::class,
+            ExamSeeder::class,
+            StudentProgressSeeder::class,
+            InstructorAvailabilitySeeder::class,
+            VehicleAssignmentSeeder::class,
             PaymentSeeder::class,
         ]);
     }

@@ -25,7 +25,7 @@ class DashboardController extends Controller
     public function index(): View
     {
         $user = auth()->user();
-        $tenantId = $user->tenant_id;
+        $tenantId = $user ? $user->tenant_id : 1; // Default to tenant 1 if not authenticated
         
         // Base query for tenant-specific data
         $tenantQuery = function($query) use ($tenantId) {
@@ -63,7 +63,7 @@ class DashboardController extends Controller
         $stats['actual_utilization'] = $totalVehicles > 0 ? min(100, round(($activeLessons / $totalVehicles) * 100)) : 0;
 
         // Add admin statistics if user is super admin
-        if ($user->isSuperAdmin()) {
+        if ($user && method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) {
             $stats = array_merge($stats, [
                 'total_users' => User::count(),
                 'total_roles' => Role::count(),
@@ -105,7 +105,7 @@ class DashboardController extends Controller
     {
         $tab = $request->get('tab', 'vehicles');
         $user = auth()->user();
-        $tenantId = $user->tenant_id;
+        $tenantId = $user ? $user->tenant_id : 1; // Default to tenant 1 if not authenticated
         
         $tenantQuery = function($query) use ($tenantId) {
             if ($tenantId) {

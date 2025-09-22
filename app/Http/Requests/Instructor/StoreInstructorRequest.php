@@ -92,7 +92,7 @@ class StoreInstructorRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'tenant_id' => $this->user()->tenant_id,
+            'tenant_id' => $this->user()->tenant_id ?? 1,
             'is_available' => $this->boolean('is_available', true),
         ]);
     }
