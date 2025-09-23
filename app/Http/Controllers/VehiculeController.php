@@ -36,8 +36,8 @@ class VehiculeController extends Controller
         }
 
         // Apply status filter
-        if ($request->filled('statut')) {
-            $query->where('statut', $request->get('statut'));
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
         }
 
         // Apply brand filter
@@ -57,9 +57,9 @@ class VehiculeController extends Controller
         // Calculate statistics from ALL vehicles (not filtered) for sidebar
         $tenantId = auth()->user()->tenant_id;
         $totalVehicles = Vehicule::where('tenant_id', $tenantId)->count();
-        $availableVehicles = Vehicule::where('tenant_id', $tenantId)->where('statut', 'disponible')->count();
-        $onRentalVehicles = Vehicule::where('tenant_id', $tenantId)->where('statut', 'en_location')->count();
-        $maintenanceVehicles = Vehicule::where('tenant_id', $tenantId)->where('statut', 'en_maintenance')->count();
+        $availableVehicles = Vehicule::where('tenant_id', $tenantId)->where('status', 'available')->count();
+        $onRentalVehicles = Vehicule::where('tenant_id', $tenantId)->where('status', 'rented')->count();
+        $maintenanceVehicles = Vehicule::where('tenant_id', $tenantId)->where('status', 'maintenance')->count();
 
         // Get marques for filters
         $marques = Marque::orderBy('marque', 'asc')->get();
@@ -372,7 +372,7 @@ class VehiculeController extends Controller
      */
     public function available(): View
     {
-        $vehicules = Vehicule::where('statut', 'disponible')
+        $vehicules = Vehicule::where('status', 'available')
             ->with(['marque', 'agence'])
             ->orderBy('immatriculation', 'asc')
             ->paginate(15);
@@ -442,10 +442,10 @@ class VehiculeController extends Controller
         }
 
         $request->validate([
-            'statut' => 'required|in:disponible,en_maintenance,hors_service,reservé'
+            'status' => 'required|in:available,maintenance,out_of_service,reserved'
         ]);
 
-        $vehicule->update(['statut' => $request->statut]);
+        $vehicule->update(['status' => $request->status]);
 
         return redirect()->route('vehicules.index')
             ->with('success', 'Statut du véhicule mis à jour avec succès');
@@ -457,10 +457,10 @@ class VehiculeController extends Controller
     public function statistics(): View
     {
         $totalVehicules = Vehicule::count();
-        $disponibles = Vehicule::where('statut', 'disponible')->count();
-        $enMaintenance = Vehicule::where('statut', 'en_maintenance')->count();
-        $horsService = Vehicule::where('statut', 'hors_service')->count();
-        $reserves = Vehicule::where('statut', 'reservé')->count();
+        $disponibles = Vehicule::where('status', 'available')->count();
+        $enMaintenance = Vehicule::where('status', 'maintenance')->count();
+        $horsService = Vehicule::where('status', 'out_of_service')->count();
+        $reserves = Vehicule::where('status', 'reserved')->count();
 
         $vehiculesByMarque = Vehicule::selectRaw('marques.marque, count(*) as count')
             ->join('marques', 'vehicules.marque_id', '=', 'marques.id')

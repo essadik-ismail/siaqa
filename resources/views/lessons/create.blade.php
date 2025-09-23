@@ -30,19 +30,23 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Student Selection -->
                         <div>
-                            <label for="student_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Étudiant *
+                            <label for="student_ids" class="block text-sm font-medium text-gray-700 mb-2">
+                                Étudiants * (Sélectionner un ou plusieurs)
                             </label>
-                            <select name="student_id" id="student_id" required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                <option value="">Sélectionner un étudiant</option>
+                            <select name="student_ids[]" id="student_ids" multiple required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                style="min-height: 120px;">
                                 @foreach($students as $student)
-                                    <option value="{{ $student->id }}" {{ old('student_id') == $student->id ? 'selected' : '' }}>
+                                    <option value="{{ $student->id }}" {{ in_array($student->id, old('student_ids', [])) ? 'selected' : '' }}>
                                         {{ $student->name }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('student_id')
+                            <p class="mt-1 text-sm text-gray-500">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs étudiants</p>
+                            @error('student_ids')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            @error('student_ids.*')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>

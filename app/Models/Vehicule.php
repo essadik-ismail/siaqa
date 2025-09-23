@@ -18,6 +18,7 @@ class Vehicule extends Model
         'tenant_id',
         'marque_id',
         'name',
+        'status',
         'is_active',
         'is_training_vehicle',
         'training_type',

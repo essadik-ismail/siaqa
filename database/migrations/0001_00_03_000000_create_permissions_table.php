@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('permissions', function (Blueprint $table) {
-            $table->id();
-            $table->string('service')->unique();
-            $table->boolean('create')->default(false);
-            $table->boolean('read')->default(false);
-            $table->boolean('update')->default(false);
-            $table->boolean('delete')->default(false);
-            $table->foreignId('role_id')->nullable()->constrained();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('permissions')) {
+            Schema::create('permissions', function (Blueprint $table) {
+                $table->id();
+                $table->string('service')->unique();
+                $table->boolean('create')->default(false);
+                $table->boolean('read')->default(false);
+                $table->boolean('update')->default(false);
+                $table->boolean('delete')->default(false);
+                $table->foreignId('role_id')->nullable()->constrained();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

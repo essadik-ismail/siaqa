@@ -23,7 +23,6 @@ class StoreStudentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tenant_id' => ['required', 'integer', 'exists:tenants,id'],
             'user_id' => ['nullable', 'exists:users,id'],
             'student_number' => ['required', 'string', 'max:50', 'unique:students,student_number'],
             'name' => ['required', 'string', 'max:100'],
@@ -31,12 +30,12 @@ class StoreStudentRequest extends FormRequest
             'email' => ['required', 'email', 'max:255', 'unique:students,email'],
             'phone' => ['required', 'string', 'max:20'],
             'cin' => ['required', 'string', 'max:20', 'unique:students,cin'],
+            'cinimage' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'birth_date' => ['required', 'date', 'before:today'],
             'birth_place' => ['required', 'string', 'max:100'],
             'address' => ['required', 'string', 'max:500'],
             'reference' => ['required', 'string', 'max:100'],
-            'cinimage' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'emergency_contact_name' => ['required', 'string', 'max:100'],
             'emergency_contact_phone' => ['required', 'string', 'max:20'],
             'license_category' => ['nullable', 'string', 'max:10'],

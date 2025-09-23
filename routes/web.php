@@ -16,6 +16,12 @@ use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\InstructorController;
+use App\Http\Controllers\LessonController;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ReportController;
 
 // Private media routes (signed URLs)
 Route::get('/media/{type}/{id}', [App\Http\Controllers\MediaController::class, 'show'])
@@ -34,6 +40,75 @@ Route::get('/test-create', function() {
 Route::get('/test-students-create-simple', function() {
     return 'Students create route works!';
 });
+
+// Test lessons create route
+Route::get('/test-lessons-create', function() {
+    try {
+        $controller = new App\Http\Controllers\LessonController();
+        return $controller->create();
+    } catch (Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+// Test direct lessons create route
+Route::get('/test-lessons-create-direct', [LessonController::class, 'create'])->name('test.lessons.create');
+
+// Create routes - defined outside route group to avoid 404 issues
+Route::get('/students/create', function() {
+    try {
+        $controller = new App\Http\Controllers\StudentController();
+        return $controller->create();
+    } catch (Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+})->name('students.create');
+
+Route::get('/instructors/create', function() {
+    try {
+        $controller = new App\Http\Controllers\InstructorController();
+        return $controller->create();
+    } catch (Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+})->name('instructors.create');
+
+Route::get('/lessons/create', function() {
+    try {
+        $controller = new App\Http\Controllers\LessonController();
+        return $controller->create();
+    } catch (Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+})->name('lessons.create');
+
+Route::get('/exams/create', function() {
+    try {
+        $controller = new App\Http\Controllers\ExamController();
+        return $controller->create();
+    } catch (Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+})->name('exams.create');
+
+Route::get('/payments/create', function() {
+    try {
+        $controller = new App\Http\Controllers\PaymentController();
+        return $controller->create();
+    } catch (Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+})->name('payments.create');
+
+Route::get('/reports/create', function() {
+    try {
+        $controller = new App\Http\Controllers\ReportController();
+        return $controller->create();
+    } catch (Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+})->name('reports.create');
+
 
 // Test actual controller method
 Route::get('/test-controller-create', function() {
@@ -466,7 +541,6 @@ Route::group([], function () {
     
     // Students
     Route::get('/students', [App\Http\Controllers\StudentController::class, 'index'])->name('students.index');
-    Route::get('/students/create', [App\Http\Controllers\StudentController::class, 'create'])->name('students.create');
     Route::post('/students', [App\Http\Controllers\StudentController::class, 'store'])->name('students.store');
     Route::get('/students/{student}', [App\Http\Controllers\StudentController::class, 'show'])->name('students.show');
     Route::get('/students/{student}/edit', [App\Http\Controllers\StudentController::class, 'edit'])->name('students.edit');
@@ -479,7 +553,6 @@ Route::group([], function () {
     
     // Instructors
     Route::get('/instructors', [App\Http\Controllers\InstructorController::class, 'index'])->name('instructors.index');
-    Route::get('/instructors/create', [App\Http\Controllers\InstructorController::class, 'create'])->name('instructors.create');
     Route::post('/instructors', [App\Http\Controllers\InstructorController::class, 'store'])->name('instructors.store');
     Route::get('/instructors/{instructor}', [App\Http\Controllers\InstructorController::class, 'show'])->name('instructors.show');
     Route::get('/instructors/{instructor}/edit', [App\Http\Controllers\InstructorController::class, 'edit'])->name('instructors.edit');
@@ -488,7 +561,6 @@ Route::group([], function () {
     
     // Lessons
     Route::get('/lessons', [App\Http\Controllers\LessonController::class, 'index'])->name('lessons.index');
-    Route::get('/lessons/create', [App\Http\Controllers\LessonController::class, 'create'])->name('lessons.create');
     Route::post('/lessons', [App\Http\Controllers\LessonController::class, 'store'])->name('lessons.store');
     Route::get('/lessons/{lesson}', [App\Http\Controllers\LessonController::class, 'show'])->name('lessons.show');
     Route::get('/lessons/{lesson}/edit', [App\Http\Controllers\LessonController::class, 'edit'])->name('lessons.edit');
@@ -500,7 +572,6 @@ Route::group([], function () {
     
     // Exams
     Route::get('/exams', [App\Http\Controllers\ExamController::class, 'index'])->name('exams.index');
-    Route::get('/exams/create', [App\Http\Controllers\ExamController::class, 'create'])->name('exams.create');
     Route::post('/exams', [App\Http\Controllers\ExamController::class, 'store'])->name('exams.store');
     Route::get('/exams/{exam}', [App\Http\Controllers\ExamController::class, 'show'])->name('exams.show');
     Route::get('/exams/{exam}/edit', [App\Http\Controllers\ExamController::class, 'edit'])->name('exams.edit');
@@ -512,7 +583,6 @@ Route::group([], function () {
     
     // Payments
     Route::get('/payments', [App\Http\Controllers\PaymentController::class, 'index'])->name('payments.index');
-    Route::get('/payments/create', [App\Http\Controllers\PaymentController::class, 'create'])->name('payments.create');
     Route::post('/payments', [App\Http\Controllers\PaymentController::class, 'store'])->name('payments.store');
     Route::get('/payments/{payment}', [App\Http\Controllers\PaymentController::class, 'show'])->name('payments.show');
     Route::get('/payments/{payment}/edit', [App\Http\Controllers\PaymentController::class, 'edit'])->name('payments.edit');
@@ -525,9 +595,21 @@ Route::group([], function () {
     
     // Reports
     Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/create', [App\Http\Controllers\ReportController::class, 'create'])->name('reports.create');
     Route::post('/reports', [App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
     Route::get('/reports/{report}', [App\Http\Controllers\ReportController::class, 'show'])->name('reports.show');
+
+    // Student Packages
+    Route::get('/student-packages', [App\Http\Controllers\StudentPackageController::class, 'index'])->name('student-packages.index');
+    Route::get('/student-packages/create', [App\Http\Controllers\StudentPackageController::class, 'create'])->name('student-packages.create');
+    Route::post('/student-packages', [App\Http\Controllers\StudentPackageController::class, 'store'])->name('student-packages.store');
+    Route::get('/student-packages/{studentPackage}', [App\Http\Controllers\StudentPackageController::class, 'show'])->name('student-packages.show');
+    Route::get('/student-packages/{studentPackage}/edit', [App\Http\Controllers\StudentPackageController::class, 'edit'])->name('student-packages.edit');
+    Route::put('/student-packages/{studentPackage}', [App\Http\Controllers\StudentPackageController::class, 'update'])->name('student-packages.update');
+    Route::delete('/student-packages/{studentPackage}', [App\Http\Controllers\StudentPackageController::class, 'destroy'])->name('student-packages.destroy');
+    Route::post('/student-packages/{studentPackage}/update-status', [App\Http\Controllers\StudentPackageController::class, 'updateStatus'])->name('student-packages.update-status');
+    Route::get('/student-packages/statistics/overview', [App\Http\Controllers\StudentPackageController::class, 'statistics'])->name('student-packages.statistics');
+    Route::get('/students/{student}/packages', [App\Http\Controllers\StudentPackageController::class, 'byStudent'])->name('student-packages.by-student');
+    Route::get('/packages/{package}/students', [App\Http\Controllers\StudentPackageController::class, 'byPackage'])->name('student-packages.by-package');
     Route::get('/reports/{report}/edit', [App\Http\Controllers\ReportController::class, 'edit'])->name('reports.edit');
     Route::put('/reports/{report}', [App\Http\Controllers\ReportController::class, 'update'])->name('reports.update');
     Route::delete('/reports/{report}', [App\Http\Controllers\ReportController::class, 'destroy'])->name('reports.destroy');

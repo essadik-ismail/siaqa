@@ -47,6 +47,19 @@
                             @enderror
                         </div>
 
+                        <!-- Payment Number -->
+                        <div>
+                            <label for="payment_number" class="block text-sm font-medium text-gray-700 mb-2">
+                                Numéro de Paiement *
+                            </label>
+                            <input type="text" name="payment_number" id="payment_number" required
+                                value="{{ old('payment_number', 'PAY-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT)) }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            @error('payment_number')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Payment Type -->
                         <div>
                             <label for="payment_type" class="block text-sm font-medium text-gray-700 mb-2">
@@ -59,7 +72,7 @@
                                 <option value="exam" {{ old('payment_type') == 'exam' ? 'selected' : '' }}>Examen</option>
                                 <option value="package" {{ old('payment_type') == 'package' ? 'selected' : '' }}>Forfait</option>
                                 <option value="registration" {{ old('payment_type') == 'registration' ? 'selected' : '' }}>Inscription</option>
-                                <option value="other" {{ old('payment_type') == 'other' ? 'selected' : '' }}>Autre</option>
+                                <option value="refund" {{ old('payment_type') == 'refund' ? 'selected' : '' }}>Remboursement</option>
                             </select>
                             @error('payment_type')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -69,14 +82,29 @@
                         <!-- Amount -->
                         <div>
                             <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
-                                Montant (DH) *
+                                Montant Total (DH) *
                             </label>
-                            <input type="number" name="amount" id="amount" required min="0" step="0.01"
+                            <input type="number" name="amount" id="amount" required min="0.01" step="0.01"
                                 value="{{ old('amount') }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                             @error('amount')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                        </div>
+
+                        <!-- Amount Paid -->
+                        <div>
+                            <label for="amount_paid" class="block text-sm font-medium text-gray-700 mb-2">
+                                Montant Payé (DH)
+                            </label>
+                            <input type="number" name="amount_paid" id="amount_paid" min="0" step="0.01"
+                                value="{{ old('amount_paid', 0) }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                oninput="validateAmountPaid()">
+                            @error('amount_paid')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p id="amount_paid_error" class="mt-1 text-sm text-red-600 hidden">Le montant payé ne peut pas dépasser le montant total.</p>
                         </div>
 
                         <!-- Payment Method -->
@@ -88,10 +116,10 @@
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                                 <option value="">Sélectionner la méthode</option>
                                 <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>Espèces</option>
+                                <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>Carte Bancaire</option>
                                 <option value="bank_transfer" {{ old('payment_method') == 'bank_transfer' ? 'selected' : '' }}>Virement Bancaire</option>
                                 <option value="check" {{ old('payment_method') == 'check' ? 'selected' : '' }}>Chèque</option>
-                                <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>Carte Bancaire</option>
-                                <option value="mobile_money" {{ old('payment_method') == 'mobile_money' ? 'selected' : '' }}>Mobile Money</option>
+                                <option value="online" {{ old('payment_method') == 'online' ? 'selected' : '' }}>En Ligne</option>
                             </select>
                             @error('payment_method')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -100,13 +128,13 @@
 
                         <!-- Payment Date -->
                         <div>
-                            <label for="payment_date" class="block text-sm font-medium text-gray-700 mb-2">
-                                Date de Paiement *
+                            <label for="paid_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                Date de Paiement
                             </label>
-                            <input type="date" name="payment_date" id="payment_date" required
-                                value="{{ old('payment_date', date('Y-m-d')) }}"
+                            <input type="date" name="paid_date" id="paid_date"
+                                value="{{ old('paid_date', date('Y-m-d')) }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                            @error('payment_date')
+                            @error('paid_date')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -120,9 +148,10 @@
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                                 <option value="">Sélectionner le statut</option>
                                 <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>En Attente</option>
+                                <option value="partial" {{ old('status') == 'partial' ? 'selected' : '' }}>Partiel</option>
                                 <option value="paid" {{ old('status') == 'paid' ? 'selected' : '' }}>Payé</option>
-                                <option value="failed" {{ old('status') == 'failed' ? 'selected' : '' }}>Échoué</option>
-                                <option value="refunded" {{ old('status') == 'refunded' ? 'selected' : '' }}>Remboursé</option>
+                                <option value="overdue" {{ old('status') == 'overdue' ? 'selected' : '' }}>En Retard</option>
+                                <option value="cancelled" {{ old('status') == 'cancelled' ? 'selected' : '' }}>Annulé</option>
                             </select>
                             @error('status')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -130,15 +159,15 @@
                         </div>
                     </div>
 
-                    <!-- Description -->
+                    <!-- Notes -->
                     <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                            Description
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                            Notes
                         </label>
-                        <textarea name="description" id="description" rows="4"
+                        <textarea name="notes" id="notes" rows="4"
                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                            placeholder="Décrivez les détails du paiement...">{{ old('description') }}</textarea>
-                        @error('description')
+                            placeholder="Ajoutez des notes sur le paiement...">{{ old('notes') }}</textarea>
+                        @error('notes')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -159,4 +188,25 @@
         </div>
     </div>
 </div>
+
+<script>
+function validateAmountPaid() {
+    const amount = parseFloat(document.getElementById('amount').value) || 0;
+    const amountPaid = parseFloat(document.getElementById('amount_paid').value) || 0;
+    const errorElement = document.getElementById('amount_paid_error');
+    
+    if (amountPaid > amount) {
+        errorElement.classList.remove('hidden');
+        document.getElementById('amount_paid').classList.add('border-red-500');
+        document.getElementById('amount_paid').classList.remove('border-gray-300');
+    } else {
+        errorElement.classList.add('hidden');
+        document.getElementById('amount_paid').classList.remove('border-red-500');
+        document.getElementById('amount_paid').classList.add('border-gray-300');
+    }
+}
+
+// Also validate when amount changes
+document.getElementById('amount').addEventListener('input', validateAmountPaid);
+</script>
 @endsection

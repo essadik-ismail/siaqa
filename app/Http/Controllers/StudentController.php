@@ -63,7 +63,30 @@ class StudentController extends Controller
         try {
             DB::beginTransaction();
 
-            $student = Student::create($request->validated());
+            // Get validated data and add tenant_id from authenticated user
+            $data = $request->validated();
+            $data['tenant_id'] = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+
+            // Handle file uploads
+            if ($request->hasFile('cinimage')) {
+                $cinImage = $request->file('cinimage');
+                $cinImageName = time() . '_cin_' . $cinImage->getClientOriginalName();
+                $cinImage->storeAs('public/students/cin', $cinImageName);
+                $data['cinimage'] = 'students/cin/' . $cinImageName;
+            } else {
+                $data['cinimage'] = null; // Set to null if no file uploaded
+            }
+
+            if ($request->hasFile('image')) {
+                $profileImage = $request->file('image');
+                $profileImageName = time() . '_profile_' . $profileImage->getClientOriginalName();
+                $profileImage->storeAs('public/students/profile', $profileImageName);
+                $data['image'] = 'students/profile/' . $profileImageName;
+            } else {
+                $data['image'] = null; // Set to null if no file uploaded
+            }
+
+            $student = Student::create($data);
 
             // Load relationships
             $student->load(['user', 'tenant']);

@@ -73,7 +73,11 @@ class ReportController extends Controller
         try {
             DB::beginTransaction();
 
-            $report = Report::create($request->validated());
+            // Get validated data and add tenant_id from authenticated user
+            $data = $request->validated();
+            $data['tenant_id'] = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+
+            $report = Report::create($data);
 
             // Load relationships
             $report->load(['createdBy', 'tenant']);

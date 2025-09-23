@@ -20,7 +20,7 @@
 
         <!-- Form -->
         <div class="material-card p-8">
-            <form action="{{ route('students.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('students.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 
                 <!-- Personal Information -->
@@ -45,9 +45,9 @@
                         <!-- Name in Arabic -->
                         <div>
                             <label for="name_ar" class="block text-sm font-medium text-gray-700 mb-2">
-                                Nom en Arabe
+                                Nom en Arabe *
                             </label>
-                            <input type="text" name="name_ar" id="name_ar"
+                            <input type="text" name="name_ar" id="name_ar" required
                                 value="{{ old('name_ar') }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                 placeholder="الاسم بالعربية">
@@ -98,6 +98,32 @@
                             @enderror
                         </div>
 
+                        <!-- CIN Image -->
+                        <div>
+                            <label for="cinimage" class="block text-sm font-medium text-gray-700 mb-2">
+                                Image CIN
+                            </label>
+                            <input type="file" name="cinimage" id="cinimage"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                accept="image/*">
+                            @error('cinimage')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Profile Image -->
+                        <div>
+                            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+                                Photo de Profil
+                            </label>
+                            <input type="file" name="image" id="image"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                accept="image/*">
+                            @error('image')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Birth Date -->
                         <div>
                             <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-2">
@@ -114,9 +140,9 @@
                         <!-- Birth Place -->
                         <div>
                             <label for="birth_place" class="block text-sm font-medium text-gray-700 mb-2">
-                                Lieu de Naissance
+                                Lieu de Naissance *
                             </label>
-                            <input type="text" name="birth_place" id="birth_place"
+                            <input type="text" name="birth_place" id="birth_place" required
                                 value="{{ old('birth_place') }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                 placeholder="Ville, Pays">
@@ -128,12 +154,72 @@
                         <!-- Address -->
                         <div class="md:col-span-2">
                             <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
-                                Adresse
+                                Adresse *
                             </label>
-                            <textarea name="address" id="address" rows="3"
+                            <textarea name="address" id="address" rows="3" required
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                 placeholder="Adresse complète">{{ old('address') }}</textarea>
                             @error('address')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Student Number -->
+                        <div>
+                            <label for="student_number" class="block text-sm font-medium text-gray-700 mb-2">
+                                Numéro d'Étudiant *
+                            </label>
+                            <input type="text" name="student_number" id="student_number" required
+                                value="{{ old('student_number') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="STU001">
+                            @error('student_number')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Reference -->
+                        <div>
+                            <label for="reference" class="block text-sm font-medium text-gray-700 mb-2">
+                                Référence *
+                            </label>
+                            <input type="text" name="reference" id="reference" required
+                                value="{{ old('reference') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="REF001">
+                            @error('reference')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                                Statut *
+                            </label>
+                            <select name="status" id="status" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                <option value="">Sélectionner le statut</option>
+                                <option value="registered" {{ old('status') == 'registered' ? 'selected' : '' }}>Inscrit</option>
+                                <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Actif</option>
+                                <option value="suspended" {{ old('status') == 'suspended' ? 'selected' : '' }}>Suspendu</option>
+                                <option value="graduated" {{ old('status') == 'graduated' ? 'selected' : '' }}>Diplômé</option>
+                                <option value="dropped" {{ old('status') == 'dropped' ? 'selected' : '' }}>Abandonné</option>
+                            </select>
+                            @error('status')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Registration Date -->
+                        <div>
+                            <label for="registration_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                Date d'Inscription *
+                            </label>
+                            <input type="date" name="registration_date" id="registration_date" required
+                                value="{{ old('registration_date', date('Y-m-d')) }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            @error('registration_date')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -218,9 +304,9 @@
                         <!-- Emergency Contact Name -->
                         <div>
                             <label for="emergency_contact_name" class="block text-sm font-medium text-gray-700 mb-2">
-                                Nom du Contact d'Urgence
+                                Nom du Contact d'Urgence *
                             </label>
-                            <input type="text" name="emergency_contact_name" id="emergency_contact_name"
+                            <input type="text" name="emergency_contact_name" id="emergency_contact_name" required
                                 value="{{ old('emergency_contact_name') }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                 placeholder="Nom du contact">
@@ -232,9 +318,9 @@
                         <!-- Emergency Contact Phone -->
                         <div>
                             <label for="emergency_contact_phone" class="block text-sm font-medium text-gray-700 mb-2">
-                                Téléphone du Contact d'Urgence
+                                Téléphone du Contact d'Urgence *
                             </label>
-                            <input type="tel" name="emergency_contact_phone" id="emergency_contact_phone"
+                            <input type="tel" name="emergency_contact_phone" id="emergency_contact_phone" required
                                 value="{{ old('emergency_contact_phone') }}"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                 placeholder="+212 6XX XXX XXX">

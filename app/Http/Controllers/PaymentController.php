@@ -6,6 +6,8 @@ use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Models\Payment;
 use App\Models\Student;
+use App\Models\Lesson;
+use App\Models\Exam;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -95,7 +97,7 @@ class PaymentController extends Controller
         $exams = Exam::where('tenant_id', $tenantId)
             ->where('status', 'scheduled')
             ->with('student:id,name')
-            ->get(['id', 'student_id', 'scheduled_at']);
+            ->get(['id', 'student_id']);
 
         return view('payments.create', compact('students', 'lessons', 'exams'));
     }
@@ -108,7 +110,11 @@ class PaymentController extends Controller
         try {
             DB::beginTransaction();
 
-            $payment = Payment::create($request->validated());
+            // Get validated data and add tenant_id from authenticated user
+            $data = $request->validated();
+            $data['tenant_id'] = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+
+            $payment = Payment::create($data);
 
             // Load relationships
             $payment->load(['student', 'lesson', 'exam', 'tenant']);
@@ -165,7 +171,7 @@ class PaymentController extends Controller
         $exams = Exam::where('tenant_id', auth()->user()->tenant_id)
             ->where('status', 'scheduled')
             ->with('student:id,name')
-            ->get(['id', 'student_id', 'scheduled_at']);
+            ->get(['id', 'student_id']);
 
         return view('payments.edit', compact('payment', 'students', 'lessons', 'exams'));
     }

@@ -86,7 +86,7 @@ class LessonController extends Controller
      */
     public function create(): View
     {
-        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1; // Default to tenant 1 if not authenticated
         $students = Student::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->orderBy('name')
@@ -98,9 +98,9 @@ class LessonController extends Controller
             ->get();
 
         $vehicles = Vehicule::where('tenant_id', $tenantId)
-            ->where('status', 'active')
+            ->where('is_active', true)
             ->orderBy('marque')
-            ->get(['id', 'marque', 'modele']);
+            ->get(['id', 'marque', 'name']);
 
         return view('lessons.create', compact('students', 'instructors', 'vehicles'));
     }
@@ -113,22 +113,49 @@ class LessonController extends Controller
         try {
             DB::beginTransaction();
 
-            $lesson = Lesson::create($request->validated());
+            // Get validated data and add tenant_id from authenticated user
+            $data = $request->validated();
+            $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+            $studentIds = $data['student_ids'];
+            
+            // Remove student_ids from data as it's not a lesson field
+            unset($data['student_ids']);
+            $data['tenant_id'] = $tenantId;
 
-            // Load relationships
-            $lesson->load(['student', 'instructor', 'vehicle', 'tenant']);
+            $createdLessons = [];
+            $baseLessonNumber = $data['lesson_number'];
+
+            // Create a lesson for each selected student
+            foreach ($studentIds as $index => $studentId) {
+                $lessonData = $data;
+                $lessonData['student_id'] = $studentId;
+                
+                // Generate unique lesson number for each student
+                if ($index > 0) {
+                    $lessonData['lesson_number'] = $baseLessonNumber . '_' . ($index + 1);
+                }
+
+                $lesson = Lesson::create($lessonData);
+                $lesson->load(['student', 'instructor', 'vehicle', 'tenant']);
+                $createdLessons[] = $lesson;
+            }
 
             DB::commit();
 
+            $studentCount = count($createdLessons);
+            $message = $studentCount === 1 
+                ? 'Lesson created successfully' 
+                : "{$studentCount} lessons created successfully for selected students";
+
             return redirect()->route('lessons.index')
-                ->with('success', 'Lesson created successfully');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();
             
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to create lesson: ' . $e->getMessage());
+                ->with('error', 'Failed to create lessons: ' . $e->getMessage());
         }
     }
 

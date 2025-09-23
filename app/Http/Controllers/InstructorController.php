@@ -60,7 +60,7 @@ class InstructorController extends Controller
      */
     public function create(): View
     {
-        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1; // Default to tenant 1 if not authenticated
         return view('instructors.create', compact('tenantId'));
     }
 
@@ -72,7 +72,11 @@ class InstructorController extends Controller
         try {
             DB::beginTransaction();
 
-            $instructor = Instructor::create($request->validated());
+            // Get validated data and add tenant_id from authenticated user
+            $data = $request->validated();
+            $data['tenant_id'] = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+
+            $instructor = Instructor::create($data);
 
             // Load relationships
             $instructor->load(['user', 'tenant']);

@@ -41,6 +41,28 @@ class Payment extends Model
     ];
 
     /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($payment) {
+            // Calculate balance automatically
+            $payment->balance = $payment->amount - $payment->amount_paid;
+            
+            // Update status based on amount_paid
+            if ($payment->amount_paid == 0) {
+                $payment->status = 'pending';
+            } elseif ($payment->amount_paid >= $payment->amount) {
+                $payment->status = 'paid';
+            } else {
+                $payment->status = 'partial';
+            }
+        });
+    }
+
+    /**
      * Get the tenant that owns the payment.
      */
     public function tenant(): BelongsTo
@@ -113,6 +135,46 @@ class Payment extends Model
     }
 
     /**
+     * Check if payment is cancelled.
+     */
+    public function isCancelled(): bool
+    {
+        return $this->status === 'cancelled';
+    }
+
+    /**
+     * Check if payment is paid.
+     */
+    public function isPaid(): bool
+    {
+        return $this->status === 'paid';
+    }
+
+    /**
+     * Check if payment is pending.
+     */
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    /**
+     * Check if payment is partial.
+     */
+    public function isPartial(): bool
+    {
+        return $this->status === 'partial';
+    }
+
+    /**
+     * Check if payment is overdue.
+     */
+    public function isOverdue(): bool
+    {
+        return $this->status === 'overdue';
+    }
+
+    /**
      * Scope a query to only include lesson payments.
      */
     public function scopeLesson($query)
@@ -168,45 +230,6 @@ class Payment extends Model
         return $query->whereBetween('created_at', [$startDate, $endDate]);
     }
 
-    /**
-     * Check if payment is pending.
-     */
-    public function isPending(): bool
-    {
-        return $this->status === 'pending';
-    }
-
-    /**
-     * Check if payment is paid.
-     */
-    public function isPaid(): bool
-    {
-        return $this->status === 'paid';
-    }
-
-    /**
-     * Check if payment is partial.
-     */
-    public function isPartial(): bool
-    {
-        return $this->status === 'partial';
-    }
-
-    /**
-     * Check if payment is overdue.
-     */
-    public function isOverdue(): bool
-    {
-        return $this->status === 'overdue';
-    }
-
-    /**
-     * Check if payment is cancelled.
-     */
-    public function isCancelled(): bool
-    {
-        return $this->status === 'cancelled';
-    }
 
     /**
      * Check if payment is for a lesson.

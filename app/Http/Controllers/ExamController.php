@@ -99,7 +99,11 @@ class ExamController extends Controller
         try {
             DB::beginTransaction();
 
-            $exam = Exam::create($request->validated());
+            // Get validated data and add tenant_id from authenticated user
+            $data = $request->validated();
+            $data['tenant_id'] = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+
+            $exam = Exam::create($data);
 
             // Load relationships
             $exam->load(['student', 'instructor', 'tenant']);
@@ -123,7 +127,7 @@ class ExamController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
-        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1; // Default to tenant 1 if not authenticated
         $students = Student::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->orderBy('name')
