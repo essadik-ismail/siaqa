@@ -242,7 +242,7 @@ class TheoryClass extends Model
      */
     public function getFormattedScheduledAtAttribute(): string
     {
-        return $this->scheduled_at->format('M d, Y H:i');
+        return $this->scheduled_at ? $this->scheduled_at->format('M d, Y H:i') : '';
     }
 
     /**

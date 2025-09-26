@@ -143,7 +143,7 @@ class Analytics extends Model
      */
     public function getFormattedDateAttribute(): string
     {
-        return $this->date->format('M d, Y');
+        return $this->date ? $this->date->format('M d, Y') : '';
     }
 
     /**

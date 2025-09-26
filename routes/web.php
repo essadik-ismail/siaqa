@@ -7,11 +7,7 @@ use Illuminate\Support\Facades\Hash;
 // Include health check routes
 require_once __DIR__.'/health.php';
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\MarqueController;
 use App\Http\Controllers\VehiculeController;
-use App\Http\Controllers\AssuranceController;
-use App\Http\Controllers\VidangeController;
-use App\Http\Controllers\VisiteController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DashboardController;
@@ -31,28 +27,6 @@ Route::get('/media/{type}/{id}', [App\Http\Controllers\MediaController::class, '
 // Public landing page routes
 Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('home');
 
-// Test route for debugging
-Route::get('/test-create', function() {
-    return 'Test create route works!';
-});
-
-// Test students create route
-Route::get('/test-students-create-simple', function() {
-    return 'Students create route works!';
-});
-
-// Test lessons create route
-Route::get('/test-lessons-create', function() {
-    try {
-        $controller = new App\Http\Controllers\LessonController();
-        return $controller->create();
-    } catch (Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
-
-// Test direct lessons create route
-Route::get('/test-lessons-create-direct', [LessonController::class, 'create'])->name('test.lessons.create');
 
 // Create routes - defined outside route group to avoid 404 issues
 Route::get('/students/create', function() {
@@ -478,10 +452,6 @@ Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\Use
     });
     
     Route::group([], function () { // Temporarily removed 'tenant' middleware
-        // Brands
-        Route::resource('marques', MarqueController::class);
-        Route::get('marques/{marque}/toggle-status', [MarqueController::class, 'toggleStatus'])->name('marques.toggle-status');
-        Route::get('marques/active', [MarqueController::class, 'active'])->name('marques.active');
 
         // Clients (Students)
         Route::resource('clients', ClientController::class);
@@ -496,19 +466,6 @@ Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\Use
         Route::post('vehicules/{vehicule}/remove-image', [VehiculeController::class, 'removeImage'])->name('vehicules.remove-image');
         Route::get('vehicules/available', [VehiculeController::class, 'available'])->name('vehicules.available');
 
-        // Insurance
-        Route::resource('assurances', AssuranceController::class);
-        Route::get('assurances/expiring', [AssuranceController::class, 'expiring'])->name('assurances.expiring');
-        Route::post('assurances/{assurance}/renew', [AssuranceController::class, 'renew'])->name('assurances.renew');
-
-        // Maintenance
-        Route::resource('vidanges', VidangeController::class);
-        Route::get('vidanges/due', [VidangeController::class, 'due'])->name('vidanges.due');
-        Route::post('vidanges/{vidange}/complete', [VidangeController::class, 'complete'])->name('vidanges.complete');
-
-        Route::resource('visites', VisiteController::class);
-        Route::get('visites/due', [VisiteController::class, 'due'])->name('visites.due');
-        Route::post('visites/{visite}/complete', [VisiteController::class, 'complete'])->name('visites.complete');
 
         // Charges
         Route::resource('charges', ChargeController::class);

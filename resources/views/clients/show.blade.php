@@ -208,7 +208,7 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 @if($reservation->vehicule && $reservation->vehicule->marque)
-                                    {{ $reservation->vehicule->marque->marque }} {{ $reservation->vehicule->name ?? 'N/A' }}
+                                    {{ $reservation->vehicule->marque }} {{ $reservation->vehicule->name ?? 'N/A' }}
                                     <br><span class="text-xs text-gray-500">{{ $reservation->vehicule->immatriculation }}</span>
                                 @else
                                     N/A

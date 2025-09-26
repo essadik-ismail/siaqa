@@ -16,8 +16,9 @@ class Vehicule extends Model
 
     protected $fillable = [
         'tenant_id',
-        'marque_id',
+        'marque',
         'name',
+        'immatriculation',
         'status',
         'is_active',
         'is_training_vehicle',
@@ -33,20 +34,6 @@ class Vehicule extends Model
         'next_inspection',
         'requires_maintenance',
         'maintenance_notes',
-        'landing_display',
-        'landing_order',
-        'reference',
-        'serie',
-        'fournisseur',
-        'numero_facture',
-        'duree_vie',
-        'categorie_vehicule',
-        'couleur',
-        'image',
-        'images',
-        'kilometrage_location',
-        'type_assurance',
-        'description',
     ];
 
     protected $casts = [
@@ -110,21 +97,7 @@ class Vehicule extends Model
         return $this->belongsTo(Tenant::class);
     }
 
-    /**
-     * Get the brand that owns the vehicle.
-     */
-    public function marque(): BelongsTo
-    {
-        return $this->belongsTo(Marque::class);
-    }
 
-    /**
-     * Get the agency that owns the vehicle.
-     */
-    public function agence(): BelongsTo
-    {
-        return $this->belongsTo(Agence::class);
-    }
 
     /**
      * Get the reservations for the vehicle.
@@ -142,29 +115,6 @@ class Vehicule extends Model
         return $this->hasMany(Contrat::class);
     }
 
-    /**
-     * Get the insurance for the vehicle.
-     */
-    public function assurances(): HasMany
-    {
-        return $this->hasMany(Assurance::class);
-    }
-
-    /**
-     * Get the oil changes for the vehicle.
-     */
-    public function vidanges(): HasMany
-    {
-        return $this->hasMany(Vidange::class);
-    }
-
-    /**
-     * Get the inspections for the vehicle.
-     */
-    public function visites(): HasMany
-    {
-        return $this->hasMany(Visite::class);
-    }
 
     /**
      * Get the maintenance interventions for the vehicle.

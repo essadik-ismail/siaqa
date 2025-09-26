@@ -7,13 +7,6 @@ use Illuminate\Validation\Rule;
 
 class StoreExamRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true; // Temporarily allow all users
-    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -23,9 +16,10 @@ class StoreExamRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'student_id' => ['required', 'exists:students,id'],
+            'student_ids' => ['required', 'array', 'min:1'],
+            'student_ids.*' => ['required', 'exists:students,id'],
             'instructor_id' => ['nullable', 'exists:instructors,id'],
-            'exam_number' => ['required', 'string', 'max:50', 'unique:exams,exam_number'],
+            'exam_number' => ['required', 'string', 'max:50'],
             'exam_type' => ['required', 'in:theory,practical,simulation'],
             'license_category' => ['nullable', 'string', 'max:10'],
             'scheduled_at' => ['required', 'date', 'after:now'],
@@ -49,8 +43,11 @@ class StoreExamRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'student_id.required' => 'Student is required.',
-            'student_id.exists' => 'Selected student does not exist.',
+            'student_ids.required' => 'At least one student is required.',
+            'student_ids.array' => 'Students must be provided as a list.',
+            'student_ids.min' => 'At least one student must be selected.',
+            'student_ids.*.required' => 'Each student selection is required.',
+            'student_ids.*.exists' => 'One or more selected students do not exist.',
             'instructor_id.exists' => 'Selected instructor does not exist.',
             'exam_number.required' => 'Exam number is required.',
             'exam_number.unique' => 'Exam number already exists.',
@@ -81,7 +78,8 @@ class StoreExamRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'student_id' => 'student',
+            'student_ids' => 'students',
+            'student_ids.*' => 'student',
             'instructor_id' => 'instructor',
             'exam_number' => 'exam number',
             'exam_type' => 'exam type',
@@ -120,11 +118,13 @@ class StoreExamRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
-            // Validate that student is active
-            if ($this->student_id) {
-                $student = \App\Models\Student::find($this->student_id);
-                if ($student && !$student->isActive()) {
-                    $validator->errors()->add('student_id', 'Selected student is not active.');
+            // Validate that all students are active
+            if ($this->student_ids) {
+                foreach ($this->student_ids as $index => $studentId) {
+                    $student = \App\Models\Student::find($studentId);
+                    if ($student && !$student->isActive()) {
+                        $validator->errors()->add("student_ids.{$index}", 'Selected student is not active.');
+                    }
                 }
             }
 

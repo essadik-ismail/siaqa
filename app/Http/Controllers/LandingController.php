@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Vehicule;
-use App\Models\Marque;
 use App\Models\Tenant;
 
 class LandingController extends Controller

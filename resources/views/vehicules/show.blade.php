@@ -7,7 +7,7 @@
     <div class="flex justify-between items-center mb-8">
         <div>
             <h2 class="text-3xl font-bold text-gray-800 mb-2">{{ $vehicule->name }}</h2>
-            <p class="text-gray-600 text-lg">{{ $vehicule->immatriculation }} - {{ $vehicule->marque->marque }}</p>
+            <p class="text-gray-600 text-lg">{{ $vehicule->immatriculation }} - {{ $vehicule->marque }}</p>
         </div>
         <div class="flex space-x-3">
             <a href="{{ route('vehicules.edit', $vehicule) }}" class="btn-primary flex items-center space-x-3 px-6 py-3">
@@ -48,15 +48,6 @@
             <button onclick="showTab('vehicle-info')" id="tab-vehicle-info" class="tab-button active border-b-2 border-blue-500 py-2 px-1 text-sm font-medium text-blue-600">
                 <i class="fas fa-car mr-2"></i>Informations Véhicule
             </button>
-            <button onclick="showTab('assurances')" id="tab-assurances" class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                <i class="fas fa-shield-alt mr-2"></i>Assurances
-            </button>
-            <button onclick="showTab('vidanges')" id="tab-vidanges" class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                <i class="fas fa-oil-can mr-2"></i>Vidanges
-            </button>
-            <button onclick="showTab('visites')" id="tab-visites" class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                <i class="fas fa-clipboard-check mr-2"></i>Visites
-            </button>
             <button onclick="showTab('interventions')" id="tab-interventions" class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                 <i class="fas fa-tools mr-2"></i>Interventions
             </button>
@@ -83,7 +74,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Marque</label>
-                            <p class="text-lg font-medium text-gray-900">{{ $vehicule->marque->marque }}</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $vehicule->marque }}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Modèle</label>
@@ -142,240 +133,8 @@
         </div>
     </div>
 
-    <!-- Assurances Tab -->
-    <div id="tab-content-assurances" class="tab-content hidden">
-        <div class="content-card p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Assurances du Véhicule</h3>
-                <a href="{{ route('assurances.create', ['vehicule_id' => $vehicule->id]) }}" class="btn-primary flex items-center space-x-3 px-4 py-2">
-                    <i class="fas fa-plus"></i>
-                    <span>Nouvelle Assurance</span>
-                </a>
-            </div>
 
-            @if($vehicule->assurances && $vehicule->assurances->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Compagnie</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Numéro Police</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Période</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($vehicule->assurances as $assurance)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $assurance->compagnie }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $assurance->numero_police }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ucfirst(str_replace('_', ' ', $assurance->type_assurance)) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        Du {{ \Carbon\Carbon::parse($assurance->date_debut)->format('d/m/Y') }}<br>
-                                        Au {{ \Carbon\Carbon::parse($assurance->date_expiration)->format('d/m/Y') }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($assurance->statut == 'active')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
-                                        @elseif($assurance->statut == 'expiree')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Expirée</span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ ucfirst($assurance->statut) }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div class="flex space-x-2">
-                                            <a href="{{ route('assurances.show', $assurance) }}" class="text-blue-600 hover:text-blue-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('assurances.edit', $assurance) }}" class="text-indigo-600 hover:text-indigo-900">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('assurances.destroy', $assurance) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette assurance ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="text-center py-12">
-                    <i class="fas fa-shield-alt text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-lg font-medium text-gray-400">Aucune assurance trouvée</p>
-                    <p class="text-sm text-gray-400 mt-1">Ajoutez la première assurance pour ce véhicule</p>
-                </div>
-            @endif
-        </div>
-    </div>
 
-    <!-- Vidanges Tab -->
-    <div id="tab-content-vidanges" class="tab-content hidden">
-        <div class="content-card p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Vidanges du Véhicule</h3>
-                <a href="{{ route('vidanges.create', ['vehicule_id' => $vehicule->id]) }}" class="btn-primary flex items-center space-x-3 px-4 py-2">
-                    <i class="fas fa-plus"></i>
-                    <span>Nouvelle Vidange</span>
-                </a>
-            </div>
-
-            @if($vehicule->vidanges && $vehicule->vidanges->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Prévue</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilométrage</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type Huile</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coût</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($vehicule->vidanges as $vidange)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($vidange->date_prevue)->format('d/m/Y') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ number_format($vidange->kilometrage_actuel) }} → {{ number_format($vidange->kilometrage_prochaine) }} km
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vidange->type_huile ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($vidange->statut == 'planifiee')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Planifiée</span>
-                                        @elseif($vidange->statut == 'en_cours')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">En cours</span>
-                                        @elseif($vidange->statut == 'terminee')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Terminée</span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ ucfirst($vidange->statut) }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vidange->cout_estime ? number_format($vidange->cout_estime, 2) . ' DH' : 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div class="flex space-x-2">
-                                            <a href="{{ route('vidanges.show', $vidange) }}" class="text-blue-600 hover:text-blue-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('vidanges.edit', $vidange) }}" class="text-indigo-600 hover:text-indigo-900">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('vidanges.destroy', $vidange) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette vidange ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="text-center py-12">
-                    <i class="fas fa-oil-can text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-lg font-medium text-gray-400">Aucune vidange trouvée</p>
-                    <p class="text-sm text-gray-400 mt-1">Planifiez la première vidange pour ce véhicule</p>
-                </div>
-            @endif
-        </div>
-    </div>
-
-    <!-- Visites Tab -->
-    <div id="tab-content-visites" class="tab-content hidden">
-        <div class="content-card p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Visites du Véhicule</h3>
-                <a href="{{ route('visites.create', ['vehicule_id' => $vehicule->id]) }}" class="btn-primary flex items-center space-x-3 px-4 py-2">
-                    <i class="fas fa-plus"></i>
-                    <span>Nouvelle Visite</span>
-                </a>
-            </div>
-
-            @if($vehicule->visites && $vehicule->visites->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Visite</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Centre</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Résultat</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($vehicule->visites as $visite)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($visite->date_visite)->format('d/m/Y') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ucfirst(str_replace('_', ' ', $visite->type_visite)) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $visite->centre_visite ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($visite->statut == 'planifiée')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Planifiée</span>
-                                        @elseif($visite->statut == 'en_cours')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">En cours</span>
-                                        @elseif($visite->statut == 'terminée')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Terminée</span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ ucfirst($visite->statut) }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @if($visite->resultat == 'favorable')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Favorable</span>
-                                        @elseif($visite->resultat == 'defavorable')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Défavorable</span>
-                                        @elseif($visite->resultat == 'avec_reserves')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Avec réserves</span>
-                                        @else
-                                            <span class="text-gray-500">N/A</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div class="flex space-x-2">
-                                            <a href="{{ route('visites.show', $visite) }}" class="text-blue-600 hover:text-blue-900">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('visites.edit', $visite) }}" class="text-indigo-600 hover:text-indigo-900">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('visites.destroy', $visite) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette visite ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="text-center py-12">
-                    <i class="fas fa-clipboard-check text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-lg font-medium text-gray-400">Aucune visite trouvée</p>
-                    <p class="text-sm text-gray-400 mt-1">Planifiez la première visite pour ce véhicule</p>
-                </div>
-            @endif
-        </div>
-    </div>
 
     <!-- Interventions functionality removed -->
 </div>

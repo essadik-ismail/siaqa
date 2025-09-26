@@ -81,12 +81,11 @@ class DashboardController extends Controller
         
         // Get recent data for tabs (using get for frontend pagination)
         $recentVehicles = Vehicule::where($tenantQuery)
-            ->with('marque')
             ->orderBy('created_at', 'desc')
             ->get();
             
         $recentLessons = Lesson::where($tenantQuery)
-            ->with(['student', 'instructor', 'vehicule.marque'])
+            ->with(['student', 'instructor', 'vehicule'])
             ->orderBy('created_at', 'desc')
             ->paginate(5);
             
@@ -116,7 +115,7 @@ class DashboardController extends Controller
         switch ($tab) {
             case 'lessons':
                 $data = Lesson::where($tenantQuery)
-                    ->with(['student', 'instructor', 'vehicule.marque'])
+                    ->with(['student', 'instructor', 'vehicule'])
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
                 break;
@@ -131,7 +130,6 @@ class DashboardController extends Controller
             case 'vehicles':
             default:
                 $data = Vehicule::where($tenantQuery)
-                    ->with('marque')
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
                 break;

@@ -4,7 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\VehiculeController;
-use App\Http\Controllers\MarqueController;
 use App\Http\Controllers\AssuranceController;
 use App\Http\Controllers\VidangeController;
 use App\Http\Controllers\VisiteController;
@@ -41,16 +40,6 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
         Route::patch('/{client}/toggle-blacklist', [ClientController::class, 'toggleBlacklist']);
     });
 
-    // Marques routes
-    Route::prefix('marques')->group(function () {
-        Route::get('/', [MarqueController::class, 'index']);
-        Route::post('/', [MarqueController::class, 'store']);
-        Route::get('/active', [MarqueController::class, 'active']);
-        Route::get('/{marque}', [MarqueController::class, 'show']);
-        Route::put('/{marque}', [MarqueController::class, 'update']);
-        Route::delete('/{marque}', [MarqueController::class, 'destroy']);
-        Route::patch('/{marque}/toggle-status', [MarqueController::class, 'toggleStatus']);
-    });
 
     // Vehicules routes
     Route::prefix('vehicules')->group(function () {
@@ -64,35 +53,6 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
         Route::patch('/{vehicule}/status', [VehiculeController::class, 'updateStatus']);
     });
 
-    // Assurances routes
-    Route::prefix('assurances')->group(function () {
-        Route::get('/', [AssuranceController::class, 'index']);
-        Route::post('/', [AssuranceController::class, 'store']);
-        Route::get('/expiring-soon', [AssuranceController::class, 'expiringSoon']);
-        Route::get('/{assurance}', [AssuranceController::class, 'show']);
-        Route::put('/{assurance}', [AssuranceController::class, 'update']);
-        Route::delete('/{assurance}', [AssuranceController::class, 'destroy']);
-    });
-
-    // Vidanges routes
-    Route::prefix('vidanges')->group(function () {
-        Route::get('/', [VidangeController::class, 'index']);
-        Route::post('/', [VidangeController::class, 'store']);
-        Route::get('/due-soon', [VidangeController::class, 'dueSoon']);
-        Route::get('/{vidange}', [VidangeController::class, 'show']);
-        Route::put('/{vidange}', [VidangeController::class, 'update']);
-        Route::delete('/{vidange}', [VidangeController::class, 'destroy']);
-    });
-
-    // Visites routes
-    Route::prefix('visites')->group(function () {
-        Route::get('/', [VisiteController::class, 'index']);
-        Route::post('/', [VisiteController::class, 'store']);
-        Route::get('/due-soon', [VisiteController::class, 'dueSoon']);
-        Route::get('/{visite}', [VisiteController::class, 'show']);
-        Route::put('/{visite}', [VisiteController::class, 'update']);
-        Route::delete('/{visite}', [VisiteController::class, 'destroy']);
-    });
 
     // Charges routes
     Route::prefix('charges')->group(function () {
@@ -124,7 +84,6 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
                 'total_clients' => \App\Models\Client::count(),
                 'total_vehicules' => \App\Models\Vehicule::count(),
                 'vehicules_disponibles' => \App\Models\Vehicule::where('statut', 'disponible')->count(),
-                'assurances_expirant_soon' => \App\Models\Assurance::where('date_expiration', '<=', now()->addDays(30))->count(),
             ],
             'message' => 'Statistiques du tableau de bord récupérées avec succès'
         ]);

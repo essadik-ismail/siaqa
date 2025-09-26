@@ -18,8 +18,9 @@ class PackageController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         $query = Package::with(['tenant'])
-            ->where('tenant_id', auth()->user()->tenant_id);
+            ->where('tenant_id', $tenantId);
 
         // Apply filters
         if ($request->has('is_active')) {
@@ -108,7 +109,8 @@ class PackageController extends Controller
     public function show(Package $package): JsonResponse
     {
         // Check if package belongs to current tenant
-        if ($package->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($package->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Package not found'
@@ -130,7 +132,8 @@ class PackageController extends Controller
     public function edit(Package $package): View
     {
         // Check if package belongs to current tenant
-        if ($package->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($package->tenant_id !== $tenantId) {
             abort(404, 'Package not found');
         }
 
@@ -143,7 +146,8 @@ class PackageController extends Controller
     public function update(UpdatePackageRequest $request, Package $package): JsonResponse
     {
         // Check if package belongs to current tenant
-        if ($package->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($package->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Package not found'
@@ -181,7 +185,8 @@ class PackageController extends Controller
     public function destroy(Package $package): JsonResponse
     {
         // Check if package belongs to current tenant
-        if ($package->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($package->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Package not found'
@@ -223,7 +228,8 @@ class PackageController extends Controller
     public function toggleActive(Package $package): JsonResponse
     {
         // Check if package belongs to current tenant
-        if ($package->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($package->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Package not found'
@@ -248,8 +254,9 @@ class PackageController extends Controller
             'license_category' => 'required|string|max:10'
         ]);
 
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         $packages = Package::with(['tenant'])
-            ->where('tenant_id', auth()->user()->tenant_id)
+            ->where('tenant_id', $tenantId)
             ->where('license_category', $request->license_category)
             ->where('is_active', true)
             ->orderBy('price')
@@ -267,7 +274,8 @@ class PackageController extends Controller
      */
     public function statistics(Request $request): JsonResponse
     {
-        $query = Package::where('tenant_id', auth()->user()->tenant_id);
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = Package::where('tenant_id', $tenantId);
 
         $stats = [
             'total_packages' => $query->count(),
@@ -294,8 +302,9 @@ class PackageController extends Controller
     {
         $limit = $request->get('limit', 5);
 
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         $popularPackages = Package::with(['tenant'])
-            ->where('tenant_id', auth()->user()->tenant_id)
+            ->where('tenant_id', $tenantId)
             ->where('is_active', true)
             ->withCount('studentPackages')
             ->orderBy('student_packages_count', 'desc')

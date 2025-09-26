@@ -7,9 +7,6 @@ use App\Models\Tenant;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\Vehicule;
-use App\Models\Assurance;
-use App\Models\Vidange;
-use App\Models\Visite;
 
 use App\Models\Charge;
 use App\Models\Notification;
@@ -57,9 +54,6 @@ class TenantServiceProvider extends ServiceProvider
             User::class,
             Client::class,
             Vehicule::class,
-            Assurance::class,
-            Vidange::class,
-            Visite::class,
             Charge::class,
             Notification::class,
             ActivityLog::class,

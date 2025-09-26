@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('vehicules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('marque_id')->nullable();
             $table->string('marque')->nullable();
             $table->string('name');
             $table->string('immatriculation')->unique();
-            $table->enum('statut', ['disponible', 'loué', 'maintenance', 'hors_service'])->default('disponible');
+            $table->enum('status', ['available', 'rented', 'maintenance', 'out_of_service'])->default('available');
             $table->boolean('is_active')->default(true);
             $table->boolean('landing_display')->default(false);
             $table->integer('landing_order')->default(0);
@@ -40,6 +41,9 @@ return new class extends Migration
             $table->string('type_assurance')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
+
+            // Foreign key constraints
+            $table->foreign('marque_id')->references('id')->on('marques')->onDelete('set null');
         });
     }
 

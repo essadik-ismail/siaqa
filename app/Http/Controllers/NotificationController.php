@@ -17,8 +17,9 @@ class NotificationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         $query = Notification::with(['user', 'student', 'instructor', 'tenant'])
-            ->where('tenant_id', auth()->user()->tenant_id);
+            ->where('tenant_id', $tenantId);
 
         // Apply filters
         if ($request->has('type')) {
@@ -119,7 +120,8 @@ class NotificationController extends Controller
     public function show(Notification $notification): JsonResponse
     {
         // Check if notification belongs to current tenant
-        if ($notification->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($notification->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Notification not found'
@@ -141,7 +143,8 @@ class NotificationController extends Controller
     public function update(UpdateNotificationRequest $request, Notification $notification): JsonResponse
     {
         // Check if notification belongs to current tenant
-        if ($notification->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($notification->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Notification not found'
@@ -179,7 +182,8 @@ class NotificationController extends Controller
     public function destroy(Notification $notification): JsonResponse
     {
         // Check if notification belongs to current tenant
-        if ($notification->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($notification->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Notification not found'
@@ -209,7 +213,8 @@ class NotificationController extends Controller
     public function markAsRead(Notification $notification): JsonResponse
     {
         // Check if notification belongs to current tenant
-        if ($notification->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($notification->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Notification not found'
@@ -231,7 +236,8 @@ class NotificationController extends Controller
     public function markAsUnread(Notification $notification): JsonResponse
     {
         // Check if notification belongs to current tenant
-        if ($notification->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($notification->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Notification not found'
@@ -252,7 +258,8 @@ class NotificationController extends Controller
      */
     public function markAllAsRead(Request $request): JsonResponse
     {
-        $query = Notification::where('tenant_id', auth()->user()->tenant_id)
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = Notification::where('tenant_id', $tenantId)
             ->where('is_read', false);
 
         if ($request->has('user_id')) {
@@ -273,7 +280,8 @@ class NotificationController extends Controller
      */
     public function unreadCount(Request $request): JsonResponse
     {
-        $query = Notification::where('tenant_id', auth()->user()->tenant_id)
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = Notification::where('tenant_id', $tenantId)
             ->where('is_read', false);
 
         if ($request->has('user_id')) {
@@ -295,7 +303,8 @@ class NotificationController extends Controller
     public function send(Notification $notification): JsonResponse
     {
         // Check if notification belongs to current tenant
-        if ($notification->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($notification->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Notification not found'
@@ -325,7 +334,8 @@ class NotificationController extends Controller
      */
     public function statistics(Request $request): JsonResponse
     {
-        $query = Notification::where('tenant_id', auth()->user()->tenant_id);
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = Notification::where('tenant_id', $tenantId);
 
         if ($request->has('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);

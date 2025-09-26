@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\URL;
 use App\Models\Vehicule;
 use App\Models\Client;
 use App\Models\Agence;
-use App\Models\Marque;
 
 class MediaController extends Controller
 {
@@ -18,7 +17,7 @@ class MediaController extends Controller
     public function show(Request $request, $type, $id)
     {
         // Validate type
-        $allowedTypes = ['vehicule', 'client', 'agence', 'marque'];
+        $allowedTypes = ['vehicule', 'client', 'agence'];
         if (!in_array($type, $allowedTypes)) {
             abort(404);
         }
@@ -56,8 +55,6 @@ class MediaController extends Controller
                 return Client::find($id);
             case 'agence':
                 return Agence::find($id);
-            case 'marque':
-                return Marque::find($id);
             default:
                 return null;
         }
@@ -71,7 +68,8 @@ class MediaController extends Controller
         // For authenticated users, check tenant access
         if (auth()->check()) {
             if (isset($model->tenant_id)) {
-                return $model->tenant_id === auth()->user()->tenant_id;
+                $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+                return $model->tenant_id === $tenantId;
             }
         }
 

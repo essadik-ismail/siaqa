@@ -257,7 +257,7 @@ class VehicleAssignment extends Model
      */
     public function getFormattedAssignedAtAttribute(): string
     {
-        return $this->assigned_at->format('M d, Y H:i');
+        return $this->assigned_at ? $this->assigned_at->format('M d, Y H:i') : '';
     }
 
     /**

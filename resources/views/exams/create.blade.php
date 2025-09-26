@@ -29,20 +29,31 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Student Selection -->
-                        <div>
-                            <label for="student_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Étudiant *
+                        <div class="md:col-span-2">
+                            <label for="student_ids" class="block text-sm font-medium text-gray-700 mb-2">
+                                Étudiants * (Sélection multiple)
                             </label>
-                            <select name="student_id" id="student_id" required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                <option value="">Sélectionner un étudiant</option>
-                                @foreach($students as $student)
-                                    <option value="{{ $student->id }}" {{ old('student_id') == $student->id ? 'selected' : '' }}>
-                                        {{ $student->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('student_id')
+                            <div class="relative">
+                                <select name="student_ids[]" id="student_ids" multiple required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors min-h-[120px]">
+                                    @foreach($students as $student)
+                                        <option value="{{ $student->id }}" 
+                                            {{ in_array($student->id, old('student_ids', [])) ? 'selected' : '' }}>
+                                            {{ $student->name }} ({{ $student->student_number ?? 'N/A' }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="fas fa-chevron-down text-gray-400"></i>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Maintenez Ctrl (Cmd sur Mac) pour sélectionner plusieurs étudiants
+                            </p>
+                            @error('student_ids')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            @error('student_ids.*')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -157,4 +168,93 @@
         </div>
     </div>
 </div>
+
+<style>
+#student_ids {
+    background-image: none;
+}
+
+#student_ids option {
+    padding: 8px 12px;
+}
+
+#student_ids option:checked {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.student-selection-container {
+    position: relative;
+}
+
+.student-selection-container::after {
+    content: "Maintenez Ctrl (Cmd sur Mac) pour sélectionner plusieurs étudiants";
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    font-size: 12px;
+    color: #6b7280;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const studentSelect = document.getElementById('student_ids');
+    const selectedCount = document.createElement('div');
+    selectedCount.className = 'mt-2 text-sm text-blue-600 font-medium';
+    studentSelect.parentNode.appendChild(selectedCount);
+    
+    function updateSelectedCount() {
+        const selected = Array.from(studentSelect.selectedOptions);
+        selectedCount.textContent = `${selected.length} étudiant(s) sélectionné(s)`;
+        
+        if (selected.length === 0) {
+            selectedCount.textContent = 'Aucun étudiant sélectionné';
+            selectedCount.className = 'mt-2 text-sm text-red-600 font-medium';
+        } else {
+            selectedCount.className = 'mt-2 text-sm text-blue-600 font-medium';
+        }
+    }
+    
+    studentSelect.addEventListener('change', updateSelectedCount);
+    updateSelectedCount();
+    
+    // Add keyboard shortcuts
+    studentSelect.addEventListener('keydown', function(e) {
+        if (e.key === 'a' && e.ctrlKey) {
+            e.preventDefault();
+            Array.from(studentSelect.options).forEach(option => {
+                option.selected = true;
+            });
+            updateSelectedCount();
+        }
+    });
+    
+    // Add select all button
+    const selectAllBtn = document.createElement('button');
+    selectAllBtn.type = 'button';
+    selectAllBtn.textContent = 'Sélectionner tout';
+    selectAllBtn.className = 'mt-2 px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors';
+    selectAllBtn.onclick = function() {
+        Array.from(studentSelect.options).forEach(option => {
+            option.selected = true;
+        });
+        updateSelectedCount();
+    };
+    studentSelect.parentNode.appendChild(selectAllBtn);
+    
+    // Add clear selection button
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.textContent = 'Effacer la sélection';
+    clearBtn.className = 'mt-2 ml-2 px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors';
+    clearBtn.onclick = function() {
+        Array.from(studentSelect.options).forEach(option => {
+            option.selected = false;
+        });
+        updateSelectedCount();
+    };
+    studentSelect.parentNode.appendChild(clearBtn);
+});
+</script>
 @endsection

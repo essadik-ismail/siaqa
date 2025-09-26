@@ -183,6 +183,254 @@
                     </div>
                 </div>
 
+                <!-- Tabs for Lessons, Exams, and Payments -->
+                <div class="material-card p-6">
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex space-x-8">
+                            <button onclick="switchTab('lessons')" id="lessons-tab" 
+                                class="tab-button active py-2 px-1 border-b-2 font-medium text-sm">
+                                <i class="fas fa-calendar-alt mr-2"></i>
+                                Leçons ({{ $student->lessons->count() ?? 0 }})
+                            </button>
+                            <button onclick="switchTab('exams')" id="exams-tab" 
+                                class="tab-button py-2 px-1 border-b-2 font-medium text-sm">
+                                <i class="fas fa-clipboard-check mr-2"></i>
+                                Examens ({{ $student->exams->count() ?? 0 }})
+                            </button>
+                            <button onclick="switchTab('payments')" id="payments-tab" 
+                                class="tab-button py-2 px-1 border-b-2 font-medium text-sm">
+                                <i class="fas fa-credit-card mr-2"></i>
+                                Paiements ({{ $student->payments->count() ?? 0 }})
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Lessons Tab Content -->
+                    <div id="lessons-content" class="tab-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Leçons de l'Étudiant</h3>
+                            <a href="{{ route('lessons.create', ['student_id' => $student->id]) }}" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Nouvelle Leçon
+                            </a>
+                        </div>
+                        
+                        @if(isset($student->lessons) && $student->lessons->count() > 0)
+                            <div class="space-y-4">
+                                @foreach($student->lessons as $lesson)
+                                <div class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-calendar text-blue-600"></i>
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-semibold text-gray-900">
+                                                        Leçon du {{ $lesson->scheduled_at ? $lesson->scheduled_at->format('d/m/Y à H:i') : 'Date non définie' }}
+                                                    </h4>
+                                                    <p class="text-sm text-gray-600">
+                                                        @if($lesson->instructor)
+                                                            Instructeur: {{ $lesson->instructor->user->name ?? 'Non assigné' }}
+                                                        @endif
+                                                        @if($lesson->vehicule)
+                                                            • Véhicule: {{ $lesson->vehicule->name }}
+                                                        @endif
+                                                    </p>
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        Durée: {{ $lesson->duration ?? 60 }} minutes
+                                                        @if($lesson->status)
+                                                            • Statut: 
+                                                            <span class="font-medium
+                                                                @if($lesson->status === 'completed') text-green-600
+                                                                @elseif($lesson->status === 'in_progress') text-blue-600
+                                                                @elseif($lesson->status === 'cancelled') text-red-600
+                                                                @else text-gray-600
+                                                                @endif">
+                                                                {{ ucfirst($lesson->status) }}
+                                                            </span>
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <a href="{{ route('lessons.show', $lesson) }}" 
+                                                class="text-blue-600 hover:text-blue-800">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('lessons.edit', $lesson) }}" 
+                                                class="text-green-600 hover:text-green-800">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-calendar-alt text-4xl mb-4"></i>
+                                <p>Aucune leçon enregistrée pour cet étudiant.</p>
+                                <a href="{{ route('lessons.create', ['student_id' => $student->id]) }}" 
+                                    class="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                    Créer la première leçon
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Exams Tab Content -->
+                    <div id="exams-content" class="tab-content hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Examens de l'Étudiant</h3>
+                            <a href="{{ route('exams.create', ['student_id' => $student->id]) }}" 
+                                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Nouvel Examen
+                            </a>
+                        </div>
+                        
+                        @if(isset($student->exams) && $student->exams->count() > 0)
+                            <div class="space-y-4">
+                                @foreach($student->exams as $exam)
+                                <div class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-clipboard-check text-green-600"></i>
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-semibold text-gray-900">
+                                                        {{ ucfirst($exam->exam_type ?? 'N/A') }} - {{ $exam->scheduled_at ? $exam->scheduled_at->format('d/m/Y à H:i') : ($exam->created_at ? $exam->created_at->format('d/m/Y à H:i') : 'Date non définie') }}
+                                                    </h4>
+                                                    <p class="text-sm text-gray-600">
+                                                        @if($exam->instructor)
+                                                            Instructeur: {{ $exam->instructor->user->name ?? 'Non assigné' }}
+                                                        @endif
+                                                        @if($exam->location)
+                                                            • Lieu: {{ $exam->location }}
+                                                        @endif
+                                                    </p>
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        @if($exam->score !== null)
+                                                            Score: {{ $exam->score }}/100
+                                                        @endif
+                                                        @if($exam->status)
+                                                            • Statut: 
+                                                            <span class="font-medium
+                                                                @if($exam->status === 'passed') text-green-600
+                                                                @elseif($exam->status === 'failed') text-red-600
+                                                                @elseif($exam->status === 'in_progress') text-blue-600
+                                                                @else text-gray-600
+                                                                @endif">
+                                                                {{ ucfirst($exam->status) }}
+                                                            </span>
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <a href="{{ route('exams.show', $exam) }}" 
+                                                class="text-blue-600 hover:text-blue-800">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('exams.edit', $exam) }}" 
+                                                class="text-green-600 hover:text-green-800">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-clipboard-check text-4xl mb-4"></i>
+                                <p>Aucun examen enregistré pour cet étudiant.</p>
+                                <a href="{{ route('exams.create', ['student_id' => $student->id]) }}" 
+                                    class="mt-4 inline-block bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                    Créer le premier examen
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Payments Tab Content -->
+                    <div id="payments-content" class="tab-content hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Paiements de l'Étudiant</h3>
+                            <a href="{{ route('payments.create', ['student_id' => $student->id]) }}" 
+                                class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Nouveau Paiement
+                            </a>
+                        </div>
+                        
+                        @if(isset($student->payments) && $student->payments->count() > 0)
+                            <div class="space-y-4">
+                                @foreach($student->payments as $payment)
+                                <div class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-credit-card text-yellow-600"></i>
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-semibold text-gray-900">
+                                                        Paiement du {{ $payment->created_at->format('d/m/Y') }}
+                                                    </h4>
+                                                    <p class="text-sm text-gray-600">
+                                                        Montant: <span class="font-semibold">{{ number_format($payment->amount, 2) }} DH</span>
+                                                        @if($payment->method)
+                                                            • Méthode: {{ ucfirst($payment->method) }}
+                                                        @endif
+                                                    </p>
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        @if($payment->description)
+                                                            {{ $payment->description }}
+                                                        @endif
+                                                        • Statut: 
+                                                        <span class="font-medium
+                                                            @if($payment->status === 'paid') text-green-600
+                                                            @elseif($payment->status === 'pending') text-yellow-600
+                                                            @elseif($payment->status === 'failed') text-red-600
+                                                            @else text-gray-600
+                                                            @endif">
+                                                            {{ ucfirst($payment->status) }}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <a href="{{ route('payments.show', $payment) }}" 
+                                                class="text-blue-600 hover:text-blue-800">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('payments.edit', $payment) }}" 
+                                                class="text-green-600 hover:text-green-800">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-credit-card text-4xl mb-4"></i>
+                                <p>Aucun paiement enregistré pour cet étudiant.</p>
+                                <a href="{{ route('payments.create', ['student_id' => $student->id]) }}" 
+                                    class="mt-4 inline-block bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors">
+                                    Enregistrer le premier paiement
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Notes -->
                 @if($student->notes)
                 <div class="material-card p-6">
@@ -251,21 +499,6 @@
                             Modifier l'Étudiant
                         </a>
                         
-                        <a href="{{ route('students.progress', $student) }}" 
-                            class="w-full px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors text-center block">
-                            Voir le Progrès
-                        </a>
-                        
-                        <a href="{{ route('students.schedule', $student) }}" 
-                            class="w-full px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors text-center block">
-                            Voir le Planning
-                        </a>
-                        
-                        <a href="{{ route('students.payments', $student) }}" 
-                            class="w-full px-4 py-2 bg-yellow-600 text-white rounded-xl hover:bg-yellow-700 transition-colors text-center block">
-                            Voir les Paiements
-                        </a>
-
                         <form action="{{ route('students.destroy', $student) }}" method="POST" class="w-full"
                             onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet étudiant ?')">
                             @csrf
@@ -281,4 +514,42 @@
         </div>
     </div>
 </div>
+
+<script>
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Remove active class from all tabs
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active', 'border-blue-500', 'text-blue-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Show selected tab content
+    document.getElementById(tabName + '-content').classList.remove('hidden');
+    
+    // Add active class to selected tab
+    const activeTab = document.getElementById(tabName + '-tab');
+    activeTab.classList.add('active', 'border-blue-500', 'text-blue-600');
+    activeTab.classList.remove('border-transparent', 'text-gray-500');
+}
+</script>
+
+<style>
+.tab-button {
+    transition: all 0.2s ease-in-out;
+}
+
+.tab-button:hover {
+    color: #374151;
+}
+
+.tab-button.active {
+    border-color: #3b82f6;
+    color: #2563eb;
+}
+</style>
 @endsection

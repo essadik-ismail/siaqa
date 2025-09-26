@@ -95,7 +95,7 @@
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-900">{{ $vehicle->name }}</h4>
                                 <div class="flex items-center space-x-4 text-sm text-gray-600">
-                                    <span><i class="fas fa-tag mr-1"></i>{{ $vehicle->marque->marque ?? 'N/A' }}</span>
+                                    <span><i class="fas fa-tag mr-1"></i>{{ $vehicle->marque ?? 'N/A' }}</span>
                                     <span><i class="fas fa-building mr-1"></i>{{ $vehicle->agence->nom_agence ?? 'No Agency' }}</span>
                                     <span><i class="fas fa-dollar-sign mr-1"></i>${{ number_format($vehicle->prix_jour) }}/day</span>
                                 </div>

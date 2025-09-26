@@ -16,7 +16,8 @@ class ChargeController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Charge::where('tenant_id', auth()->user()->tenant_id);
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = Charge::where('tenant_id', $tenantId);
 
         // Search functionality
         if ($request->has('search') && !empty($request->get('search'))) {
@@ -48,8 +49,9 @@ class ChargeController extends Controller
         $charges = $query->get();
 
         // Get data for filters - only tenant-specific data
-        $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)->orderBy('name')->get();
-        $types = Charge::where('tenant_id', auth()->user()->tenant_id)->distinct()->pluck('designation')->filter()->sort()->values();
+        // $tenantId already defined above
+        $vehicules = Vehicule::where('tenant_id', $tenantId)->orderBy('name')->get();
+        $types = Charge::where('tenant_id', $tenantId)->distinct()->pluck('designation')->filter()->sort()->values();
 
         return view('charges.index', compact('charges', 'vehicules', 'types'));
     }
@@ -59,7 +61,8 @@ class ChargeController extends Controller
      */
     public function create(): View
     {
-        $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)->orderBy('name')->get();
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $vehicules = Vehicule::where('tenant_id', $tenantId)->orderBy('name')->get();
         $types = [
             'Carburant' => 'Carburant',
             'Maintenance' => 'Maintenance',
@@ -84,7 +87,7 @@ class ChargeController extends Controller
             'fichier' => 'nullable|string|max:255',
         ]);
 
-        $validated['tenant_id'] = auth()->user()->tenant_id;
+        $validated['tenant_id'] = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         Charge::create($validated);
 
         return redirect()->route('charges.index')
@@ -97,7 +100,8 @@ class ChargeController extends Controller
     public function show(Charge $charge): View
     {
         // Ensure the charge belongs to the current tenant
-        if ($charge->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($charge->tenant_id !== $tenantId) {
             abort(403, 'Unauthorized access to this charge.');
         }
         
@@ -111,11 +115,13 @@ class ChargeController extends Controller
     public function edit(Charge $charge): View
     {
         // Ensure the charge belongs to the current tenant
-        if ($charge->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($charge->tenant_id !== $tenantId) {
             abort(403, 'Unauthorized access to this charge.');
         }
         
-        $vehicules = Vehicule::where('tenant_id', auth()->user()->tenant_id)->orderBy('name')->get();
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $vehicules = Vehicule::where('tenant_id', $tenantId)->orderBy('name')->get();
         $types = [
             'Carburant' => 'Carburant',
             'Maintenance' => 'Maintenance',
@@ -133,7 +139,8 @@ class ChargeController extends Controller
     public function update(Request $request, Charge $charge): RedirectResponse
     {
         // Ensure the charge belongs to the current tenant
-        if ($charge->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($charge->tenant_id !== $tenantId) {
             abort(403, 'Unauthorized access to this charge.');
         }
         
@@ -157,7 +164,8 @@ class ChargeController extends Controller
     public function destroy(Charge $charge): RedirectResponse
     {
         // Ensure the charge belongs to the current tenant
-        if ($charge->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($charge->tenant_id !== $tenantId) {
             abort(403, 'Unauthorized access to this charge.');
         }
         
@@ -189,7 +197,8 @@ class ChargeController extends Controller
             fputcsv($file, ['Désignation', 'Date', 'Montant (€)', 'Description', 'Fichier']);
             
             // Data - only tenant-specific charges
-            Charge::where('tenant_id', auth()->user()->tenant_id)->orderBy('date', 'desc')->chunk(1000, function($charges) use ($file) {
+            $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+            Charge::where('tenant_id', $tenantId)->orderBy('date', 'desc')->chunk(1000, function($charges) use ($file) {
                 foreach ($charges as $charge) {
                     fputcsv($file, [
                         $charge->designation,
@@ -212,7 +221,7 @@ class ChargeController extends Controller
      */
     public function statistics(): View
     {
-        $tenantId = auth()->user()->tenant_id;
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         
         $stats = [
             'total' => Charge::where('tenant_id', $tenantId)->sum('montant'),

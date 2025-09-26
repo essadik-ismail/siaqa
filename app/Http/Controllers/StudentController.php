@@ -127,15 +127,19 @@ class StudentController extends Controller
 
         $student->load([
             'user', 
-            'tenant'
+            'tenant',
+            'lessons' => function($query) {
+                $query->with(['instructor.user', 'vehicule']);
+            },
+            'exams' => function($query) {
+                $query->with(['instructor.user']);
+            },
+            'payments' => function($query) {
+                $query->orderBy('created_at', 'desc');
+            },
+            'progress',
+            'studentPackages'
         ]);
-        
-        // Load optional relationships safely
-        try {
-            $student->load(['lessons', 'exams', 'payments', 'progress', 'studentPackages']);
-        } catch (Exception $e) {
-            // Relationships don't exist yet, continue without them
-        }
 
         return view('students.show', compact('student'));
     }

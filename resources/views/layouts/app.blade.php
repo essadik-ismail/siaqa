@@ -357,41 +357,17 @@
                             <i class="fas fa-car mr-3 text-lg"></i>
                             Véhicules
                         </a>
-                        <a href="{{ route('marques.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('marques.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-tags mr-3 text-lg"></i>
-                            Marques de Véhicules
-                        </a>
                     </div>
 
                     <!-- FINANCIER Section -->
                     <div class="mb-6">
                         <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">FINANCIER</p>
-                        <a href="{{ route('payments.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('payments.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-credit-card mr-3 text-lg"></i>
-                            Paiements
-                        </a>
                         <a href="{{ route('charges.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('charges.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                             <i class="fas fa-receipt mr-3 text-lg"></i>
                             Frais
                         </a>
                     </div>
 
-                    <!-- MAINTENANCE Section -->
-                    <div class="mb-6">
-                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">MAINTENANCE</p>
-                        <a href="{{ route('assurances.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('assurances.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-shield-alt mr-3 text-lg"></i>
-                            Assurance
-                        </a>
-                        <a href="{{ route('vidanges.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('vidanges.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-oil-can mr-3 text-lg"></i>
-                            Vidanges
-                        </a>
-                        <a href="{{ route('visites.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('visites.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-search mr-3 text-lg"></i>
-                            Visites
-                        </a>
-                    </div>
 
                     <!-- RAPPORTS & ANALYSES Section -->
                     <div class="mb-6">
@@ -658,14 +634,6 @@
                             Étudiants
                             <span class="ml-auto bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">{{ $stats['total_students'] ?? 0 }}+</span>
                         </a>
-                        <a href="{{ route('lessons.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('lessons.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-calendar-alt mr-3 text-lg"></i>
-                            Leçons
-                        </a>
-                        <a href="{{ route('exams.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('exams.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-clipboard-check mr-3 text-lg"></i>
-                            Examens
-                        </a>
                         <a href="{{ route('schedule.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('schedule.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                             <i class="fas fa-calendar-week mr-3 text-lg"></i>
                             Planning
@@ -683,41 +651,17 @@
                             <i class="fas fa-car mr-3 text-lg"></i>
                             Véhicules
                         </a>
-                        <a href="{{ route('marques.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('marques.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-tags mr-3 text-lg"></i>
-                            Marques de Véhicules
-                        </a>
                     </div>
 
                     <!-- FINANCIER Section -->
                     <div class="mb-6">
                         <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">FINANCIER</p>
-                        <a href="{{ route('payments.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('payments.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-credit-card mr-3 text-lg"></i>
-                            Paiements
-                        </a>
                         <a href="{{ route('charges.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('charges.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                             <i class="fas fa-receipt mr-3 text-lg"></i>
                             Frais
                         </a>
                     </div>
 
-                    <!-- MAINTENANCE Section -->
-                    <div class="mb-6">
-                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">MAINTENANCE</p>
-                        <a href="{{ route('assurances.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('assurances.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-shield-alt mr-3 text-lg"></i>
-                            Assurance
-                        </a>
-                        <a href="{{ route('vidanges.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('vidanges.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-oil-can mr-3 text-lg"></i>
-                            Vidanges
-                        </a>
-                        <a href="{{ route('visites.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('visites.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-search mr-3 text-lg"></i>
-                            Visites
-                        </a>
-                    </div>
 
                     <!-- RAPPORTS & ANALYSES Section -->
                     <div class="mb-6">

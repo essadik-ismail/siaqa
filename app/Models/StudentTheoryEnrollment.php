@@ -167,7 +167,7 @@ class StudentTheoryEnrollment extends Model
      */
     public function getFormattedEnrolledAtAttribute(): string
     {
-        return $this->enrolled_at->format('M d, Y H:i');
+        return $this->enrolled_at ? $this->enrolled_at->format('M d, Y H:i') : '';
     }
 
     /**

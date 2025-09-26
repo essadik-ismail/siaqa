@@ -19,7 +19,7 @@ class StudentPackageController extends Controller
      */
     public function index(Request $request): View
     {
-        $tenantId = auth()->user()->tenant_id ?? 1;
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         
         $query = StudentPackage::with(['student', 'package'])
             ->whereHas('student', function($q) use ($tenantId) {
@@ -64,7 +64,7 @@ class StudentPackageController extends Controller
      */
     public function create(): View
     {
-        $tenantId = auth()->user()->tenant_id ?? 1;
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         
         $students = Student::where('tenant_id', $tenantId)
             ->where('status', 'active')
@@ -111,7 +111,7 @@ class StudentPackageController extends Controller
     public function show(StudentPackage $studentPackage): JsonResponse
     {
         // Check if student package belongs to current tenant
-        $tenantId = auth()->user()->tenant_id ?? 1;
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         if ($studentPackage->student->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
@@ -134,7 +134,7 @@ class StudentPackageController extends Controller
     public function edit(StudentPackage $studentPackage): View
     {
         // Check if student package belongs to current tenant
-        $tenantId = auth()->user()->tenant_id ?? 1;
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         if ($studentPackage->student->tenant_id !== $tenantId) {
             abort(404, 'Student package not found');
         }
@@ -158,7 +158,7 @@ class StudentPackageController extends Controller
     public function update(UpdateStudentPackageRequest $request, StudentPackage $studentPackage): JsonResponse
     {
         // Check if student package belongs to current tenant
-        $tenantId = auth()->user()->tenant_id ?? 1;
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         if ($studentPackage->student->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
@@ -190,7 +190,7 @@ class StudentPackageController extends Controller
     public function destroy(StudentPackage $studentPackage): JsonResponse
     {
         // Check if student package belongs to current tenant
-        $tenantId = auth()->user()->tenant_id ?? 1;
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         if ($studentPackage->student->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
@@ -225,7 +225,7 @@ class StudentPackageController extends Controller
         ]);
 
         // Check if student package belongs to current tenant
-        $tenantId = auth()->user()->tenant_id ?? 1;
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         if ($studentPackage->student->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
@@ -257,7 +257,7 @@ class StudentPackageController extends Controller
     public function statistics(): JsonResponse
     {
         try {
-            $tenantId = auth()->user()->tenant_id ?? 1;
+            $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
 
             $stats = [
                 'total' => StudentPackage::whereHas('student', function($q) use ($tenantId) {
@@ -304,7 +304,7 @@ class StudentPackageController extends Controller
     public function byStudent(Student $student): JsonResponse
     {
         // Check if student belongs to current tenant
-        $tenantId = auth()->user()->tenant_id ?? 1;
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         if ($student->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
@@ -330,7 +330,7 @@ class StudentPackageController extends Controller
     public function byPackage(Package $package): JsonResponse
     {
         // Check if package belongs to current tenant
-        $tenantId = auth()->user()->tenant_id ?? 1;
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         if ($package->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,

@@ -18,7 +18,7 @@ class InstructorController extends Controller
      */
     public function index(Request $request): View
     {
-        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1; // Default to tenant 1 if not authenticated
         $query = Instructor::with(['user', 'tenant'])
             ->where('tenant_id', $tenantId);
 
@@ -101,7 +101,8 @@ class InstructorController extends Controller
     public function show(Instructor $instructor): View
     {
         // Check if instructor belongs to current tenant
-        if ($instructor->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($instructor->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Instructor not found'
@@ -119,7 +120,8 @@ class InstructorController extends Controller
     public function edit(Instructor $instructor): View
     {
         // Check if instructor belongs to current tenant
-        if ($instructor->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($instructor->tenant_id !== $tenantId) {
             abort(404, 'Instructor not found');
         }
 
@@ -132,7 +134,8 @@ class InstructorController extends Controller
     public function update(UpdateInstructorRequest $request, Instructor $instructor)
     {
         // Check if instructor belongs to current tenant
-        if ($instructor->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($instructor->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Instructor not found'
@@ -165,7 +168,8 @@ class InstructorController extends Controller
     public function destroy(Instructor $instructor)
     {
         // Check if instructor belongs to current tenant
-        if ($instructor->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($instructor->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Instructor not found'
@@ -201,7 +205,8 @@ class InstructorController extends Controller
     public function schedule(Request $request, Instructor $instructor): View
     {
         // Check if instructor belongs to current tenant
-        if ($instructor->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($instructor->tenant_id !== $tenantId) {
             abort(404, 'Instructor not found');
         }
 
@@ -229,7 +234,8 @@ class InstructorController extends Controller
     public function performance(Instructor $instructor): View
     {
         // Check if instructor belongs to current tenant
-        if ($instructor->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($instructor->tenant_id !== $tenantId) {
             abort(404, 'Instructor not found');
         }
 
@@ -254,7 +260,8 @@ class InstructorController extends Controller
     public function toggleAvailability(Instructor $instructor)
     {
         // Check if instructor belongs to current tenant
-        if ($instructor->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($instructor->tenant_id !== $tenantId) {
             abort(404, 'Instructor not found');
         }
 

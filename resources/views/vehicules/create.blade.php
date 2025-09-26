@@ -133,30 +133,16 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <label for="agence_id" class="block text-sm font-medium text-gray-700 mb-2">Agence *</label>
-                        <select name="agence_id" id="agence_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">Sélectionner une agence</option>
-                            @foreach($agences ?? [] as $agence)
-                                <option value="{{ $agence->id }}" {{ old('agence_id') == $agence->id ? 'selected' : '' }}>
-                                    {{ $agence->nom_agence }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('agence_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
 
                     <div>
-                        <label for="statut" class="block text-sm font-medium text-gray-700 mb-2">Statut *</label>
-                        <select name="statut" id="statut" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="disponible" {{ old('statut') == 'disponible' ? 'selected' : '' }}>Disponible</option>
-                            <option value="en_location" {{ old('statut') == 'en_location' ? 'selected' : '' }}>En location</option>
-                            <option value="en_maintenance" {{ old('statut') == 'en_maintenance' ? 'selected' : '' }}>En maintenance</option>
-                            <option value="hors_service" {{ old('statut') == 'hors_service' ? 'selected' : '' }}>Hors service</option>
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Statut *</label>
+                        <select name="status" id="status" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Disponible</option>
+                            <option value="rented" {{ old('status') == 'rented' ? 'selected' : '' }}>En location</option>
+                            <option value="maintenance" {{ old('status') == 'maintenance' ? 'selected' : '' }}>En maintenance</option>
+                            <option value="out_of_service" {{ old('status') == 'out_of_service' ? 'selected' : '' }}>Hors service</option>
                         </select>
-                        @error('statut')
+                        @error('status')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>

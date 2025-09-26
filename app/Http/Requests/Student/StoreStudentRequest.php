@@ -7,13 +7,7 @@ use Illuminate\Validation\Rule;
 
 class StoreStudentRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true; // Temporarily allow all for testing
-    }
+
 
     /**
      * Get the validation rules that apply to the request.

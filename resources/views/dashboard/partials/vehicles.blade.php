@@ -2,7 +2,7 @@
     @forelse(isset($data) ? $data : [] as $vehicle)
     <div class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors vehicle-item" 
          data-name="{{ strtolower($vehicle->name) }}"
-         data-brand="{{ strtolower($vehicle->marque->nom ?? '') }}"
+         data-brand="{{ strtolower($vehicle->marque ?? '') }}"
          data-status="{{ strtolower($vehicle->statut) }}"
          data-price="{{ $vehicle->prix_location_jour }}">
         <div class="flex items-center justify-between">
@@ -14,7 +14,7 @@
                 </div>
                 <div>
                     <h4 class="font-semibold text-gray-900">
-                        {{ $vehicle->marque->nom ?? 'Unknown' }} {{ $vehicle->modele }}
+                        {{ $vehicle->marque ?? 'Unknown' }} {{ $vehicle->modele }}
                     </h4>
                     <p class="text-sm text-gray-600">
                         {{ $vehicle->immatriculation }} • {{ $vehicle->couleur }}

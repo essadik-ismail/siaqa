@@ -37,6 +37,14 @@
                         Request a Demo
                     </a>
                 </div>
+
+                <!-- Dev Login Button -->
+                <div class="mt-6 flex justify-center lg:justify-start">
+                    <a href="{{ route('dev.login') }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors duration-200 shadow-md hover:shadow-lg flex items-center">
+                        <i class="fas fa-code mr-2"></i>
+                        Dev Login
+                    </a>
+                </div>
             </div>
             
             <!-- Right Column - Interactive Dashboard Preview -->

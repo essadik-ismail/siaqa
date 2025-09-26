@@ -19,7 +19,7 @@ class ExamController extends Controller
      */
     public function index(Request $request): \Illuminate\View\View
     {
-        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1; // Default to tenant 1 if not authenticated
         $query = Exam::with(['student', 'instructor', 'tenant'])
             ->where('tenant_id', $tenantId);
 
@@ -77,16 +77,16 @@ class ExamController extends Controller
         $exams = $query->paginate($perPage);
 
         // Get filter options
-        $students = Student::where('tenant_id', auth()->user()->tenant_id)
+        $students = Student::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $instructors = Instructor::where('tenant_id', auth()->user()->tenant_id)
+        $instructors = Instructor::where('tenant_id', $tenantId)
             ->where('status', 'active')
-            ->orderBy('user.name')
             ->with('user:id,name')
-            ->get();
+            ->get()
+            ->sortBy('user.name');
 
         return view('exams.index', compact('exams', 'students', 'instructors'));
     }
@@ -102,16 +102,31 @@ class ExamController extends Controller
             // Get validated data and add tenant_id from authenticated user
             $data = $request->validated();
             $data['tenant_id'] = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+            
+            // Extract student IDs and remove from main data
+            $studentIds = $data['student_ids'];
+            unset($data['student_ids']);
 
-            $exam = Exam::create($data);
-
-            // Load relationships
-            $exam->load(['student', 'instructor', 'tenant']);
+            $createdExams = [];
+            
+            // Create an exam for each selected student
+            foreach ($studentIds as $studentId) {
+                $examData = $data;
+                $examData['student_id'] = $studentId;
+                
+                // Generate unique exam number for each student
+                $examData['exam_number'] = $data['exam_number'] . '_' . $studentId . '_' . time();
+                
+                $exam = Exam::create($examData);
+                $exam->load(['student', 'instructor', 'tenant']);
+                $createdExams[] = $exam;
+            }
 
             DB::commit();
 
+            $studentCount = count($createdExams);
             return redirect()->route('exams.index')
-                ->with('success', 'Examen créé avec succès');
+                ->with('success', "Examen créé avec succès pour {$studentCount} étudiant(s)");
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -147,7 +162,8 @@ class ExamController extends Controller
     public function show(Exam $exam): \Illuminate\View\View
     {
         // Check if exam belongs to current tenant
-        if ($exam->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($exam->tenant_id !== $tenantId) {
             abort(404, 'Exam not found');
         }
 
@@ -162,16 +178,17 @@ class ExamController extends Controller
     public function edit(Exam $exam): \Illuminate\View\View
     {
         // Check if exam belongs to current tenant
-        if ($exam->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($exam->tenant_id !== $tenantId) {
             abort(404, 'Exam not found');
         }
 
-        $students = Student::where('tenant_id', auth()->user()->tenant_id)
+        $students = Student::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $instructors = Instructor::where('tenant_id', auth()->user()->tenant_id)
+        $instructors = Instructor::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->with('user:id,name')
             ->get();
@@ -185,7 +202,8 @@ class ExamController extends Controller
     public function update(UpdateExamRequest $request, Exam $exam): \Illuminate\Http\RedirectResponse
     {
         // Check if exam belongs to current tenant
-        if ($exam->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($exam->tenant_id !== $tenantId) {
             abort(404, 'Exam not found');
         }
 
@@ -215,7 +233,8 @@ class ExamController extends Controller
     public function destroy(Exam $exam): \Illuminate\Http\RedirectResponse
     {
         // Check if exam belongs to current tenant
-        if ($exam->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($exam->tenant_id !== $tenantId) {
             abort(404, 'Exam not found');
         }
 
@@ -243,7 +262,8 @@ class ExamController extends Controller
     public function start(Exam $exam): JsonResponse
     {
         // Check if exam belongs to current tenant
-        if ($exam->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($exam->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Exam not found'
@@ -275,7 +295,8 @@ class ExamController extends Controller
     public function complete(Request $request, Exam $exam): JsonResponse
     {
         // Check if exam belongs to current tenant
-        if ($exam->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($exam->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Exam not found'
@@ -327,7 +348,8 @@ class ExamController extends Controller
     public function cancel(Request $request, Exam $exam): JsonResponse
     {
         // Check if exam belongs to current tenant
-        if ($exam->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($exam->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Exam not found'
@@ -364,8 +386,9 @@ class ExamController extends Controller
     {
         $date = $request->get('date', now()->toDateString());
         
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         $exams = Exam::with(['student', 'instructor'])
-            ->where('tenant_id', auth()->user()->tenant_id)
+            ->where('tenant_id', $tenantId)
             ->whereDate('scheduled_at', $date)
             ->orderBy('scheduled_at')
             ->get();
@@ -382,7 +405,8 @@ class ExamController extends Controller
      */
     public function statistics(Request $request): JsonResponse
     {
-        $query = Exam::where('tenant_id', auth()->user()->tenant_id);
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = Exam::where('tenant_id', $tenantId);
 
         if ($request->has('date_from')) {
             $query->whereDate('scheduled_at', '>=', $request->date_from);
@@ -418,7 +442,8 @@ class ExamController extends Controller
      */
     public function resultsByCategory(Request $request): JsonResponse
     {
-        $query = Exam::where('tenant_id', auth()->user()->tenant_id)
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = Exam::where('tenant_id', $tenantId)
             ->whereIn('status', ['passed', 'failed']);
 
         if ($request->has('date_from')) {

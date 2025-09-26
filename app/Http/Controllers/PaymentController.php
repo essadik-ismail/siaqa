@@ -20,7 +20,7 @@ class PaymentController extends Controller
      */
     public function index(Request $request): \Illuminate\View\View
     {
-        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1; // Default to tenant 1 if not authenticated
         $query = Payment::with(['student', 'lesson', 'exam', 'tenant'])
             ->where('tenant_id', $tenantId);
 
@@ -70,7 +70,7 @@ class PaymentController extends Controller
         $payments = $query->paginate($perPage);
 
         // Get filter options
-        $students = Student::where('tenant_id', auth()->user()->tenant_id)
+        $students = Student::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -83,7 +83,7 @@ class PaymentController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
-        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1; // Default to tenant 1 if not authenticated
         $students = Student::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->orderBy('name')
@@ -139,7 +139,8 @@ class PaymentController extends Controller
     public function show(Payment $payment): \Illuminate\View\View
     {
         // Check if payment belongs to current tenant
-        if ($payment->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($payment->tenant_id !== $tenantId) {
             abort(404, 'Payment not found');
         }
 
@@ -154,21 +155,22 @@ class PaymentController extends Controller
     public function edit(Payment $payment): \Illuminate\View\View
     {
         // Check if payment belongs to current tenant
-        if ($payment->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($payment->tenant_id !== $tenantId) {
             abort(404, 'Payment not found');
         }
 
-        $students = Student::where('tenant_id', auth()->user()->tenant_id)
+        $students = Student::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $lessons = Lesson::where('tenant_id', auth()->user()->tenant_id)
+        $lessons = Lesson::where('tenant_id', $tenantId)
             ->where('status', 'scheduled')
             ->with('student:id,name')
             ->get(['id', 'student_id', 'scheduled_at']);
 
-        $exams = Exam::where('tenant_id', auth()->user()->tenant_id)
+        $exams = Exam::where('tenant_id', $tenantId)
             ->where('status', 'scheduled')
             ->with('student:id,name')
             ->get(['id', 'student_id']);
@@ -182,7 +184,8 @@ class PaymentController extends Controller
     public function update(UpdatePaymentRequest $request, Payment $payment): \Illuminate\Http\RedirectResponse
     {
         // Check if payment belongs to current tenant
-        if ($payment->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($payment->tenant_id !== $tenantId) {
             abort(404, 'Payment not found');
         }
 
@@ -212,7 +215,8 @@ class PaymentController extends Controller
     public function destroy(Payment $payment): \Illuminate\Http\RedirectResponse
     {
         // Check if payment belongs to current tenant
-        if ($payment->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($payment->tenant_id !== $tenantId) {
             abort(404, 'Payment not found');
         }
 
@@ -293,7 +297,8 @@ class PaymentController extends Controller
      */
     public function statistics(Request $request): JsonResponse
     {
-        $query = Payment::where('tenant_id', auth()->user()->tenant_id);
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = Payment::where('tenant_id', $tenantId);
 
         if ($request->has('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
@@ -327,8 +332,9 @@ class PaymentController extends Controller
      */
     public function overdue(Request $request): JsonResponse
     {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         $query = Payment::with(['student'])
-            ->where('tenant_id', auth()->user()->tenant_id)
+            ->where('tenant_id', $tenantId)
             ->where('status', '!=', 'paid')
             ->where('due_date', '<', now()->toDateString());
 
@@ -352,7 +358,8 @@ class PaymentController extends Controller
     public function byStudent(Student $student): JsonResponse
     {
         // Check if student belongs to current tenant
-        if ($student->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($student->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student not found'
@@ -376,7 +383,8 @@ class PaymentController extends Controller
      */
     public function summaryByType(Request $request): JsonResponse
     {
-        $query = Payment::where('tenant_id', auth()->user()->tenant_id);
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = Payment::where('tenant_id', $tenantId);
 
         if ($request->has('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);

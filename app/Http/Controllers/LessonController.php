@@ -20,7 +20,7 @@ class LessonController extends Controller
      */
     public function index(Request $request): View
     {
-        $tenantId = auth()->user()->tenant_id ?? 1; // Default to tenant 1 if not set
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1; // Default to tenant 1 if not authenticated
         $query = Lesson::with(['student', 'instructor', 'vehicle', 'tenant'])
             ->where('tenant_id', $tenantId);
 
@@ -165,7 +165,8 @@ class LessonController extends Controller
     public function show(Lesson $lesson): View
     {
         // Check if lesson belongs to current tenant
-        if ($lesson->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($lesson->tenant_id !== $tenantId) {
             abort(404, 'Lesson not found');
         }
 
@@ -180,21 +181,23 @@ class LessonController extends Controller
     public function edit(Lesson $lesson): View
     {
         // Check if lesson belongs to current tenant
-        if ($lesson->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($lesson->tenant_id !== $tenantId) {
             abort(404, 'Lesson not found');
         }
 
-        $students = Student::where('tenant_id', auth()->user()->tenant_id)
+        // $tenantId already defined above
+        $students = Student::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $instructors = Instructor::where('tenant_id', auth()->user()->tenant_id)
+        $instructors = Instructor::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->with('user:id,name')
             ->get();
 
-        $vehicles = Vehicule::where('tenant_id', auth()->user()->tenant_id)
+        $vehicles = Vehicule::where('tenant_id', $tenantId)
             ->where('status', 'active')
             ->orderBy('marque')
             ->get(['id', 'marque', 'modele']);
@@ -208,7 +211,8 @@ class LessonController extends Controller
     public function update(UpdateLessonRequest $request, Lesson $lesson)
     {
         // Check if lesson belongs to current tenant
-        if ($lesson->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($lesson->tenant_id !== $tenantId) {
             abort(404, 'Lesson not found');
         }
 
@@ -238,7 +242,8 @@ class LessonController extends Controller
     public function destroy(Lesson $lesson)
     {
         // Check if lesson belongs to current tenant
-        if ($lesson->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($lesson->tenant_id !== $tenantId) {
             abort(404, 'Lesson not found');
         }
 
@@ -268,7 +273,8 @@ class LessonController extends Controller
     public function start(Lesson $lesson)
     {
         // Check if lesson belongs to current tenant
-        if ($lesson->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($lesson->tenant_id !== $tenantId) {
             abort(404, 'Lesson not found');
         }
 
@@ -294,7 +300,8 @@ class LessonController extends Controller
     public function complete(Request $request, Lesson $lesson)
     {
         // Check if lesson belongs to current tenant
-        if ($lesson->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($lesson->tenant_id !== $tenantId) {
             abort(404, 'Lesson not found');
         }
 
@@ -329,7 +336,8 @@ class LessonController extends Controller
     public function cancel(Request $request, Lesson $lesson)
     {
         // Check if lesson belongs to current tenant
-        if ($lesson->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($lesson->tenant_id !== $tenantId) {
             abort(404, 'Lesson not found');
         }
 
@@ -360,8 +368,9 @@ class LessonController extends Controller
     {
         $date = $request->get('date', now()->toDateString());
         
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         $lessons = Lesson::with(['student', 'instructor', 'vehicle'])
-            ->where('tenant_id', auth()->user()->tenant_id)
+            ->where('tenant_id', $tenantId)
             ->whereDate('scheduled_at', $date)
             ->orderBy('scheduled_at')
             ->get();

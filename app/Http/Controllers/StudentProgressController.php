@@ -18,8 +18,9 @@ class StudentProgressController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         $query = StudentProgress::with(['student', 'instructor', 'lesson', 'tenant'])
-            ->where('tenant_id', auth()->user()->tenant_id);
+            ->where('tenant_id', $tenantId);
 
         // Apply filters
         if ($request->has('student_id')) {
@@ -119,7 +120,8 @@ class StudentProgressController extends Controller
     public function show(StudentProgress $studentProgress): JsonResponse
     {
         // Check if progress belongs to current tenant
-        if ($studentProgress->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($studentProgress->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student progress not found'
@@ -141,7 +143,8 @@ class StudentProgressController extends Controller
     public function update(UpdateStudentProgressRequest $request, StudentProgress $studentProgress): JsonResponse
     {
         // Check if progress belongs to current tenant
-        if ($studentProgress->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($studentProgress->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student progress not found'
@@ -179,7 +182,8 @@ class StudentProgressController extends Controller
     public function destroy(StudentProgress $studentProgress): JsonResponse
     {
         // Check if progress belongs to current tenant
-        if ($studentProgress->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($studentProgress->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student progress not found'
@@ -209,7 +213,8 @@ class StudentProgressController extends Controller
     public function byStudent(Student $student): JsonResponse
     {
         // Check if student belongs to current tenant
-        if ($student->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($student->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student not found'
@@ -237,8 +242,9 @@ class StudentProgressController extends Controller
             'skill_category' => 'required|string|max:100'
         ]);
 
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
         $progress = StudentProgress::with(['student', 'instructor', 'lesson'])
-            ->where('tenant_id', auth()->user()->tenant_id)
+            ->where('tenant_id', $tenantId)
             ->where('skill_category', $request->skill_category)
             ->orderBy('created_at', 'desc')
             ->paginate(15);
@@ -255,7 +261,8 @@ class StudentProgressController extends Controller
      */
     public function statistics(Request $request): JsonResponse
     {
-        $query = StudentProgress::where('tenant_id', auth()->user()->tenant_id);
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = StudentProgress::where('tenant_id', $tenantId);
 
         if ($request->has('student_id')) {
             $query->where('student_id', $request->student_id);
@@ -299,7 +306,8 @@ class StudentProgressController extends Controller
      */
     public function skillCategories(): JsonResponse
     {
-        $categories = StudentProgress::where('tenant_id', auth()->user()->tenant_id)
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $categories = StudentProgress::where('tenant_id', $tenantId)
             ->distinct()
             ->pluck('skill_category')
             ->filter()
@@ -321,7 +329,8 @@ class StudentProgressController extends Controller
             'skill_category' => 'required|string|max:100'
         ]);
 
-        $skills = StudentProgress::where('tenant_id', auth()->user()->tenant_id)
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $skills = StudentProgress::where('tenant_id', $tenantId)
             ->where('skill_category', $request->skill_category)
             ->distinct()
             ->pluck('skill_name')
@@ -341,7 +350,8 @@ class StudentProgressController extends Controller
     public function markCompleted(StudentProgress $studentProgress): JsonResponse
     {
         // Check if progress belongs to current tenant
-        if ($studentProgress->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($studentProgress->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student progress not found'
@@ -363,7 +373,8 @@ class StudentProgressController extends Controller
     public function updateSkillLevel(Request $request, StudentProgress $studentProgress): JsonResponse
     {
         // Check if progress belongs to current tenant
-        if ($studentProgress->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($studentProgress->tenant_id !== $tenantId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student progress not found'

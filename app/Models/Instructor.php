@@ -192,7 +192,7 @@ class Instructor extends Model
      */
     public function getFullNameAttribute(): string
     {
-        return $this->user ? $this->user->name : 'Unknown';
+        return $this->user && $this->user->name ? $this->user->name : 'Unknown';
     }
 
     /**
@@ -200,7 +200,7 @@ class Instructor extends Model
      */
     public function getEmailAttribute(): string
     {
-        return $this->user ? $this->user->email : '';
+        return $this->user && $this->user->email ? $this->user->email : '';
     }
 
     /**
@@ -208,7 +208,7 @@ class Instructor extends Model
      */
     public function getPhoneAttribute(): string
     {
-        return $this->user ? $this->user->phone : '';
+        return $this->user && $this->user->phone ? $this->user->phone : '';
     }
 
     /**

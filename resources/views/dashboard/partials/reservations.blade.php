@@ -11,7 +11,7 @@
                         {{ $reservation->client->getFullNameAttribute() }}
                     </h4>
                     <p class="text-sm text-gray-600">
-                        {{ $reservation->vehicule->marque->nom ?? 'Unknown' }} {{ $reservation->vehicule->modele }}
+                        {{ $reservation->vehicule->marque ?? 'Unknown' }} {{ $reservation->vehicule->modele }}
                     </p>
                     <p class="text-xs text-gray-500">
                         {{ \Carbon\Carbon::parse($reservation->date_debut)->format('M d') }} - 

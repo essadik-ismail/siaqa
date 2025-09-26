@@ -11,7 +11,7 @@
                         {{ $contract->client->getFullNameAttribute() }}
                     </h4>
                     <p class="text-sm text-gray-600">
-                        {{ $contract->vehicule->marque->nom ?? 'Unknown' }} {{ $contract->vehicule->modele }}
+                        {{ $contract->vehicule->marque ?? 'Unknown' }} {{ $contract->vehicule->modele }}
                     </p>
                     <p class="text-xs text-gray-500">
                         Contract #{{ $contract->id }} • 

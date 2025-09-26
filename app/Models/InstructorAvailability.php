@@ -99,7 +99,9 @@ class InstructorAvailability extends Model
      */
     public function getFormattedTimeRangeAttribute(): string
     {
-        return $this->start_time->format('H:i') . ' - ' . $this->end_time->format('H:i');
+        $startTime = $this->start_time ? $this->start_time->format('H:i') : '';
+        $endTime = $this->end_time ? $this->end_time->format('H:i') : '';
+        return $startTime . ' - ' . $endTime;
     }
 
     /**

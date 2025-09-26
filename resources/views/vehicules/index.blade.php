@@ -36,7 +36,7 @@
                     <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Tous les Statuts</option>
                         <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>Disponible</option>
-                        <option value="in_use" {{ request('status') == 'in_use' ? 'selected' : '' }}>En Utilisation</option>
+                        <option value="rented" {{ request('status') == 'rented' ? 'selected' : '' }}>En Location</option>
                         <option value="maintenance" {{ request('status') == 'maintenance' ? 'selected' : '' }}>En Maintenance</option>
                         <option value="out_of_service" {{ request('status') == 'out_of_service' ? 'selected' : '' }}>Hors Service</option>
                     </select>
@@ -71,14 +71,14 @@
                                 <i class="fas fa-car text-white text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-lg font-semibold text-gray-900">{{ $vehicule->make }} {{ $vehicule->model }}</h3>
-                                <p class="text-sm text-gray-500">{{ $vehicule->year }}</p>
-                                <p class="text-xs text-gray-400">{{ $vehicule->license_plate }}</p>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ $vehicule->marque }} {{ $vehicule->name }}</h3>
+                                <p class="text-sm text-gray-500">{{ $vehicule->immatriculation }}</p>
+                                <p class="text-xs text-gray-400">{{ $vehicule->categorie_vehicule ?? 'N/A' }}</p>
                             </div>
                             <div class="text-right">
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ 
                                     $vehicule->status == 'available' ? 'bg-green-100 text-green-800' : 
-                                    ($vehicule->status == 'in_use' ? 'bg-blue-100 text-blue-800' : 
+                                    ($vehicule->status == 'rented' ? 'bg-blue-100 text-blue-800' : 
                                     ($vehicule->status == 'maintenance' ? 'bg-yellow-100 text-yellow-800' : 
                                     'bg-red-100 text-red-800')) 
                                 }}">
@@ -92,20 +92,20 @@
                     <div class="px-6 pb-4">
                         <div class="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                                <span class="text-gray-500">Type:</span>
-                                <p class="font-medium">{{ ucfirst($vehicule->type ?? 'N/A') }}</p>
+                                <span class="text-gray-500">Catégorie:</span>
+                                <p class="font-medium">{{ $vehicule->categorie_vehicule ?? 'N/A' }}</p>
                             </div>
                             <div>
                                 <span class="text-gray-500">Kilométrage:</span>
-                                <p class="font-medium">{{ number_format($vehicule->mileage ?? 0) }} km</p>
+                                <p class="font-medium">{{ number_format($vehicule->kilometrage_actuel ?? 0) }} km</p>
                             </div>
                             <div>
                                 <span class="text-gray-500">Carburant:</span>
-                                <p class="font-medium">{{ ucfirst($vehicule->fuel_type ?? 'N/A') }}</p>
+                                <p class="font-medium">{{ ucfirst($vehicule->type_carburant ?? 'N/A') }}</p>
                             </div>
                             <div>
                                 <span class="text-gray-500">Couleur:</span>
-                                <p class="font-medium">{{ ucfirst($vehicule->color ?? 'N/A') }}</p>
+                                <p class="font-medium">{{ ucfirst($vehicule->couleur ?? 'N/A') }}</p>
                             </div>
                         </div>
                     </div>

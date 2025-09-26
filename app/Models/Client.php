@@ -117,7 +117,7 @@ class Client extends Model
      */
     public function getFullNameAttribute(): string
     {
-        return trim($this->name);
+        return $this->name ? trim($this->name) : '';
     }
 
     /**
@@ -125,7 +125,7 @@ class Client extends Model
      */
     public function getFullNameArAttribute(): string
     {
-        return trim($this->name_ar);
+        return $this->name_ar ? trim($this->name_ar) : '';
     }
 
     /**

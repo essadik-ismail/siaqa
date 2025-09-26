@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VehiculeRequest;
 use App\Models\Vehicule;
-use App\Models\Marque;
-use App\Models\Agence;
 use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -19,8 +17,8 @@ class VehiculeController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Vehicule::with(['marque', 'agence'])
-            ->where('tenant_id', auth()->user()->tenant_id);
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        $query = Vehicule::where('tenant_id', $tenantId);
 
         // Apply search filter
         if ($request->filled('search')) {
@@ -28,10 +26,7 @@ class VehiculeController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('immatriculation', 'like', "%{$search}%")
-                  ->orWhere('couleur', 'like', "%{$search}%")
-                  ->orWhereHas('marque', function($marqueQuery) use ($search) {
-                      $marqueQuery->where('marque', 'like', "%{$search}%");
-                  });
+                  ->orWhere('marque', 'like', "%{$search}%");
             });
         }
 
@@ -42,35 +37,28 @@ class VehiculeController extends Controller
 
         // Apply brand filter
         if ($request->filled('brand')) {
-            $query->whereHas('marque', function($marqueQuery) use ($request) {
-                $marqueQuery->where('marque', 'like', "%{$request->get('brand')}%");
-            });
+            $query->where('marque', 'like', "%{$request->get('brand')}%");
         }
 
-        // Apply landing display filter
-        if ($request->filled('landing_display')) {
-            $query->where('landing_display', $request->get('landing_display'));
-        }
 
-        $vehicules = $query->orderBy('created_at', 'desc')->get();
+        $vehicules = $query->orderBy('created_at', 'desc')->paginate(15);
 
         // Calculate statistics from ALL vehicles (not filtered) for sidebar
-        $tenantId = auth()->user()->tenant_id;
+        // $tenantId already defined above
         $totalVehicles = Vehicule::where('tenant_id', $tenantId)->count();
         $availableVehicles = Vehicule::where('tenant_id', $tenantId)->where('status', 'available')->count();
         $onRentalVehicles = Vehicule::where('tenant_id', $tenantId)->where('status', 'rented')->count();
         $maintenanceVehicles = Vehicule::where('tenant_id', $tenantId)->where('status', 'maintenance')->count();
 
-        // Get marques for filters
-        $marques = Marque::orderBy('marque', 'asc')->get();
+        // Get unique marques for filters
+        $marques = Vehicule::where('tenant_id', $tenantId)
+            ->whereNotNull('marque')
+            ->distinct()
+            ->pluck('marque')
+            ->sort()
+            ->values();
 
-        // Get agences for filters
-        $agences = Agence::where('tenant_id', auth()->user()->tenant_id)
-            ->where('is_active', true)
-            ->orderBy('nom_agence')
-            ->get();
-
-        return view('vehicules.index', compact('vehicules', 'marques', 'agences', 'totalVehicles', 'availableVehicles', 'onRentalVehicles', 'maintenanceVehicles'));
+        return view('vehicules.index', compact('vehicules', 'marques', 'totalVehicles', 'availableVehicles', 'onRentalVehicles', 'maintenanceVehicles'));
     }
 
     /**
@@ -78,11 +66,7 @@ class VehiculeController extends Controller
      */
     public function create(): View
     {
-        $agences = Agence::where('tenant_id', auth()->user()->tenant_id)
-            ->orderBy('nom_agence', 'asc')
-            ->get();
-        
-        return view('vehicules.create', compact('agences'));
+        return view('vehicules.create');
     }
 
     /**
@@ -91,22 +75,9 @@ class VehiculeController extends Controller
     public function store(VehiculeRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $data['tenant_id'] = auth()->user()->tenant_id;
+        $data['tenant_id'] = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
 
-        // Handle marque - create or find existing
-        $marque = Marque::firstOrCreate(
-            [
-                'marque' => $data['marque'],
-                'tenant_id' => auth()->user()->tenant_id
-            ],
-            [
-                'marque' => $data['marque'],
-                'tenant_id' => auth()->user()->tenant_id,
-                'is_active' => true
-            ]
-        );
-        $data['marque_id'] = $marque->id;
-        unset($data['marque']); // Remove marque from data as it's not a column in vehicules table
+        // Marque is now a simple string field, no need for complex handling
 
         // Handle single image upload
         if ($request->hasFile('image')) {
@@ -134,18 +105,14 @@ class VehiculeController extends Controller
     public function show(Vehicule $vehicule): View
     {
         // Ensure the vehicule belongs to the current tenant
-        if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($vehicule->tenant_id !== $tenantId) {
             abort(404, 'Véhicule non trouvé');
         }
 
         $vehicule->load([
-            'marque', 
-            'agence', 
             'reservations', 
             'contrats', 
-            'assurances',
-            'vidanges',
-            'visites',
             'interventions'
         ]);
 
@@ -158,17 +125,21 @@ class VehiculeController extends Controller
     public function edit(Vehicule $vehicule): View
     {
         // Ensure the vehicule belongs to the current tenant
-        if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($vehicule->tenant_id !== $tenantId) {
             abort(404, 'Véhicule non trouvé');
         }
 
-        // Load the vehicle with its relationships
-        $vehicule->load(['marque', 'agence']);
-        
-        $marques = Marque::orderBy('marque', 'asc')->get();
-        $agences = Agence::orderBy('nom_agence', 'asc')->get();
+        // Get unique marques for dropdown
+        // $tenantId already defined above
+        $marques = Vehicule::where('tenant_id', $tenantId)
+            ->whereNotNull('marque')
+            ->distinct()
+            ->pluck('marque')
+            ->sort()
+            ->values();
 
-        return view('vehicules.edit', compact('vehicule', 'marques', 'agences'));
+        return view('vehicules.edit', compact('vehicule', 'marques'));
     }
 
     /**
@@ -177,7 +148,8 @@ class VehiculeController extends Controller
     public function update(VehiculeRequest $request, Vehicule $vehicule): RedirectResponse
     {
         // Ensure the vehicule belongs to the current tenant
-        if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($vehicule->tenant_id !== $tenantId) {
             abort(404, 'Véhicule non trouvé');
         }
 
@@ -190,22 +162,7 @@ class VehiculeController extends Controller
             'has_images_files' => $request->hasFile('images')
         ]);
 
-        // Handle marque - create or find existing
-        if (isset($data['marque'])) {
-            $marque = Marque::firstOrCreate(
-                [
-                    'marque' => $data['marque'],
-                    'tenant_id' => auth()->user()->tenant_id
-                ],
-                [
-                    'marque' => $data['marque'],
-                    'tenant_id' => auth()->user()->tenant_id,
-                    'is_active' => true
-                ]
-            );
-            $data['marque_id'] = $marque->id;
-            unset($data['marque']); // Remove marque from data as it's not a column in vehicules table
-        }
+        // Marque is now a simple string field, no need for complex handling
 
         // Handle single image upload
         if ($request->hasFile('image')) {
@@ -265,16 +222,14 @@ class VehiculeController extends Controller
     public function destroy(Vehicule $vehicule): RedirectResponse
     {
         // Ensure the vehicule belongs to the current tenant
-        if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($vehicule->tenant_id !== $tenantId) {
             abort(404, 'Véhicule non trouvé');
         }
 
         // Check if vehicule has any related records
         $hasReservations = $vehicule->reservations()->exists();
         $hasContrats = $vehicule->contrats()->exists();
-        $hasAssurances = $vehicule->assurances()->exists();
-        $hasVidanges = $vehicule->vidanges()->exists();
-        $hasVisites = $vehicule->visites()->exists();
         $hasInterventions = $vehicule->interventions()->exists();
         $hasCharges = $vehicule->charges()->exists();
 
@@ -282,9 +237,6 @@ class VehiculeController extends Controller
         $relatedRecords = [];
         if ($hasReservations) $relatedRecords[] = 'réservations';
         if ($hasContrats) $relatedRecords[] = 'contrats';
-        if ($hasAssurances) $relatedRecords[] = 'assurances';
-        if ($hasVidanges) $relatedRecords[] = 'vidanges';
-        if ($hasVisites) $relatedRecords[] = 'visites';
         if ($hasInterventions) $relatedRecords[] = 'interventions';
         if ($hasCharges) $relatedRecords[] = 'charges';
 
@@ -321,7 +273,8 @@ class VehiculeController extends Controller
     public function removeImage(Request $request, Vehicule $vehicule): RedirectResponse
     {
         // Ensure the vehicule belongs to the current tenant
-        if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($vehicule->tenant_id !== $tenantId) {
             abort(404, 'Véhicule non trouvé');
         }
 
@@ -373,7 +326,6 @@ class VehiculeController extends Controller
     public function available(): View
     {
         $vehicules = Vehicule::where('status', 'available')
-            ->with(['marque', 'agence'])
             ->orderBy('immatriculation', 'asc')
             ->paginate(15);
 
@@ -386,7 +338,8 @@ class VehiculeController extends Controller
     public function toggleStatus(Vehicule $vehicule): RedirectResponse
     {
         // Ensure the vehicule belongs to the current tenant
-        if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($vehicule->tenant_id !== $tenantId) {
             abort(404, 'Véhicule non trouvé');
         }
 
@@ -404,7 +357,8 @@ class VehiculeController extends Controller
     {
         try {
             // Ensure the vehicule belongs to the current tenant
-            if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+            $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+            if ($vehicule->tenant_id !== $tenantId) {
                 return response()->json(['success' => false, 'message' => 'Vehicle not found'], 404);
             }
 
@@ -437,7 +391,8 @@ class VehiculeController extends Controller
     public function updateStatus(Request $request, Vehicule $vehicule): RedirectResponse
     {
         // Ensure the vehicule belongs to the current tenant
-        if ($vehicule->tenant_id !== auth()->user()->tenant_id) {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($vehicule->tenant_id !== $tenantId) {
             abort(404, 'Véhicule non trouvé');
         }
 
@@ -462,15 +417,9 @@ class VehiculeController extends Controller
         $horsService = Vehicule::where('status', 'out_of_service')->count();
         $reserves = Vehicule::where('status', 'reserved')->count();
 
-        $vehiculesByMarque = Vehicule::selectRaw('marques.marque, count(*) as count')
-            ->join('marques', 'vehicules.marque_id', '=', 'marques.id')
-            ->groupBy('marques.id', 'marques.marque')
-            ->orderBy('count', 'desc')
-            ->get();
-
-        $vehiculesByAgence = Vehicule::selectRaw('agences.nom_agence, count(*) as count')
-            ->join('agences', 'vehicules.agence_id', '=', 'agences.id')
-            ->groupBy('agences.id', 'agences.nom_agence')
+        $vehiculesByMarque = Vehicule::selectRaw('marque, count(*) as count')
+            ->whereNotNull('marque')
+            ->groupBy('marque')
             ->orderBy('count', 'desc')
             ->get();
 
@@ -480,8 +429,7 @@ class VehiculeController extends Controller
             'enMaintenance',
             'horsService',
             'reserves',
-            'vehiculesByMarque',
-            'vehiculesByAgence'
+            'vehiculesByMarque'
         ));
     }
 } 

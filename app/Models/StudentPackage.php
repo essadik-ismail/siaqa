@@ -225,7 +225,7 @@ class StudentPackage extends Model
      */
     public function getFormattedExpiryDateAttribute(): string
     {
-        return $this->expiry_date->format('M d, Y');
+        return $this->expiry_date ? $this->expiry_date->format('M d, Y') : '';
     }
 
     /**
@@ -233,7 +233,7 @@ class StudentPackage extends Model
      */
     public function getFormattedPurchasedDateAttribute(): string
     {
-        return $this->purchased_date->format('M d, Y');
+        return $this->purchased_date ? $this->purchased_date->format('M d, Y') : '';
     }
 
     /**
