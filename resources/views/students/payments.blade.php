@@ -180,11 +180,6 @@
                             <i class="fas fa-plus mr-2"></i>
                             Record Payment
                         </a>
-                        <a href="{{ route('students.schedule', $student) }}" 
-                           class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 text-center block">
-                            <i class="fas fa-calendar mr-2"></i>
-                            View Schedule
-                        </a>
                         <a href="{{ route('students.progress', $student) }}" 
                            class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 text-center block">
                             <i class="fas fa-chart-line mr-2"></i>

@@ -205,11 +205,6 @@
                 <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
                     <div class="space-y-3">
-                        <a href="{{ route('instructors.schedule', $instructor) }}" 
-                           class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 text-center block">
-                            <i class="fas fa-calendar mr-2"></i>
-                            View Schedule
-                        </a>
                         <a href="{{ route('instructors.performance', $instructor) }}" 
                            class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 text-center block">
                             <i class="fas fa-chart-line mr-2"></i>

@@ -31,14 +31,12 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
     
     // Instructor Routes
     Route::apiResource('instructors', InstructorController::class);
-    Route::get('instructors/{instructor}/schedule', [InstructorController::class, 'schedule']);
     Route::get('instructors/{instructor}/performance', [InstructorController::class, 'performance']);
     Route::patch('instructors/{instructor}/toggle-availability', [InstructorController::class, 'toggleAvailability']);
 
     // Student Routes
     Route::apiResource('students', StudentController::class);
     Route::get('students/{student}/progress', [StudentController::class, 'progress']);
-    Route::get('students/{student}/schedule', [StudentController::class, 'schedule']);
     Route::patch('students/{student}/status', [StudentController::class, 'updateStatus']);
     Route::get('students/{student}/payments', [StudentController::class, 'payments']);
 

@@ -199,34 +199,6 @@ class InstructorController extends Controller
         }
     }
 
-    /**
-     * Get instructor's schedule for a specific date range.
-     */
-    public function schedule(Request $request, Instructor $instructor): View
-    {
-        // Check if instructor belongs to current tenant
-        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
-        if ($instructor->tenant_id !== $tenantId) {
-            abort(404, 'Instructor not found');
-        }
-
-        $startDate = $request->get('start_date', now()->startOfWeek());
-        $endDate = $request->get('end_date', now()->endOfWeek());
-
-        $lessons = $instructor->lessons()
-            ->whereBetween('scheduled_at', [$startDate, $endDate])
-            ->with(['student', 'vehicle'])
-            ->orderBy('scheduled_at')
-            ->get();
-
-        $exams = $instructor->exams()
-            ->whereBetween('scheduled_at', [$startDate, $endDate])
-            ->with(['student'])
-            ->orderBy('scheduled_at')
-            ->get();
-
-        return view('instructors.schedule', compact('instructor', 'lessons', 'exams', 'startDate', 'endDate'));
-    }
 
     /**
      * Get instructor's performance statistics.

@@ -191,11 +191,6 @@
                             <i class="fas fa-clipboard-check mr-2"></i>
                             Schedule Exam
                         </a>
-                        <a href="{{ route('students.schedule', $student) }}" 
-                           class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 text-center block">
-                            <i class="fas fa-calendar mr-2"></i>
-                            View Schedule
-                        </a>
                     </div>
                 </div>
 
