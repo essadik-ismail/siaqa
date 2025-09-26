@@ -265,34 +265,6 @@ class StudentController extends Controller
         return view('students.progress', compact('student', 'progress'));
     }
 
-    /**
-     * Get student's schedule.
-     */
-    public function schedule(Request $request, Student $student): View
-    {
-        // Check if student belongs to current tenant
-        $currentTenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
-        if ($student->tenant_id !== $currentTenantId) {
-            abort(404, 'Student not found');
-        }
-
-        $startDate = $request->get('start_date', now()->startOfWeek());
-        $endDate = $request->get('end_date', now()->endOfWeek());
-
-        $lessons = $student->lessons()
-            ->whereBetween('scheduled_at', [$startDate, $endDate])
-            ->with(['instructor', 'vehicle'])
-            ->orderBy('scheduled_at')
-            ->get();
-
-        $exams = $student->exams()
-            ->whereBetween('scheduled_at', [$startDate, $endDate])
-            ->with(['instructor'])
-            ->orderBy('scheduled_at')
-            ->get();
-
-        return view('students.schedule', compact('student', 'lessons', 'exams', 'startDate', 'endDate'));
-    }
 
     /**
      * Update student status.
@@ -332,5 +304,76 @@ class StudentController extends Controller
             ->paginate(15);
 
         return view('students.payments', compact('student', 'payments'));
+    }
+
+    /**
+     * Toggle blacklist status of a student.
+     */
+    public function toggleBlacklist(Student $student): RedirectResponse
+    {
+        // Ensure the student belongs to the current tenant
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        if ($student->tenant_id !== $tenantId) {
+            abort(404, 'Student not found');
+        }
+
+        $student->update(['is_blacklisted' => !$student->is_blacklisted]);
+
+        $status = $student->is_blacklisted ? 'blacklisted' : 'removed from blacklist';
+        return redirect()->back()->with('success', "Student {$status} successfully.");
+    }
+
+    /**
+     * Display student statistics.
+     */
+    public function statistics(): View
+    {
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        
+        $totalStudents = Student::where('tenant_id', $tenantId)->count();
+        $activeStudents = Student::where('tenant_id', $tenantId)->where('is_blacklisted', false)->count();
+        $blacklistedStudents = Student::where('tenant_id', $tenantId)->where('is_blacklisted', true)->count();
+        
+        // Recent registrations (last 30 days)
+        $recentRegistrations = Student::where('tenant_id', $tenantId)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->count();
+        
+        // Students by status
+        $studentsByStatus = Student::where('tenant_id', $tenantId)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+        
+        $stats = [
+            'total' => $totalStudents,
+            'active' => $activeStudents,
+            'blacklisted' => $blacklistedStudents,
+            'recent_registrations' => $recentRegistrations,
+            'by_status' => $studentsByStatus
+        ];
+
+        return view('students.statistics', compact('stats'));
+    }
+
+    /**
+     * Search students.
+     */
+    public function search(Request $request): View
+    {
+        $query = $request->get('q');
+        $tenantId = auth()->check() ? (auth()->user()->tenant_id ?? 1) : 1;
+        
+        $students = Student::where('tenant_id', $tenantId)
+            ->where(function($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('email', 'like', "%{$query}%")
+                  ->orWhere('phone', 'like', "%{$query}%");
+            })
+            ->orderBy('name')
+            ->paginate(15);
+
+        return view('students.search', compact('students', 'query'));
     }
 }

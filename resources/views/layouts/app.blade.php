@@ -340,10 +340,6 @@
                             <i class="fas fa-clipboard-check mr-3 text-lg"></i>
                             Examens
                         </a>
-                        <a href="{{ route('schedule.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('schedule.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-calendar-week mr-3 text-lg"></i>
-                            Planning
-                        </a>
                     </div>
 
                     <!-- PERSONNEL & VÉHICULES Section -->
@@ -376,7 +372,7 @@
                             <i class="fas fa-chart-bar mr-3 text-lg"></i>
                             Rapports
                         </a>
-                        <a href="{{ route('clients.statistics') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('clients.statistics') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <a href="{{ route('students.statistics') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('students.statistics') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                             <i class="fas fa-chart-line mr-3 text-lg"></i>
                             Statistiques
                         </a>
@@ -634,10 +630,6 @@
                             Étudiants
                             <span class="ml-auto bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">{{ $stats['total_students'] ?? 0 }}+</span>
                         </a>
-                        <a href="{{ route('schedule.index') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('schedule.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <i class="fas fa-calendar-week mr-3 text-lg"></i>
-                            Planning
-                        </a>
                     </div>
 
                     <!-- PERSONNEL & VÉHICULES Section -->
@@ -670,7 +662,7 @@
                             <i class="fas fa-chart-bar mr-3 text-lg"></i>
                             Rapports
                         </a>
-                        <a href="{{ route('clients.statistics') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('clients.statistics') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <a href="{{ route('students.statistics') }}" class="nav-item group flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('students.statistics') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                             <i class="fas fa-chart-line mr-3 text-lg"></i>
                             Statistiques
                         </a>

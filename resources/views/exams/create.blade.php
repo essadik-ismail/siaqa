@@ -20,7 +20,7 @@
 
         <!-- Form -->
         <div class="material-card p-8">
-            <form action="{{ route('exams.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('exams.store') }}" method="POST" class="space-y-6" id="exam-form">
                 @csrf
                 
                 <!-- Basic Information -->
@@ -61,9 +61,9 @@
                         <!-- Instructor Selection -->
                         <div>
                             <label for="instructor_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Instructeur *
+                                Instructeur
                             </label>
-                            <select name="instructor_id" id="instructor_id" required
+                            <select name="instructor_id" id="instructor_id"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                                 <option value="">Sélectionner un instructeur</option>
                                 @foreach($instructors as $instructor)
@@ -218,6 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     studentSelect.addEventListener('change', updateSelectedCount);
     updateSelectedCount();
+    
     
     // Add keyboard shortcuts
     studentSelect.addEventListener('keydown', function(e) {

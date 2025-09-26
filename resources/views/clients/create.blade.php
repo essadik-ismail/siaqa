@@ -323,8 +323,8 @@
             <a href="{{ route('clients.index') }}" class="block w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-medium text-center">
                 <i class="fas fa-list mr-2"></i>Voir Tous les Clients
             </a>
-            <a href="{{ route('clients.statistics') }}" class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium text-center">
-                <i class="fas fa-chart-bar mr-2"></i>Statistiques des Clients
+            <a href="{{ route('students.statistics') }}" class="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium text-center">
+                <i class="fas fa-chart-bar mr-2"></i>Statistiques des Étudiants
             </a>
         </div>
     </div>

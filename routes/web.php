@@ -56,14 +56,6 @@ Route::get('/lessons/create', function() {
     }
 })->name('lessons.create');
 
-Route::get('/exams/create', function() {
-    try {
-        $controller = new App\Http\Controllers\ExamController();
-        return $controller->create();
-    } catch (Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-})->name('exams.create');
 
 Route::get('/payments/create', function() {
     try {
@@ -453,11 +445,19 @@ Route::post('/admin/return-from-impersonation', [\App\Http\Controllers\Admin\Use
     
     Route::group([], function () { // Temporarily removed 'tenant' middleware
 
-        // Clients (Students)
-        Route::resource('clients', ClientController::class);
-        Route::post('clients/{client}/toggle-blacklist', [ClientController::class, 'toggleBlacklist'])->name('clients.toggle-blacklist');
-        Route::get('clients/statistics', [ClientController::class, 'statistics'])->name('clients.statistics');
-        Route::get('clients/search', [ClientController::class, 'search'])->name('clients.search');
+        // Students (formerly Clients)
+        Route::get('students/statistics', [StudentController::class, 'statistics'])->name('students.statistics');
+        Route::get('students/search', [StudentController::class, 'search'])->name('students.search');
+        Route::post('students/{student}/toggle-blacklist', [StudentController::class, 'toggleBlacklist'])->name('students.toggle-blacklist');
+        Route::resource('students', StudentController::class);
+        
+        // Redirect old client routes to student routes
+        Route::get('clients/statistics', function() {
+            return redirect()->route('students.statistics');
+        })->name('clients.statistics');
+        Route::get('clients/search', function() {
+            return redirect()->route('students.search');
+        })->name('clients.search');
 
         // Vehicles
         Route::resource('vehicules', VehiculeController::class);
@@ -504,7 +504,6 @@ Route::group([], function () {
     Route::put('/students/{student}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{student}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
     Route::get('/students/{student}/progress', [App\Http\Controllers\StudentController::class, 'progress'])->name('students.progress');
-    Route::get('/students/{student}/schedule', [App\Http\Controllers\StudentController::class, 'schedule'])->name('students.schedule');
     Route::post('/students/{student}/status', [App\Http\Controllers\StudentController::class, 'updateStatus'])->name('students.updateStatus');
     Route::get('/students/{student}/payments', [App\Http\Controllers\StudentController::class, 'payments'])->name('students.payments');
     
@@ -529,6 +528,7 @@ Route::group([], function () {
     
     // Exams
     Route::get('/exams', [App\Http\Controllers\ExamController::class, 'index'])->name('exams.index');
+    Route::get('/exams/create', [App\Http\Controllers\ExamController::class, 'create'])->name('exams.create');
     Route::post('/exams', [App\Http\Controllers\ExamController::class, 'store'])->name('exams.store');
     Route::get('/exams/{exam}', [App\Http\Controllers\ExamController::class, 'show'])->name('exams.show');
     Route::get('/exams/{exam}/edit', [App\Http\Controllers\ExamController::class, 'edit'])->name('exams.edit');
@@ -547,8 +547,6 @@ Route::group([], function () {
     Route::delete('/payments/{payment}', [App\Http\Controllers\PaymentController::class, 'destroy'])->name('payments.destroy');
     Route::patch('/payments/{payment}/mark-paid', [App\Http\Controllers\PaymentController::class, 'markAsPaid'])->name('payments.mark-paid');
     
-    // Schedule
-    Route::get('/schedule', [App\Http\Controllers\LessonController::class, 'schedule'])->name('schedule.index');
     
     // Reports
     Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
